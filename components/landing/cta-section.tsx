@@ -1,0 +1,50 @@
+"use client";
+
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { FadeIn } from "@/components/shared/fade-in";
+
+export function CTASection() {
+  return (
+    <section className="py-20 sm:py-28">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <FadeIn>
+          <div className="relative overflow-hidden rounded-2xl bg-primary px-8 py-16 text-center sm:px-16">
+            <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.1)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.1)_1px,transparent_1px)] bg-[size:3rem_3rem]" />
+            <div className="relative">
+              <h2 className="text-3xl font-bold text-white sm:text-4xl">
+                Ready to transform your product marketing?
+              </h2>
+              <p className="mx-auto mt-4 max-w-xl text-primary-foreground/80 text-lg">
+                Join thousands of brands using CreativelyComm to optimize, showcase,
+                and sell their products across every channel.
+              </p>
+              <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
+                <Button
+                  size="lg"
+                  variant="secondary"
+                  asChild
+                  className="w-full sm:w-auto"
+                >
+                  <Link href="/dashboard">
+                    Start your free trial
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </Button>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  asChild
+                  className="w-full sm:w-auto border-white/30 text-white hover:bg-white/10 hover:text-white"
+                >
+                  <Link href="#pricing">View pricing</Link>
+                </Button>
+              </div>
+            </div>
+          </div>
+        </FadeIn>
+      </div>
+    </section>
+  );
+}
