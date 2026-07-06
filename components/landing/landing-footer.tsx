@@ -37,7 +37,7 @@ export function LandingFooter() {
 
           {Object.entries(footerLinks).map(([title, links]) => (
             <div key={title}>
-              <h4 className="text-sm font-semibold">{title}</h4>
+              <h4 className="text-sm font-semibold tracking-wide text-foreground/80 uppercase">{title}</h4>
               <ul className="mt-4 space-y-3">
                 {links.map((link) => (
                   <li key={link.label}>

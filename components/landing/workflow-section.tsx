@@ -44,7 +44,7 @@ export function WorkflowSection() {
     <section id="workflow" className="bg-muted/30 py-20 sm:py-28">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <FadeIn className="mx-auto max-w-2xl text-center">
-          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
+          <h2 className="font-display text-3xl font-medium tracking-tight sm:text-5xl">
             From upload to everywhere in 4 steps
           </h2>
           <p className="mt-4 text-lg text-muted-foreground">
@@ -63,12 +63,12 @@ export function WorkflowSection() {
               >
                 <div className="flex-1">
                   <div className="flex items-center gap-3">
-                    <span className="text-sm font-bold text-primary">{step.step}</span>
+                    <span className="font-display text-2xl text-primary/50">{step.step}</span>
                     <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent">
                       <step.icon className="h-5 w-5 text-primary" />
                     </div>
                   </div>
-                  <h3 className="mt-4 text-2xl font-bold">{step.title}</h3>
+                  <h3 className="font-display mt-4 text-2xl font-medium">{step.title}</h3>
                   <p className="mt-3 text-muted-foreground leading-relaxed">
                     {step.description}
                   </p>
@@ -84,7 +84,7 @@ export function WorkflowSection() {
                   </ul>
                 </div>
                 <div className="flex-1 w-full">
-                  <div className="relative aspect-[4/3] overflow-hidden rounded-xl border border-border card-shadow-lg">
+                  <div className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-border/60 card-shadow-lg ring-1 ring-black/[0.03]">
                     <Image
                       src={step.image}
                       alt={step.title}

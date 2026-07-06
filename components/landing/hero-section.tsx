@@ -27,9 +27,9 @@ export function HeroSection() {
             AI-Powered Product Marketing
           </Badge>
 
-          <h1 className="text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
+          <h1 className="font-display text-4xl font-medium tracking-tight sm:text-6xl lg:text-7xl">
             Turn products into{" "}
-            <span className="gradient-text">marketplace-ready</span> assets
+            <span className="gradient-text italic">marketplace-ready</span> assets
           </h1>
 
           <p className="mt-6 text-lg text-muted-foreground sm:text-xl leading-relaxed">
@@ -39,13 +39,22 @@ export function HeroSection() {
           </p>
 
           <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-            <Button size="lg" asChild className="w-full sm:w-auto">
+            <Button
+              size="lg"
+              asChild
+              className="w-full transition-all hover:-translate-y-0.5 hover:card-shadow-glow sm:w-auto"
+            >
               <Link href="/dashboard">
                 Start free trial
                 <ArrowRight className="h-4 w-4" />
               </Link>
             </Button>
-            <Button size="lg" variant="outline" asChild className="w-full sm:w-auto">
+            <Button
+              size="lg"
+              variant="outline"
+              asChild
+              className="w-full transition-all hover:-translate-y-0.5 sm:w-auto"
+            >
               <Link href="#workflow">See how it works</Link>
             </Button>
           </div>
@@ -57,7 +66,7 @@ export function HeroSection() {
 
         <FadeIn delay={0.2} className="mt-16 sm:mt-20">
           <div className="relative mx-auto max-w-5xl">
-            <div className="rounded-xl border border-border bg-card p-2 card-shadow-lg">
+            <div className="rounded-2xl border border-border bg-card p-2 card-shadow-lg">
               <div className="rounded-lg bg-muted/50 p-4 sm:p-6">
                 <div className="flex items-center gap-2 mb-4">
                   <div className="h-3 w-3 rounded-full bg-red-400" />

@@ -26,7 +26,7 @@ export function Logo({ className, showText = true, size = "md" }: LogoProps) {
         CC
       </div>
       {showText && (
-        <span className={cn("font-semibold tracking-tight", sizes[size].text)}>
+        <span className={cn("font-display font-medium tracking-tight", sizes[size].text)}>
           Creatively<span className="text-primary">Comm</span>
         </span>
       )}

@@ -1,20 +1,21 @@
 @import "tailwindcss";
 
 :root {
-  --background: #fafafa;
-  --foreground: #0f0f0f;
+  --background: #faf9f4;
+  --foreground: #16160f;
   --card: #ffffff;
-  --card-foreground: #0f0f0f;
+  --card-foreground: #16160f;
   --primary: #386641;
+  --primary-hover: #2d5235;
   --primary-foreground: #ffffff;
-  --secondary: #f4f4f5;
-  --secondary-foreground: #18181b;
-  --muted: #f4f4f5;
-  --muted-foreground: #71717a;
+  --secondary: #f2f1ea;
+  --secondary-foreground: #1c1c14;
+  --muted: #f2f1ea;
+  --muted-foreground: #75705f;
   --accent: #eef4ef;
   --accent-foreground: #386641;
-  --border: #e4e4e7;
-  --input: #e4e4e7;
+  --border: #e6e3d8;
+  --input: #e6e3d8;
   --ring: #386641;
   --radius: 0.75rem;
 }
@@ -25,6 +26,7 @@
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
   --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
   --color-primary-foreground: var(--primary-foreground);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
@@ -37,6 +39,7 @@
   --color-ring: var(--ring);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-display);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -76,6 +79,10 @@ html {
   background: #a1a1aa;
 }
 
+.font-display {
+  font-family: var(--font-display), Georgia, serif;
+}
+
 .gradient-text {
   background: linear-gradient(135deg, #386641 0%, #4a8a55 50%, #2d5235 100%);
   -webkit-background-clip: text;
@@ -84,13 +91,18 @@ html {
 }
 
 .hero-gradient {
-  background: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(56, 102, 65, 0.15), transparent);
+  background: radial-gradient(ellipse 80% 55% at 50% -20%, rgba(56, 102, 65, 0.16), transparent),
+    radial-gradient(ellipse 60% 40% at 85% 10%, rgba(56, 102, 65, 0.08), transparent);
 }
 
 .card-shadow {
-  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.04), 0 1px 2px -1px rgb(0 0 0 / 0.04);
+  box-shadow: 0 1px 2px 0 rgb(22 22 15 / 0.04), 0 1px 3px 0 rgb(22 22 15 / 0.03);
 }
 
 .card-shadow-lg {
-  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+  box-shadow: 0 8px 24px -8px rgb(22 22 15 / 0.10), 0 2px 8px -2px rgb(22 22 15 / 0.06);
+}
+
+.card-shadow-glow {
+  box-shadow: 0 12px 32px -12px rgb(56 102 65 / 0.28), 0 4px 12px -4px rgb(22 22 15 / 0.08);
 }

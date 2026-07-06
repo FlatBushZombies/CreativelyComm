@@ -73,10 +73,11 @@ export default function StorefrontPage() {
             </div>
 
             {/* Hero Banner */}
-            <div className="relative bg-primary px-6 py-16 text-center text-white">
+            <div className="relative bg-gradient-to-br from-primary via-primary to-[#20401f] px-6 py-16 text-center text-white">
+              <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_0%,rgba(255,255,255,0.10),transparent)]" />
               <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[size:2rem_2rem]" />
               <div className="relative">
-                <h1 className="text-3xl font-bold sm:text-4xl">
+                <h1 className="font-display text-3xl font-medium sm:text-5xl">
                   Curated Essentials for Modern Living
                 </h1>
                 <p className="mx-auto mt-3 max-w-md text-primary-foreground/80">
@@ -97,7 +98,7 @@ export default function StorefrontPage() {
             <div className="bg-background px-6 py-12">
               <div className="mx-auto max-w-5xl">
                 <div className="flex items-center justify-between mb-8">
-                  <h3 className="text-xl font-semibold">Featured Products</h3>
+                  <h3 className="font-display text-2xl font-medium">Featured Products</h3>
                   <span className="text-sm text-muted-foreground">
                     {featuredProducts.length} items
                   </span>
@@ -108,9 +109,9 @@ export default function StorefrontPage() {
                     <StaggerItem key={product.id}>
                       <Link
                         href={`/products/${product.id}`}
-                        className="group block"
+                        className="group block rounded-xl transition-all duration-300 hover:-translate-y-1"
                       >
-                        <div className="relative aspect-square overflow-hidden rounded-xl bg-muted">
+                        <div className="relative aspect-square overflow-hidden rounded-xl bg-muted card-shadow transition-shadow duration-300 group-hover:card-shadow-glow">
                           <Image
                             src={product.optimizedImages[0] || product.images[0]}
                             alt={product.name}
@@ -129,7 +130,7 @@ export default function StorefrontPage() {
                             {product.name}
                           </h4>
                           <div className="mt-1 flex items-center justify-between">
-                            <span className="font-semibold">
+                            <span className="font-display text-lg">
                               ${product.price.toFixed(2)}
                             </span>
                             <div className="flex items-center gap-1 text-xs text-muted-foreground">

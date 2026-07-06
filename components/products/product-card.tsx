@@ -21,7 +21,7 @@ export function ProductCard({ product }: ProductCardProps) {
   const status = statusConfig[product.status];
 
   return (
-    <Card className="group overflow-hidden transition-all hover:card-shadow-lg hover:border-primary/20">
+    <Card className="group overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:card-shadow-glow hover:border-primary/25">
       <Link href={`/products/${product.id}`}>
         <div className="relative aspect-square overflow-hidden bg-muted">
           <Image
@@ -51,7 +51,7 @@ export function ProductCard({ product }: ProductCardProps) {
           </Button>
         </div>
         <div className="mt-3 flex items-center justify-between">
-          <span className="font-semibold">${product.price.toFixed(2)}</span>
+          <span className="font-display text-lg">${product.price.toFixed(2)}</span>
           <div className="flex items-center gap-3 text-xs text-muted-foreground">
             <span className="flex items-center gap-1">
               <Eye className="h-3 w-3" />

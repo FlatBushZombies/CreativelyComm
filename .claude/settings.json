@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl -s https://registry.npmjs.org/ui-ux-pro-max-cli)",
+      "WebFetch(domain:registry.npmjs.org)"
+    ]
+  }
+}

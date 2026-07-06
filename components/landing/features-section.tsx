@@ -68,7 +68,7 @@ export function FeaturesSection() {
     <section id="features" className="py-20 sm:py-28">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <FadeIn className="mx-auto max-w-2xl text-center">
-          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
+          <h2 className="font-display text-3xl font-medium tracking-tight sm:text-5xl">
             Everything you need to sell everywhere
           </h2>
           <p className="mt-4 text-lg text-muted-foreground">
@@ -80,8 +80,8 @@ export function FeaturesSection() {
         <StaggerContainer className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {features.map((feature) => (
             <StaggerItem key={feature.title}>
-              <div className="group h-full rounded-xl border border-border bg-card p-6 transition-all hover:border-primary/20 hover:card-shadow-lg">
-                <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-accent transition-colors group-hover:bg-primary/10">
+              <div className="group h-full rounded-xl border border-border bg-card p-6 transition-all duration-300 hover:-translate-y-1 hover:border-primary/25 hover:card-shadow-glow">
+                <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-gradient-to-br from-accent to-accent/40 transition-colors group-hover:from-primary/15 group-hover:to-primary/5">
                   <feature.icon className="h-5 w-5 text-primary" />
                 </div>
                 <h3 className="mt-4 text-base font-semibold">{feature.title}</h3>

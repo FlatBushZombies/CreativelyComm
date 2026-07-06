@@ -43,17 +43,17 @@ export default function DashboardPage() {
             const Icon = statIcons[i];
             return (
               <StaggerItem key={stat.label}>
-                <Card>
+                <Card className="transition-all duration-300 hover:-translate-y-0.5 hover:card-shadow-lg">
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-accent to-accent/40">
                         <Icon className="h-5 w-5 text-primary" />
                       </div>
                       {stat.trend === "up" && (
                         <TrendingUp className="h-4 w-4 text-emerald-500" />
                       )}
                     </div>
-                    <p className="mt-4 text-2xl font-bold">{stat.value}</p>
+                    <p className="font-display mt-4 text-2xl font-medium">{stat.value}</p>
                     <p className="text-sm text-muted-foreground">{stat.label}</p>
                     <p className="mt-1 text-xs text-emerald-600">{stat.change}</p>
                   </CardContent>
@@ -79,7 +79,7 @@ export default function DashboardPage() {
                         key={activity.id}
                         className="flex items-start gap-4 rounded-lg p-3 transition-colors hover:bg-accent/50"
                       >
-                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-accent">
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-accent to-accent/40">
                           <Icon className="h-4 w-4 text-primary" />
                         </div>
                         <div className="min-w-0 flex-1">
@@ -137,7 +137,7 @@ export default function DashboardPage() {
             <Card className="mt-6">
               <CardContent className="p-6">
                 <div className="text-center">
-                  <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-accent">
+                  <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-accent to-accent/40">
                     <Wand2 className="h-6 w-6 text-primary" />
                   </div>
                   <h3 className="mt-4 font-semibold">AI Optimization</h3>

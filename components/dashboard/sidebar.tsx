@@ -71,9 +71,9 @@ export function DashboardSidebar() {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+                  "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all",
                   isActive
-                    ? "bg-accent text-accent-foreground"
+                    ? "bg-primary/10 text-primary shadow-[inset_0_0_0_1px_rgb(56_102_65_/_0.15)]"
                     : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"
                 )}
               >
@@ -86,7 +86,7 @@ export function DashboardSidebar() {
 
         {!collapsed && (
           <div className="border-t border-border p-4">
-            <div className="rounded-lg bg-accent/50 p-3">
+            <div className="rounded-lg bg-gradient-to-br from-accent to-accent/40 p-3">
               <p className="text-xs font-medium">Growth Plan</p>
               <p className="mt-1 text-xs text-muted-foreground">186/∞ optimizations</p>
               <div className="mt-2 h-1.5 rounded-full bg-border">
