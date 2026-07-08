@@ -18,8 +18,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Progress } from "@/components/ui/progress";
 import { FadeIn } from "@/components/shared/fade-in";
-import type { Product } from "@/lib/mock-data";
+import type { Product } from "@/lib/products";
+import type { ChannelReadiness } from "@/lib/readiness";
+import { ChevronDown } from "lucide-react";
 
 const exportFormats = [
   { name: "Shopify CSV", size: "2.4 MB" },
@@ -30,10 +33,12 @@ const exportFormats = [
 
 interface ProductDetailsClientProps {
   product: Product;
+  channelReadiness: ChannelReadiness[];
 }
 
-export function ProductDetailsClient({ product }: ProductDetailsClientProps) {
+export function ProductDetailsClient({ product, channelReadiness }: ProductDetailsClientProps) {
   const [copied, setCopied] = useState(false);
+  const [expandedChannel, setExpandedChannel] = useState<string | null>(null);
 
   const handleCopy = () => {
     setCopied(true);
@@ -117,6 +122,56 @@ export function ProductDetailsClient({ product }: ProductDetailsClientProps) {
             </div>
           </FadeIn>
         </div>
+
+        <FadeIn delay={0.12} className="mt-8">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Channel Readiness</CardTitle>
+              <p className="text-sm text-muted-foreground">
+                Listing-quality checks per channel — a starting point to tune, not a
+                guarantee of any marketplace&apos;s current policies.
+              </p>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {channelReadiness.map(({ channel, score, failed }) => {
+                const isExpanded = expandedChannel === channel.id;
+                return (
+                  <div key={channel.id} className="rounded-lg border border-border p-4">
+                    <button
+                      className="flex w-full items-center gap-4 text-left"
+                      onClick={() => setExpandedChannel(isExpanded ? null : channel.id)}
+                    >
+                      <span className="w-32 shrink-0 text-sm font-medium">{channel.name}</span>
+                      <Progress value={score} className="h-2 flex-1" />
+                      <span className="w-12 shrink-0 text-right text-sm font-medium">{score}%</span>
+                      <ChevronDown
+                        className={`h-4 w-4 shrink-0 text-muted-foreground transition-transform ${
+                          isExpanded ? "rotate-180" : ""
+                        }`}
+                      />
+                    </button>
+                    {isExpanded && (
+                      <div className="mt-3 space-y-1.5 border-t border-border pt-3">
+                        {failed.length === 0 ? (
+                          <p className="text-sm text-emerald-600">All checks passed.</p>
+                        ) : (
+                          failed.map((rule) => (
+                            <p key={rule.id} className="text-sm text-muted-foreground">
+                              <Badge variant="warning" className="mr-2">
+                                Needs work
+                              </Badge>
+                              {rule.label}
+                            </p>
+                          ))
+                        )}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </CardContent>
+          </Card>
+        </FadeIn>
 
         <div className="mt-8 grid gap-6 lg:grid-cols-2">
           <FadeIn delay={0.15}>

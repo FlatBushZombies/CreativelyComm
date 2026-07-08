@@ -13,6 +13,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { DashboardHeader } from "@/components/dashboard/sidebar";
+import { useCurrentUser } from "@/components/dashboard/session-provider";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -30,11 +31,14 @@ const activityIcons = {
 const statIcons = [Package, ImageIcon, Eye, Download];
 
 export default function DashboardPage() {
+  const user = useCurrentUser();
+  const firstName = user.name.split(" ")[0];
+
   return (
     <>
       <DashboardHeader
         title="Dashboard"
-        description="Welcome back, Jane. Here's your product marketing overview."
+        description={`Welcome back, ${firstName}. Here's your product marketing overview.`}
       />
 
       <div className="flex-1 p-4 sm:p-6 lg:p-8">

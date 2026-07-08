@@ -56,7 +56,7 @@ export function PricingSection() {
                   variant={plan.highlighted ? "default" : "outline"}
                   asChild
                 >
-                  <Link href="/dashboard">Get started</Link>
+                  <Link href="/signup">Get started</Link>
                 </Button>
               </div>
             </StaggerItem>

@@ -44,7 +44,7 @@ export function HeroSection() {
               asChild
               className="w-full transition-all hover:-translate-y-0.5 hover:card-shadow-glow sm:w-auto"
             >
-              <Link href="/dashboard">
+              <Link href="/signup">
                 Start free trial
                 <ArrowRight className="h-4 w-4" />
               </Link>

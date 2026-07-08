@@ -19,6 +19,7 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { useCurrentUser, getInitials } from "@/components/dashboard/session-provider";
 
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -123,6 +124,8 @@ export function DashboardSidebar() {
 }
 
 export function DashboardHeader({ title, description }: { title: string; description?: string }) {
+  const user = useCurrentUser();
+
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/80 backdrop-blur-xl">
       <div className="flex h-16 items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
@@ -147,7 +150,7 @@ export function DashboardHeader({ title, description }: { title: string; descrip
           </Button>
           <Avatar className="h-8 w-8">
             <AvatarFallback className="bg-primary text-primary-foreground text-xs">
-              JD
+              {getInitials(user.name)}
             </AvatarFallback>
           </Avatar>
         </div>

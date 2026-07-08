@@ -1,19 +1,27 @@
-"use client";
-
 import Image from "next/image";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { ExternalLink, Share2, ShoppingBag, Star } from "lucide-react";
 import { DashboardHeader } from "@/components/dashboard/sidebar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { FadeIn, StaggerContainer, StaggerItem } from "@/components/shared/fade-in";
-import { products } from "@/lib/mock-data";
+import { getServerSession } from "@/lib/auth/session";
+import { getOrCreateDefaultWorkspace } from "@/lib/workspace";
+import { getProducts } from "@/lib/products";
 
-const featuredProducts = products.filter((p) =>
-  ["optimized", "published"].includes(p.status)
-);
+export default async function StorefrontPage() {
+  const session = await getServerSession();
+  if (!session) {
+    redirect("/login");
+  }
 
-export default function StorefrontPage() {
+  const workspace = await getOrCreateDefaultWorkspace(session.user.id, session.user.name);
+  const products = await getProducts(workspace.id);
+  const featuredProducts = products.filter((p) =>
+    ["optimized", "published"].includes(p.status)
+  );
+
   return (
     <>
       <DashboardHeader

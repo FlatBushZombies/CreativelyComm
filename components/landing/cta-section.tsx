@@ -28,7 +28,7 @@ export function CTASection() {
                   asChild
                   className="w-full sm:w-auto"
                 >
-                  <Link href="/dashboard">
+                  <Link href="/signup">
                     Start your free trial
                     <ArrowRight className="h-4 w-4" />
                   </Link>

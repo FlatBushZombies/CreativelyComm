@@ -1,5 +1,8 @@
-import { notFound } from "next/navigation";
-import { getProductById } from "@/lib/mock-data";
+import { notFound, redirect } from "next/navigation";
+import { getServerSession } from "@/lib/auth/session";
+import { getOrCreateDefaultWorkspace } from "@/lib/workspace";
+import { getProductById } from "@/lib/products";
+import { getChannelsWithReadiness } from "@/lib/readiness";
 import { ProductDetailsClient } from "./product-details-client";
 
 interface ProductDetailsPageProps {
@@ -8,11 +11,19 @@ interface ProductDetailsPageProps {
 
 export default async function ProductDetailsPage({ params }: ProductDetailsPageProps) {
   const { id } = await params;
-  const product = getProductById(id);
+  const session = await getServerSession();
+  if (!session) {
+    redirect("/login");
+  }
+
+  const workspace = await getOrCreateDefaultWorkspace(session.user.id, session.user.name);
+  const product = await getProductById(id, workspace.id);
 
   if (!product) {
     notFound();
   }
 
-  return <ProductDetailsClient product={product} />;
+  const channelReadiness = await getChannelsWithReadiness(product);
+
+  return <ProductDetailsClient product={product} channelReadiness={channelReadiness} />;
 }

@@ -4,7 +4,7 @@ import { Eye, Download, MoreHorizontal } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import type { Product, ProductStatus } from "@/lib/mock-data";
+import type { Product, ProductStatus } from "@/lib/products";
 
 const statusConfig: Record<ProductStatus, { label: string; variant: "success" | "warning" | "muted" | "default" }> = {
   optimized: { label: "Optimized", variant: "success" },
