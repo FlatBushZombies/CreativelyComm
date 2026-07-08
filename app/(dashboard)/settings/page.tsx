@@ -18,6 +18,7 @@ export default async function SettingsPage() {
 
   return (
     <SettingsClient
+      workspace={workspace}
       members={members}
       currentUserId={session.user.id}
       canManageTeam={role === "owner" || role === "admin"}

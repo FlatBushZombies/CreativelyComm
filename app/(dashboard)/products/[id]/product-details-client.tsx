@@ -34,13 +34,15 @@ const exportFormats = [
 interface ProductDetailsClientProps {
   product: Product;
   channelReadiness: ChannelReadiness[];
+  productUrl: string;
 }
 
-export function ProductDetailsClient({ product, channelReadiness }: ProductDetailsClientProps) {
+export function ProductDetailsClient({ product, channelReadiness, productUrl }: ProductDetailsClientProps) {
   const [copied, setCopied] = useState(false);
   const [expandedChannel, setExpandedChannel] = useState<string | null>(null);
 
   const handleCopy = () => {
+    navigator.clipboard.writeText(productUrl);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -59,9 +61,9 @@ export function ProductDetailsClient({ product, channelReadiness }: ProductDetai
               </Link>
             </Button>
             <div className="flex-1" />
-            <Button variant="outline" size="sm">
-              <Share2 className="h-4 w-4" />
-              Share
+            <Button variant="outline" size="sm" onClick={handleCopy}>
+              {copied ? <Check className="h-4 w-4 text-emerald-500" /> : <Share2 className="h-4 w-4" />}
+              {copied ? "Copied" : "Share"}
             </Button>
             <Button size="sm">
               <Download className="h-4 w-4" />
@@ -234,7 +236,7 @@ export function ProductDetailsClient({ product, channelReadiness }: ProductDetai
                   </p>
                   <div className="mt-3 flex gap-2">
                     <div className="flex-1 rounded-md bg-muted px-3 py-2 text-xs truncate">
-                      creativelycomm.com/store/{product.id}
+                      {productUrl.replace(/^https?:\/\//, "")}
                     </div>
                     <Button variant="outline" size="sm" onClick={handleCopy}>
                       {copied ? (
@@ -247,14 +249,14 @@ export function ProductDetailsClient({ product, channelReadiness }: ProductDetai
                 </div>
                 <div className="flex gap-2">
                   <Button variant="outline" className="flex-1" asChild>
-                    <Link href="/storefront">
+                    <a href={productUrl} target="_blank" rel="noopener noreferrer">
                       <ExternalLink className="h-4 w-4" />
-                      View Storefront
-                    </Link>
+                      View Public Page
+                    </a>
                   </Button>
-                  <Button className="flex-1">
-                    <Share2 className="h-4 w-4" />
-                    Share Product
+                  <Button className="flex-1" onClick={handleCopy}>
+                    {copied ? <Check className="h-4 w-4" /> : <Share2 className="h-4 w-4" />}
+                    {copied ? "Copied" : "Share Product"}
                   </Button>
                 </div>
               </CardContent>

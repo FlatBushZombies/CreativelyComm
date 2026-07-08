@@ -25,7 +25,7 @@ export default async function DashboardLayout({
         email: session.user.email,
         image: session.user.image,
       }}
-      workspace={{ id: workspace.id, name: workspace.name }}
+      workspace={{ id: workspace.id, name: workspace.name, slug: workspace.slug }}
     >
       <div className="flex min-h-screen">
         <DashboardSidebar />

@@ -8,6 +8,15 @@ import {
   AlertCircle,
   ExternalLink,
 } from "lucide-react";
+import {
+  SiShopify,
+  SiWoocommerce,
+  SiEtsy,
+  SiGoogle,
+  SiFacebook,
+  SiTiktok,
+} from "react-icons/si";
+import { FaAmazon } from "react-icons/fa6";
 import { DashboardHeader } from "@/components/dashboard/sidebar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -24,6 +33,16 @@ const platformColors: Record<string, string> = {
   google: "bg-[#4285f4]",
   facebook: "bg-[#1877f2]",
   tiktok: "bg-[#000000]",
+};
+
+const platformIcons: Record<string, React.ComponentType<{ className?: string }>> = {
+  shopify: SiShopify,
+  woocommerce: SiWoocommerce,
+  etsy: SiEtsy,
+  amazon: FaAmazon,
+  google: SiGoogle,
+  facebook: SiFacebook,
+  tiktok: SiTiktok,
 };
 
 const statusConfig = {
@@ -96,6 +115,7 @@ export default function ExportCenterPage() {
           {exportFormats.map((format) => {
             const status = statusConfig[format.status];
             const StatusIcon = status.icon;
+            const PlatformIcon = platformIcons[format.icon];
 
             return (
               <StaggerItem key={format.id}>
@@ -104,9 +124,15 @@ export default function ExportCenterPage() {
                     <div className="flex items-start justify-between">
                       <div className="flex items-center gap-3">
                         <div
-                          className={`flex h-10 w-10 items-center justify-center rounded-lg text-white text-xs font-bold ${platformColors[format.icon] || "bg-primary"}`}
+                          className={`flex h-10 w-10 items-center justify-center rounded-lg text-white ${platformColors[format.icon] || "bg-primary"}`}
                         >
-                          {format.platform.slice(0, 2).toUpperCase()}
+                          {PlatformIcon ? (
+                            <PlatformIcon className="h-5 w-5" />
+                          ) : (
+                            <span className="text-xs font-bold">
+                              {format.platform.slice(0, 2).toUpperCase()}
+                            </span>
+                          )}
                         </div>
                         <div>
                           <CardTitle className="text-base">{format.name}</CardTitle>

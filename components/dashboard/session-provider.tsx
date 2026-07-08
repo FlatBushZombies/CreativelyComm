@@ -12,6 +12,7 @@ export interface SessionUser {
 export interface SessionWorkspace {
   id: string;
   name: string;
+  slug: string;
 }
 
 interface SessionContextValue {

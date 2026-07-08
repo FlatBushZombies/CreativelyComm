@@ -1,6 +1,5 @@
-"use client";
-
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import {
   Package,
   ImageIcon,
@@ -13,12 +12,14 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { DashboardHeader } from "@/components/dashboard/sidebar";
-import { useCurrentUser } from "@/components/dashboard/session-provider";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { FadeIn, StaggerContainer, StaggerItem } from "@/components/shared/fade-in";
-import { dashboardStats, activities } from "@/lib/mock-data";
+import { getServerSession } from "@/lib/auth/session";
+import { getOrCreateDefaultWorkspace } from "@/lib/workspace";
+import { getDashboardStats } from "@/lib/stats";
+import { activities } from "@/lib/mock-data";
 
 const activityIcons = {
   optimize: Wand2,
@@ -30,9 +31,15 @@ const activityIcons = {
 
 const statIcons = [Package, ImageIcon, Eye, Download];
 
-export default function DashboardPage() {
-  const user = useCurrentUser();
-  const firstName = user.name.split(" ")[0];
+export default async function DashboardPage() {
+  const session = await getServerSession();
+  if (!session) {
+    redirect("/login");
+  }
+
+  const workspace = await getOrCreateDefaultWorkspace(session.user.id, session.user.name);
+  const dashboardStats = await getDashboardStats(workspace.id);
+  const firstName = session.user.name.split(" ")[0];
 
   return (
     <>
@@ -59,7 +66,9 @@ export default function DashboardPage() {
                     </div>
                     <p className="font-display mt-4 text-2xl font-medium">{stat.value}</p>
                     <p className="text-sm text-muted-foreground">{stat.label}</p>
-                    <p className="mt-1 text-xs text-emerald-600">{stat.change}</p>
+                    {stat.change && (
+                      <p className="mt-1 text-xs text-emerald-600">{stat.change}</p>
+                    )}
                   </CardContent>
                 </Card>
               </StaggerItem>
@@ -146,13 +155,7 @@ export default function DashboardPage() {
                   </div>
                   <h3 className="mt-4 font-semibold">AI Optimization</h3>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    42 images optimized this month. Keep going!
-                  </p>
-                  <div className="mt-4 h-2 rounded-full bg-border">
-                    <div className="h-full w-[70%] rounded-full bg-primary transition-all" />
-                  </div>
-                  <p className="mt-2 text-xs text-muted-foreground">
-                    186 of unlimited used
+                    {dashboardStats[1].value} images optimized so far. Keep going!
                   </p>
                 </div>
               </CardContent>

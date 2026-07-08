@@ -8,6 +8,33 @@ export interface Workspace {
   name: string;
   slug: string;
   owner_id: string;
+  storeName: string | null;
+  storeTagline: string | null;
+  brandColor: string;
+}
+
+interface WorkspaceRow {
+  id: string;
+  name: string;
+  slug: string;
+  owner_id: string;
+  store_name: string | null;
+  store_tagline: string | null;
+  brand_color: string;
+}
+
+const WORKSPACE_COLUMNS = "id, name, slug, owner_id, store_name, store_tagline, brand_color";
+
+function mapWorkspaceRow(row: WorkspaceRow): Workspace {
+  return {
+    id: row.id,
+    name: row.name,
+    slug: row.slug,
+    owner_id: row.owner_id,
+    storeName: row.store_name,
+    storeTagline: row.store_tagline,
+    brandColor: row.brand_color,
+  };
 }
 
 export const getOrCreateDefaultWorkspace = cache(async function getOrCreateDefaultWorkspace(
@@ -18,15 +45,15 @@ export const getOrCreateDefaultWorkspace = cache(async function getOrCreateDefau
 
   const { data: membership } = await supabase
     .from("workspace_members")
-    .select("workspaces(id, name, slug, owner_id)")
+    .select(`workspaces(${WORKSPACE_COLUMNS})`)
     .eq("user_id", userId)
     .eq("status", "active")
     .limit(1)
     .maybeSingle();
 
-  const existing = (membership as { workspaces: Workspace | null } | null)?.workspaces;
+  const existing = (membership as { workspaces: WorkspaceRow | null } | null)?.workspaces;
   if (existing) {
-    return existing;
+    return mapWorkspaceRow(existing);
   }
 
   const slug = `${userName.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-${randomUUID().slice(0, 6)}`;
@@ -34,7 +61,7 @@ export const getOrCreateDefaultWorkspace = cache(async function getOrCreateDefau
   const { data: workspace, error } = await supabase
     .from("workspaces")
     .insert({ name: `${userName}'s Workspace`, slug, owner_id: userId })
-    .select()
+    .select(WORKSPACE_COLUMNS)
     .single();
 
   if (error || !workspace) {
@@ -52,5 +79,43 @@ export const getOrCreateDefaultWorkspace = cache(async function getOrCreateDefau
     throw new Error(`Failed to create workspace membership: ${memberError.message}`);
   }
 
-  return workspace;
+  return mapWorkspaceRow(workspace as WorkspaceRow);
 });
+
+export async function getWorkspaceBySlug(slug: string): Promise<Workspace | null> {
+  const supabase = getSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("workspaces")
+    .select(WORKSPACE_COLUMNS)
+    .eq("slug", slug)
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(`Failed to load workspace: ${error.message}`);
+  }
+
+  return data ? mapWorkspaceRow(data as WorkspaceRow) : null;
+}
+
+export async function updateWorkspaceBranding(
+  workspaceId: string,
+  input: { storeName: string; storeTagline: string; brandColor: string }
+): Promise<Workspace> {
+  const supabase = getSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("workspaces")
+    .update({
+      store_name: input.storeName,
+      store_tagline: input.storeTagline,
+      brand_color: input.brandColor,
+    })
+    .eq("id", workspaceId)
+    .select(WORKSPACE_COLUMNS)
+    .single();
+
+  if (error || !data) {
+    throw new Error(`Failed to update branding: ${error?.message}`);
+  }
+
+  return mapWorkspaceRow(data as WorkspaceRow);
+}

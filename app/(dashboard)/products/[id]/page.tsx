@@ -25,5 +25,14 @@ export default async function ProductDetailsPage({ params }: ProductDetailsPageP
 
   const channelReadiness = await getChannelsWithReadiness(product);
 
-  return <ProductDetailsClient product={product} channelReadiness={channelReadiness} />;
+  const origin = process.env.BETTER_AUTH_URL || "http://localhost:3000";
+  const productUrl = `${origin}/store/${workspace.slug}/products/${product.id}`;
+
+  return (
+    <ProductDetailsClient
+      product={product}
+      channelReadiness={channelReadiness}
+      productUrl={productUrl}
+    />
+  );
 }

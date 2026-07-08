@@ -13,7 +13,8 @@ import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FadeIn } from "@/components/shared/fade-in";
 import type { WorkspaceMember, WorkspaceRole } from "@/lib/team";
-import { inviteTeamMember, removeTeamMember } from "./actions";
+import type { Workspace } from "@/lib/workspace";
+import { inviteTeamMember, removeTeamMember, saveBrandingAction } from "./actions";
 
 const colorPresets = [
   "#386641",
@@ -51,15 +52,16 @@ function CopyInviteLink({ token }: { token: string }) {
 }
 
 interface SettingsClientProps {
+  workspace: Workspace;
   members: WorkspaceMember[];
   currentUserId: string;
   canManageTeam: boolean;
 }
 
-export function SettingsClient({ members, currentUserId, canManageTeam }: SettingsClientProps) {
-  const [brandColor, setBrandColor] = useState("#386641");
-  const [storeName, setStoreName] = useState("Artisan Co.");
-  const [storeTagline, setStoreTagline] = useState("Handcrafted with love");
+export function SettingsClient({ workspace, members, currentUserId, canManageTeam }: SettingsClientProps) {
+  const [brandColor, setBrandColor] = useState(workspace.brandColor);
+  const [storeName, setStoreName] = useState(workspace.storeName || workspace.name);
+  const [storeTagline, setStoreTagline] = useState(workspace.storeTagline || "");
   const [customDomain, setCustomDomain] = useState("");
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [exportNotifications, setExportNotifications] = useState(true);
@@ -176,75 +178,81 @@ export function SettingsClient({ members, currentUserId, canManageTeam }: Settin
                     Customize how your brand appears across storefronts and exports
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="flex flex-col sm:flex-row gap-6">
-                    <div className="flex flex-col items-center gap-3">
-                      <div
-                        className="flex h-24 w-24 items-center justify-center rounded-xl text-white text-2xl font-bold"
-                        style={{ backgroundColor: brandColor }}
-                      >
-                        AC
+                <CardContent>
+                  <form action={saveBrandingAction} className="space-y-6">
+                    <input type="hidden" name="brandColor" value={brandColor} />
+                    <div className="flex flex-col sm:flex-row gap-6">
+                      <div className="flex flex-col items-center gap-3">
+                        <div
+                          className="flex h-24 w-24 items-center justify-center rounded-xl text-white text-2xl font-bold"
+                          style={{ backgroundColor: brandColor }}
+                        >
+                          {(storeName || "CC").slice(0, 2).toUpperCase()}
+                        </div>
+                        <Button type="button" variant="outline" size="sm">
+                          <Upload className="h-3 w-3" />
+                          Upload Logo
+                        </Button>
                       </div>
-                      <Button variant="outline" size="sm">
-                        <Upload className="h-3 w-3" />
-                        Upload Logo
-                      </Button>
+                      <div className="flex-1 space-y-4">
+                        <div>
+                          <Label htmlFor="brandName">Brand Name</Label>
+                          <Input
+                            id="brandName"
+                            name="storeName"
+                            value={storeName}
+                            onChange={(e) => setStoreName(e.target.value)}
+                            className="mt-1.5"
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="tagline">Tagline</Label>
+                          <Input
+                            id="tagline"
+                            name="storeTagline"
+                            value={storeTagline}
+                            onChange={(e) => setStoreTagline(e.target.value)}
+                            className="mt-1.5"
+                          />
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex-1 space-y-4">
-                      <div>
-                        <Label htmlFor="brandName">Brand Name</Label>
+
+                    <Separator />
+
+                    <div>
+                      <Label>Primary Brand Color</Label>
+                      <div className="mt-3 flex flex-wrap items-center gap-3">
+                        {colorPresets.map((color) => (
+                          <button
+                            key={color}
+                            type="button"
+                            onClick={() => setBrandColor(color)}
+                            className="h-10 w-10 rounded-lg border-2 transition-all hover:scale-110"
+                            style={{
+                              backgroundColor: color,
+                              borderColor: brandColor === color ? color : "transparent",
+                              boxShadow: brandColor === color ? `0 0 0 2px white, 0 0 0 4px ${color}` : "none",
+                            }}
+                            aria-label={`Select color ${color}`}
+                          />
+                        ))}
                         <Input
-                          id="brandName"
-                          value={storeName}
-                          onChange={(e) => setStoreName(e.target.value)}
-                          className="mt-1.5"
+                          type="color"
+                          value={brandColor}
+                          onChange={(e) => setBrandColor(e.target.value)}
+                          className="h-10 w-14 cursor-pointer p-1"
                         />
-                      </div>
-                      <div>
-                        <Label htmlFor="tagline">Tagline</Label>
                         <Input
-                          id="tagline"
-                          value={storeTagline}
-                          onChange={(e) => setStoreTagline(e.target.value)}
-                          className="mt-1.5"
+                          value={brandColor}
+                          onChange={(e) => setBrandColor(e.target.value)}
+                          className="w-28 font-mono text-sm"
                         />
                       </div>
                     </div>
-                  </div>
 
-                  <Separator />
-
-                  <div>
-                    <Label>Primary Brand Color</Label>
-                    <div className="mt-3 flex flex-wrap items-center gap-3">
-                      {colorPresets.map((color) => (
-                        <button
-                          key={color}
-                          onClick={() => setBrandColor(color)}
-                          className="h-10 w-10 rounded-lg border-2 transition-all hover:scale-110"
-                          style={{
-                            backgroundColor: color,
-                            borderColor: brandColor === color ? color : "transparent",
-                            boxShadow: brandColor === color ? `0 0 0 2px white, 0 0 0 4px ${color}` : "none",
-                          }}
-                          aria-label={`Select color ${color}`}
-                        />
-                      ))}
-                      <Input
-                        type="color"
-                        value={brandColor}
-                        onChange={(e) => setBrandColor(e.target.value)}
-                        className="h-10 w-14 cursor-pointer p-1"
-                      />
-                      <Input
-                        value={brandColor}
-                        onChange={(e) => setBrandColor(e.target.value)}
-                        className="w-28 font-mono text-sm"
-                      />
-                    </div>
-                  </div>
-
-                  <Button>Save Branding</Button>
+                    <Button type="submit">Save Branding</Button>
+                  </form>
                 </CardContent>
               </Card>
             </TabsContent>

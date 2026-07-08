@@ -159,3 +159,23 @@ export async function addOptimizedImage(
 
   return mapRow(data as ProductRow);
 }
+
+/**
+ * Increments a product's view count. Called from the public storefront/
+ * product pages so "Store Views" on the dashboard reflects real visits.
+ */
+export async function incrementProductViews(productId: string): Promise<void> {
+  const supabase = getSupabaseServerClient();
+  const { data } = await supabase
+    .from("products")
+    .select("views")
+    .eq("id", productId)
+    .maybeSingle();
+
+  if (!data) return;
+
+  await supabase
+    .from("products")
+    .update({ views: data.views + 1 })
+    .eq("id", productId);
+}

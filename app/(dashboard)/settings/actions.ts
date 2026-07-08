@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getServerSession } from "@/lib/auth/session";
-import { getOrCreateDefaultWorkspace } from "@/lib/workspace";
+import { getOrCreateDefaultWorkspace, updateWorkspaceBranding } from "@/lib/workspace";
 import { inviteMember, removeMember, getMemberRole, type WorkspaceRole } from "@/lib/team";
 
 async function requireManagerRole() {
@@ -42,4 +42,17 @@ export async function removeTeamMember(formData: FormData) {
 
   await removeMember(memberId);
   revalidatePath("/settings");
+}
+
+export async function saveBrandingAction(formData: FormData) {
+  const workspace = await requireManagerRole();
+
+  const storeName = String(formData.get("storeName") ?? "").trim();
+  const storeTagline = String(formData.get("storeTagline") ?? "").trim();
+  const brandColor = String(formData.get("brandColor") ?? "#386641").trim();
+
+  await updateWorkspaceBranding(workspace.id, { storeName, storeTagline, brandColor });
+  revalidatePath("/settings");
+  revalidatePath("/storefront");
+  revalidatePath(`/store/${workspace.slug}`);
 }
