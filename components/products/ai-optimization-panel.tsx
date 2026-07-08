@@ -30,7 +30,7 @@ export function AIOptimizationPanel() {
             <Wand2 className="h-4 w-4 text-primary" />
             AI Optimization Tools
           </CardTitle>
-          <Badge variant="success">Ready</Badge>
+          <Badge variant="muted">Coming soon</Badge>
         </div>
       </CardHeader>
       <CardContent className="space-y-3">
@@ -50,13 +50,17 @@ export function AIOptimizationPanel() {
                   <p className="text-xs text-muted-foreground">{feature.description}</p>
                 </div>
               </div>
-              <Button variant="outline" size="sm">
-                Apply
-              </Button>
+              {feature.id === "bg-removal" ? (
+                <span className="text-xs text-muted-foreground">Use the button on the image above</span>
+              ) : (
+                <Button variant="outline" size="sm" disabled>
+                  Apply
+                </Button>
+              )}
             </div>
           );
         })}
-        <Button className="w-full mt-2">
+        <Button className="w-full mt-2" disabled>
           <Wand2 className="h-4 w-4" />
           Optimize All Images
         </Button>

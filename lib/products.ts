@@ -123,3 +123,39 @@ export async function createProduct(
 
   return mapRow(data as ProductRow);
 }
+
+/**
+ * Appends a processed image URL to a product's optimizedImages and marks it
+ * "optimized". Scoped by workspaceId so a product can't be mutated across
+ * workspaces.
+ */
+export async function addOptimizedImage(
+  productId: string,
+  workspaceId: string,
+  imageUrl: string
+): Promise<Product> {
+  const supabase = getSupabaseServerClient();
+
+  const existing = await getProductById(productId, workspaceId);
+  if (!existing) {
+    throw new Error("Product not found.");
+  }
+
+  const { data, error } = await supabase
+    .from("products")
+    .update({
+      optimized_images: [...existing.optimizedImages, imageUrl],
+      status: "optimized",
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", productId)
+    .eq("workspace_id", workspaceId)
+    .select()
+    .single();
+
+  if (error || !data) {
+    throw new Error(`Failed to update product: ${error?.message}`);
+  }
+
+  return mapRow(data as ProductRow);
+}

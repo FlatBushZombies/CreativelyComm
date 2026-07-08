@@ -73,6 +73,7 @@ export function ProductDetailsClient({ product, channelReadiness }: ProductDetai
         <div className="grid gap-8 lg:grid-cols-2">
           <FadeIn>
             <ImageGallery
+              productId={product.id}
               images={product.images}
               optimizedImages={product.optimizedImages}
               productName={product.name}
@@ -175,11 +176,19 @@ export function ProductDetailsClient({ product, channelReadiness }: ProductDetai
 
         <div className="mt-8 grid gap-6 lg:grid-cols-2">
           <FadeIn delay={0.15}>
-            <BeforeAfterPreview
-              beforeImage={product.images[0]}
-              afterImage={product.optimizedImages[0]}
-              productName={product.name}
-            />
+            {product.optimizedImages.length > 0 ? (
+              <BeforeAfterPreview
+                beforeImage={product.images[0]}
+                afterImage={product.optimizedImages[0]}
+                productName={product.name}
+              />
+            ) : (
+              <Card className="flex h-full items-center justify-center p-8 text-center">
+                <p className="text-sm text-muted-foreground">
+                  Remove the background from an image to see a before/after comparison here.
+                </p>
+              </Card>
+            )}
           </FadeIn>
           <FadeIn delay={0.2}>
             <AIOptimizationPanel />

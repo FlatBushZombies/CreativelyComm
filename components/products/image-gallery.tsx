@@ -1,34 +1,64 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
+import { ChevronLeft, ChevronRight, Sparkles, Scissors, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { removeBackgroundAction } from "@/app/(dashboard)/products/[id]/actions";
 
 interface ImageGalleryProps {
+  productId: string;
   images: string[];
   optimizedImages: string[];
   productName: string;
 }
 
-export function ImageGallery({ images, optimizedImages, productName }: ImageGalleryProps) {
+export function ImageGallery({ productId, images, optimizedImages, productName }: ImageGalleryProps) {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [showOptimized, setShowOptimized] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
+  const router = useRouter();
 
   const displayImages = showOptimized ? optimizedImages : images;
+
+  function handleRemoveBackground() {
+    const sourceUrl = images[selectedIndex];
+    if (!sourceUrl) return;
+    setError(null);
+    startTransition(async () => {
+      const result = await removeBackgroundAction(productId, sourceUrl);
+      if (result.error) {
+        setError(result.error);
+        return;
+      }
+      setShowOptimized(true);
+      setSelectedIndex(0);
+      router.refresh();
+    });
+  }
+
+  const mainImage = displayImages[selectedIndex] || images[0];
 
   return (
     <div className="space-y-4">
       <div className="relative aspect-square overflow-hidden rounded-xl border border-border bg-muted">
-        <Image
-          src={displayImages[selectedIndex] || images[0]}
-          alt={productName}
-          fill
-          className="object-cover"
-          sizes="(max-width: 1024px) 100vw, 50vw"
-          priority
-        />
+        {mainImage ? (
+          <Image
+            src={mainImage}
+            alt={productName}
+            fill
+            className="object-cover"
+            sizes="(max-width: 1024px) 100vw, 50vw"
+            priority
+          />
+        ) : (
+          <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
+            No images yet
+          </div>
+        )}
         {displayImages.length > 1 && (
           <>
             <Button
@@ -59,7 +89,25 @@ export function ImageGallery({ images, optimizedImages, productName }: ImageGall
             AI Optimized
           </div>
         )}
+        {!showOptimized && images.length > 0 && (
+          <Button
+            variant="secondary"
+            size="sm"
+            className="absolute bottom-3 right-3 opacity-90"
+            disabled={isPending}
+            onClick={handleRemoveBackground}
+          >
+            {isPending ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <Scissors className="h-3.5 w-3.5" />
+            )}
+            {isPending ? "Removing..." : "Remove background"}
+          </Button>
+        )}
       </div>
+
+      {error && <p className="text-sm text-red-600">{error}</p>}
 
       <div className="flex gap-2 overflow-x-auto pb-1">
         {displayImages.map((img, i) => (
