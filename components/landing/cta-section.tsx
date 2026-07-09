@@ -15,11 +15,11 @@ export function CTASection() {
             <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.07)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.07)_1px,transparent_1px)] bg-[size:3rem_3rem]" />
             <div className="relative">
               <h2 className="font-display text-3xl font-medium text-white sm:text-5xl">
-                Ready to transform your product marketing?
+                Stop finding out about rejections after you&apos;ve published
               </h2>
               <p className="mx-auto mt-4 max-w-xl text-primary-foreground/80 text-lg">
-                Join thousands of brands using CreativelyComm to optimize, showcase,
-                and sell their products across every channel.
+                Check real channel readiness, clean up your photos, and export
+                marketplace-ready files for every platform you sell on — free to start.
               </p>
               <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
                 <Button
@@ -29,7 +29,7 @@ export function CTASection() {
                   className="w-full sm:w-auto"
                 >
                   <Link href="/signup">
-                    Start your free trial
+                    Start free
                     <ArrowRight className="h-4 w-4" />
                   </Link>
                 </Button>

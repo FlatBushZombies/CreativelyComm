@@ -10,15 +10,15 @@ const steps = [
     icon: Upload,
     title: "Upload your products",
     description:
-      "Drag and drop product images and details. Import from CSV or connect your existing catalog.",
+      "Drag and drop product photos and details, or import your whole catalog from a CSV in one go.",
     image: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=600&q=80",
   },
   {
     step: "02",
     icon: Wand2,
-    title: "AI optimizes everything",
+    title: "Check readiness, clean up photos",
     description:
-      "Our AI removes backgrounds, enhances lighting, generates lifestyle shots, and creates marketplace-ready images.",
+      "See a real readiness score for every marketplace, then remove backgrounds with one click.",
     image: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600&q=80",
   },
   {
@@ -26,7 +26,7 @@ const steps = [
     icon: Store,
     title: "Launch your storefront",
     description:
-      "Customize your branded store with your colors, logo, and layout. Preview on any device.",
+      "Customize your branded store with your colors and layout. Share a link, or embed it on your own site.",
     image: "https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=600&q=80",
   },
   {
@@ -34,7 +34,7 @@ const steps = [
     icon: Share2,
     title: "Export & publish everywhere",
     description:
-      "One-click export to Shopify, Amazon, Etsy, Google Merchant, Facebook, TikTok Shop, and more.",
+      "One-click export to real, marketplace-ready files for Shopify, Amazon, Etsy, Google Merchant, and more.",
     image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&q=80",
   },
 ];
@@ -64,7 +64,7 @@ export function WorkflowSection() {
                 <div className="flex-1">
                   <div className="flex items-center gap-3">
                     <span className="font-display text-2xl text-primary/50">{step.step}</span>
-                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/10 via-accent to-accent/30 shadow-[0_8px_20px_-8px_rgba(56,102,65,0.35)]">
                       <step.icon className="h-5 w-5 text-primary" />
                     </div>
                   </div>
@@ -73,10 +73,12 @@ export function WorkflowSection() {
                     {step.description}
                   </p>
                   <ul className="mt-6 space-y-2">
-                    {["Automated processing", "Real-time preview", "Undo & version history"].map(
+                    {["Automated processing", "Real-time preview", "Real version history"].map(
                       (item) => (
                         <li key={item} className="flex items-center gap-2 text-sm">
-                          <Check className="h-4 w-4 text-primary" />
+                          <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/10">
+                            <Check className="h-3 w-3 text-primary" />
+                          </span>
                           {item}
                         </li>
                       )

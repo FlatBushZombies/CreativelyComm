@@ -1,65 +1,65 @@
 "use client";
 
 import {
-  Wand2,
-  ImageIcon,
+  ShieldCheck,
+  Scissors,
   Store,
   Share2,
-  Zap,
-  BarChart3,
   Layers,
-  Globe,
+  Users,
+  FileSpreadsheet,
+  BarChart3,
 } from "lucide-react";
 import { FadeIn, StaggerContainer, StaggerItem } from "@/components/shared/fade-in";
 
 const features = [
   {
-    icon: Wand2,
-    title: "AI Image Optimization",
+    icon: ShieldCheck,
+    title: "Channel Readiness Engine",
     description:
-      "Background removal, lighting enhancement, upscaling, and lifestyle backgrounds — all powered by advanced AI models.",
+      "Get a real readiness score for every marketplace before you publish — see exactly what's missing instead of finding out after a rejection.",
   },
   {
-    icon: ImageIcon,
-    title: "Smart Product Library",
+    icon: Scissors,
+    title: "One-Click Background Removal",
     description:
-      "Organize all your products in one place with searchable tags, categories, and version history for every image.",
+      "Strip backgrounds from product photos instantly, powered by Remove.bg — no design tools required.",
   },
   {
     icon: Store,
-    title: "Branded Storefront",
+    title: "Branded Storefront & Embeds",
     description:
-      "Launch a beautiful, customizable online store in minutes. Share a link or embed anywhere.",
+      "Launch a customizable online store in minutes. Share a link, or embed your product grid directly on your own website.",
   },
   {
     icon: Share2,
-    title: "Multi-Channel Export",
+    title: "Real Multi-Channel Export",
     description:
-      "Export marketplace-ready formats for Shopify, Amazon, Etsy, Google Merchant, and 7+ platforms.",
-  },
-  {
-    icon: Zap,
-    title: "One-Click Publishing",
-    description:
-      "Prepare product feeds, images, and metadata for every platform with a single click.",
-  },
-  {
-    icon: BarChart3,
-    title: "Performance Analytics",
-    description:
-      "Track store views, export history, and optimization metrics to understand what's working.",
+      "Generate real, marketplace-ready feed files for Shopify, Amazon, Etsy, Google Merchant, and 7+ platforms — one click, no guesswork.",
   },
   {
     icon: Layers,
-    title: "Batch Processing",
+    title: "Product Library & Version History",
     description:
-      "Upload and optimize hundreds of products at once. Perfect for catalogs and seasonal launches.",
+      "Organize every product with searchable tags and categories, and see a real history of every change.",
   },
   {
-    icon: Globe,
-    title: "Global Ready",
+    icon: Users,
+    title: "Team Collaboration",
     description:
-      "Multi-currency support, localized descriptions, and region-specific marketplace formats.",
+      "Invite teammates with owner, admin, editor, or viewer roles — everyone works from the same product library.",
+  },
+  {
+    icon: FileSpreadsheet,
+    title: "CSV Bulk Import",
+    description:
+      "Import your whole catalog from a spreadsheet in one go, or add products one at a time — your call.",
+  },
+  {
+    icon: BarChart3,
+    title: "Live Dashboard",
+    description:
+      "Real product counts, store views, and export activity — not sample data, an actual read on your catalog.",
   },
 ];
 
@@ -81,8 +81,8 @@ export function FeaturesSection() {
           {features.map((feature) => (
             <StaggerItem key={feature.title}>
               <div className="group h-full rounded-xl border border-border bg-card p-6 transition-all duration-300 hover:-translate-y-1 hover:border-primary/25 hover:card-shadow-glow">
-                <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-gradient-to-br from-accent to-accent/40 transition-colors group-hover:from-primary/15 group-hover:to-primary/5">
-                  <feature.icon className="h-5 w-5 text-primary" />
+                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/10 via-accent to-accent/30 shadow-[0_8px_24px_-8px_rgba(56,102,65,0.35)] transition-transform duration-300 group-hover:scale-105">
+                  <feature.icon className="h-6 w-6 text-primary" />
                 </div>
                 <h3 className="mt-4 text-base font-semibold">{feature.title}</h3>
                 <p className="mt-2 text-sm text-muted-foreground leading-relaxed">

@@ -62,6 +62,7 @@ export function SettingsClient({ workspace, members, currentUserId, canManageTea
   const [brandColor, setBrandColor] = useState(workspace.brandColor);
   const [storeName, setStoreName] = useState(workspace.storeName || workspace.name);
   const [storeTagline, setStoreTagline] = useState(workspace.storeTagline || "");
+  const [hideBranding, setHideBranding] = useState(workspace.hideBranding);
   const [customDomain, setCustomDomain] = useState("");
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [exportNotifications, setExportNotifications] = useState(true);
@@ -249,6 +250,26 @@ export function SettingsClient({ workspace, members, currentUserId, canManageTea
                           className="w-28 font-mono text-sm"
                         />
                       </div>
+                    </div>
+
+                    <Separator />
+
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium">White-label storefront</p>
+                        <p className="text-xs text-muted-foreground">
+                          Hide the &quot;Powered by CreativelyComm&quot; footer on your public store,
+                          product pages, and embed widget
+                        </p>
+                      </div>
+                      <input
+                        type="checkbox"
+                        name="hideBranding"
+                        checked={hideBranding}
+                        onChange={() => {}}
+                        className="sr-only"
+                      />
+                      <Switch checked={hideBranding} onCheckedChange={setHideBranding} />
                     </div>
 
                     <Button type="submit">Save Branding</Button>

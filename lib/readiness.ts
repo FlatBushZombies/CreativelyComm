@@ -126,3 +126,56 @@ export async function getChannelsWithReadiness(product: Product): Promise<Channe
     return { channel, score, passed, failed };
   });
 }
+
+export interface ProductReadinessSummary {
+  product: Product;
+  averageScore: number;
+}
+
+export interface ReadinessOverview {
+  channelAverages: { channel: Channel; averageScore: number }[];
+  products: ProductReadinessSummary[];
+}
+
+/**
+ * Catalog-wide readiness summary: per-channel average score across all
+ * products, and a per-product overall average, worst-first. Fetches
+ * channels+rules once and reuses them for every product, rather than the
+ * N+1 pattern getChannelsWithReadiness would produce if called in a loop.
+ */
+export async function getReadinessOverview(products: Product[]): Promise<ReadinessOverview> {
+  const channelsWithRules = await getChannelsWithRules();
+
+  if (products.length === 0 || channelsWithRules.length === 0) {
+    return {
+      channelAverages: channelsWithRules.map(({ channel }) => ({ channel, averageScore: 0 })),
+      products: [],
+    };
+  }
+
+  // scoresByChannel[channelId] = list of scores across products
+  const scoresByChannel = new Map<string, number[]>();
+  const productSummaries: ProductReadinessSummary[] = products.map((product) => {
+    const scores = channelsWithRules.map(({ channel, rules }) => {
+      const { score } = computeReadiness(product, rules);
+      const existing = scoresByChannel.get(channel.id) ?? [];
+      existing.push(score);
+      scoresByChannel.set(channel.id, existing);
+      return score;
+    });
+    const averageScore = Math.round(scores.reduce((sum, s) => sum + s, 0) / scores.length);
+    return { product, averageScore };
+  });
+
+  const channelAverages = channelsWithRules.map(({ channel }) => {
+    const scores = scoresByChannel.get(channel.id) ?? [];
+    const averageScore = scores.length
+      ? Math.round(scores.reduce((sum, s) => sum + s, 0) / scores.length)
+      : 0;
+    return { channel, averageScore };
+  });
+
+  productSummaries.sort((a, b) => a.averageScore - b.averageScore);
+
+  return { channelAverages, products: productSummaries };
+}

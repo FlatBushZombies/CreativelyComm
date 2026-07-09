@@ -4,6 +4,7 @@ import { DashboardHeader } from "@/components/dashboard/sidebar";
 import { FadeIn } from "@/components/shared/fade-in";
 import { StorefrontView } from "@/components/storefront/storefront-view";
 import { ShareStoreButtons } from "@/components/storefront/share-store-buttons";
+import { EmbedCodeBox } from "@/components/storefront/embed-code-box";
 import { getServerSession } from "@/lib/auth/session";
 import { getOrCreateDefaultWorkspace } from "@/lib/workspace";
 import { getProducts } from "@/lib/products";
@@ -22,6 +23,7 @@ export default async function StorefrontPage() {
 
   const origin = process.env.BETTER_AUTH_URL || "http://localhost:3000";
   const storeUrl = `${origin}/store/${workspace.slug}`;
+  const embedUrl = `${origin}/embed/${workspace.slug}`;
 
   return (
     <>
@@ -51,6 +53,10 @@ export default async function StorefrontPage() {
               productHref={(productId) => `/products/${productId}`}
             />
           </div>
+        </FadeIn>
+
+        <FadeIn delay={0.15} className="mt-6">
+          <EmbedCodeBox embedUrl={embedUrl} />
         </FadeIn>
       </div>
     </>

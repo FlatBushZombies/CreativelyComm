@@ -8,12 +8,14 @@ import type { Product } from "@/lib/products";
 import type { Workspace } from "@/lib/workspace";
 
 interface StorefrontViewProps {
-  workspace: Pick<Workspace, "name" | "storeName" | "storeTagline" | "brandColor">;
+  workspace: Pick<Workspace, "name" | "storeName" | "storeTagline" | "brandColor" | "hideBranding">;
   products: Product[];
   productHref: (productId: string) => string;
+  variant?: "full" | "embed";
 }
 
-export function StorefrontView({ workspace, products, productHref }: StorefrontViewProps) {
+export function StorefrontView({ workspace, products, productHref, variant = "full" }: StorefrontViewProps) {
+  const isEmbed = variant === "embed";
   const storeName = workspace.storeName || workspace.name;
   const tagline = workspace.storeTagline || "Quality products, thoughtfully made.";
   const initials = storeName
@@ -42,17 +44,21 @@ export function StorefrontView({ workspace, products, productHref }: StorefrontV
                 <p className="text-xs text-muted-foreground">{tagline}</p>
               </div>
             </div>
-            <nav className="hidden sm:flex items-center gap-6 text-sm">
-              <span className="font-medium" style={{ color: workspace.brandColor }}>
-                Shop
-              </span>
-              <span className="text-muted-foreground">About</span>
-              <span className="text-muted-foreground">Contact</span>
-            </nav>
-            <Button size="sm" variant="outline">
-              <ShoppingBag className="h-4 w-4" />
-              Cart (0)
-            </Button>
+            {!isEmbed && (
+              <>
+                <nav className="hidden sm:flex items-center gap-6 text-sm">
+                  <span className="font-medium" style={{ color: workspace.brandColor }}>
+                    Shop
+                  </span>
+                  <span className="text-muted-foreground">About</span>
+                  <span className="text-muted-foreground">Contact</span>
+                </nav>
+                <Button size="sm" variant="outline">
+                  <ShoppingBag className="h-4 w-4" />
+                  Cart (0)
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </div>
@@ -91,6 +97,8 @@ export function StorefrontView({ workspace, products, productHref }: StorefrontV
                 <StaggerItem key={product.id}>
                   <Link
                     href={productHref(product.id)}
+                    target={isEmbed ? "_blank" : undefined}
+                    rel={isEmbed ? "noopener noreferrer" : undefined}
                     className="group block rounded-xl transition-all duration-300 hover:-translate-y-1"
                   >
                     <div className="relative aspect-square overflow-hidden rounded-xl bg-muted card-shadow transition-shadow duration-300 group-hover:card-shadow-glow">
@@ -130,13 +138,15 @@ export function StorefrontView({ workspace, products, productHref }: StorefrontV
       </div>
 
       {/* Store Footer */}
-      <div className="border-t border-border bg-muted/30 px-6 py-8">
-        <div className="mx-auto max-w-5xl text-center">
-          <p className="text-sm text-muted-foreground">
-            Powered by <span className="font-medium text-primary">CreativelyComm</span>
-          </p>
+      {!workspace.hideBranding && (
+        <div className="border-t border-border bg-muted/30 px-6 py-8">
+          <div className="mx-auto max-w-5xl text-center">
+            <p className="text-sm text-muted-foreground">
+              Powered by <span className="font-medium text-primary">CreativelyComm</span>
+            </p>
+          </div>
         </div>
-      </div>
+      )}
     </>
   );
 }

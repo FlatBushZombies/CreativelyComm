@@ -10,21 +10,22 @@ import {
   Settings,
   ChevronLeft,
   ChevronRight,
-  Bell,
+  ShieldCheck,
   Search,
 } from "lucide-react";
 import { Logo } from "@/components/shared/logo";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useCurrentUser, getInitials } from "@/components/dashboard/session-provider";
+import { NotificationsDropdown } from "@/components/dashboard/notifications-dropdown";
 
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/products", label: "Products", icon: Package },
   { href: "/storefront", label: "Storefront", icon: Store },
+  { href: "/readiness", label: "Readiness", icon: ShieldCheck },
   { href: "/export", label: "Export Center", icon: Download },
   { href: "/settings", label: "Settings", icon: Settings },
 ];
@@ -100,7 +101,7 @@ export function DashboardSidebar() {
 
       {/* Mobile bottom nav */}
       <nav className="fixed bottom-0 left-0 right-0 z-50 flex border-t border-border bg-card lg:hidden">
-        {navItems.slice(0, 5).map((item) => {
+        {navItems.map((item) => {
           const isActive =
             pathname === item.href ||
             (item.href !== "/dashboard" && pathname.startsWith(item.href));
@@ -144,10 +145,7 @@ export function DashboardHeader({ title, description }: { title: string; descrip
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input placeholder="Search products..." className="pl-9" />
           </div>
-          <Button variant="ghost" size="icon" className="relative">
-            <Bell className="h-4 w-4" />
-            <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-primary" />
-          </Button>
+          <NotificationsDropdown />
           <Avatar className="h-8 w-8">
             <AvatarFallback className="bg-primary text-primary-foreground text-xs">
               {getInitials(user.name)}

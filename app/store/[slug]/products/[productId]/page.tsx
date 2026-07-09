@@ -87,13 +87,15 @@ export default async function PublicProductPage({ params }: PublicProductPagePro
         </div>
       </div>
 
-      <footer className="border-t border-border bg-muted/30 px-6 py-8">
-        <div className="mx-auto max-w-5xl text-center">
-          <p className="text-sm text-muted-foreground">
-            Powered by <span className="font-medium text-primary">CreativelyComm</span>
-          </p>
-        </div>
-      </footer>
+      {!workspace.hideBranding && (
+        <footer className="border-t border-border bg-muted/30 px-6 py-8">
+          <div className="mx-auto max-w-5xl text-center">
+            <p className="text-sm text-muted-foreground">
+              Powered by <span className="font-medium text-primary">CreativelyComm</span>
+            </p>
+          </div>
+        </footer>
+      )}
     </div>
   );
 }

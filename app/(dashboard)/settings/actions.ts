@@ -58,8 +58,9 @@ export async function saveBrandingAction(formData: FormData) {
   const storeName = String(formData.get("storeName") ?? "").trim();
   const storeTagline = String(formData.get("storeTagline") ?? "").trim();
   const brandColor = String(formData.get("brandColor") ?? "#386641").trim();
+  const hideBranding = formData.get("hideBranding") === "on";
 
-  await updateWorkspaceBranding(workspace.id, { storeName, storeTagline, brandColor });
+  await updateWorkspaceBranding(workspace.id, { storeName, storeTagline, brandColor, hideBranding });
   revalidatePath("/settings");
   revalidatePath("/storefront");
   revalidatePath(`/store/${workspace.slug}`);

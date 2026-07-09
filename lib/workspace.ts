@@ -11,6 +11,7 @@ export interface Workspace {
   storeName: string | null;
   storeTagline: string | null;
   brandColor: string;
+  hideBranding: boolean;
 }
 
 interface WorkspaceRow {
@@ -21,9 +22,11 @@ interface WorkspaceRow {
   store_name: string | null;
   store_tagline: string | null;
   brand_color: string;
+  hide_branding: boolean;
 }
 
-const WORKSPACE_COLUMNS = "id, name, slug, owner_id, store_name, store_tagline, brand_color";
+const WORKSPACE_COLUMNS =
+  "id, name, slug, owner_id, store_name, store_tagline, brand_color, hide_branding";
 
 function mapWorkspaceRow(row: WorkspaceRow): Workspace {
   return {
@@ -34,6 +37,7 @@ function mapWorkspaceRow(row: WorkspaceRow): Workspace {
     storeName: row.store_name,
     storeTagline: row.store_tagline,
     brandColor: row.brand_color,
+    hideBranding: row.hide_branding,
   };
 }
 
@@ -99,7 +103,7 @@ export async function getWorkspaceBySlug(slug: string): Promise<Workspace | null
 
 export async function updateWorkspaceBranding(
   workspaceId: string,
-  input: { storeName: string; storeTagline: string; brandColor: string }
+  input: { storeName: string; storeTagline: string; brandColor: string; hideBranding: boolean }
 ): Promise<Workspace> {
   const supabase = getSupabaseServerClient();
   const { data, error } = await supabase
@@ -108,6 +112,7 @@ export async function updateWorkspaceBranding(
       store_name: input.storeName,
       store_tagline: input.storeTagline,
       brand_color: input.brandColor,
+      hide_branding: input.hideBranding,
     })
     .eq("id", workspaceId)
     .select(WORKSPACE_COLUMNS)

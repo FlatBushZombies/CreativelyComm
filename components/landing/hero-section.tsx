@@ -24,18 +24,18 @@ export function HeroSection() {
         <FadeIn className="mx-auto max-w-3xl text-center">
           <Badge variant="secondary" className="mb-6 gap-1.5 px-3 py-1">
             <Sparkles className="h-3 w-3 text-primary" />
-            AI-Powered Product Marketing
+            Know before you publish
           </Badge>
 
           <h1 className="font-display text-4xl font-medium tracking-tight sm:text-6xl lg:text-7xl">
             Turn products into{" "}
-            <span className="gradient-text italic">marketplace-ready</span> assets
+            <span className="gradient-text italic">marketplace-ready</span> listings
           </h1>
 
           <p className="mt-6 text-lg text-muted-foreground sm:text-xl leading-relaxed">
-            Upload your products once. Let AI optimize images, build a stunning
-            storefront, and export to every major ecommerce platform — in minutes,
-            not days.
+            Upload your products once. Get a real readiness score for every channel,
+            clean up your photos, and export marketplace-ready files for Shopify,
+            Amazon, Etsy, and 7+ platforms — in minutes, not days.
           </p>
 
           <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
@@ -45,7 +45,7 @@ export function HeroSection() {
               className="w-full transition-all hover:-translate-y-0.5 hover:card-shadow-glow sm:w-auto"
             >
               <Link href="/signup">
-                Start free trial
+                Start free
                 <ArrowRight className="h-4 w-4" />
               </Link>
             </Button>
@@ -60,7 +60,7 @@ export function HeroSection() {
           </div>
 
           <p className="mt-4 text-sm text-muted-foreground">
-            No credit card required · 14-day free trial
+            No credit card required · Free to start
           </p>
         </FadeIn>
 
@@ -76,9 +76,9 @@ export function HeroSection() {
                 </div>
                 <div className="grid gap-4 sm:grid-cols-3">
                   {[
-                    { icon: Upload, label: "Upload", desc: "Drag & drop products" },
-                    { icon: Wand2, label: "Optimize", desc: "AI image enhancement" },
-                    { icon: Store, label: "Publish", desc: "Multi-channel export" },
+                    { icon: Upload, label: "Upload", desc: "Drag & drop or import CSV" },
+                    { icon: Wand2, label: "Optimize", desc: "Check readiness, clean photos" },
+                    { icon: Store, label: "Publish", desc: "Export to 7+ platforms" },
                   ].map((step, i) => (
                     <motion.div
                       key={step.label}
@@ -87,7 +87,7 @@ export function HeroSection() {
                       transition={{ delay: 0.4 + i * 0.15 }}
                       className="flex flex-col items-center rounded-lg bg-background p-4 text-center card-shadow"
                     >
-                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent">
+                      <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/10 via-accent to-accent/30 shadow-[0_8px_20px_-8px_rgba(56,102,65,0.35)]">
                         <step.icon className="h-5 w-5 text-primary" />
                       </div>
                       <p className="mt-2 text-sm font-medium">{step.label}</p>

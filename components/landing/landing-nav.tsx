@@ -39,7 +39,7 @@ export function LandingNav() {
             <Link href="/login">Sign in</Link>
           </Button>
           <Button asChild>
-            <Link href="/signup">Start free trial</Link>
+            <Link href="/signup">Start free</Link>
           </Button>
         </div>
 
@@ -74,7 +74,7 @@ export function LandingNav() {
               <Link href="/login">Sign in</Link>
             </Button>
             <Button asChild>
-              <Link href="/signup">Start free trial</Link>
+              <Link href="/signup">Start free</Link>
             </Button>
           </div>
         </div>
