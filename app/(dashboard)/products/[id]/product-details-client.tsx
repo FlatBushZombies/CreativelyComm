@@ -22,22 +22,36 @@ import { Progress } from "@/components/ui/progress";
 import { FadeIn } from "@/components/shared/fade-in";
 import type { Product } from "@/lib/products";
 import type { ChannelReadiness } from "@/lib/readiness";
-import { ChevronDown } from "lucide-react";
+import type { ProductVersion } from "@/lib/versions";
+import { ChevronDown, History } from "lucide-react";
 
 const exportFormats = [
-  { name: "Shopify CSV", size: "2.4 MB" },
-  { name: "Amazon Flat File", size: "1.8 MB" },
-  { name: "Google Merchant XML", size: "3.1 MB" },
-  { name: "High-Res Images (ZIP)", size: "24.6 MB" },
+  { name: "Shopify CSV", href: "/api/export/shopify" },
+  { name: "Amazon Flat File", href: "/api/export/amazon" },
+  { name: "Google Merchant XML", href: "/api/export/google" },
 ];
+
+function versionTimeAgo(isoDate: string): string {
+  const seconds = Math.floor((Date.now() - new Date(isoDate).getTime()) / 1000);
+  if (seconds < 60) return "Just now";
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes} minute${minutes === 1 ? "" : "s"} ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours} hour${hours === 1 ? "" : "s"} ago`;
+  const days = Math.floor(hours / 24);
+  if (days === 1) return "Yesterday";
+  if (days < 7) return `${days} days ago`;
+  return new Date(isoDate).toLocaleDateString();
+}
 
 interface ProductDetailsClientProps {
   product: Product;
   channelReadiness: ChannelReadiness[];
   productUrl: string;
+  versions: ProductVersion[];
 }
 
-export function ProductDetailsClient({ product, channelReadiness, productUrl }: ProductDetailsClientProps) {
+export function ProductDetailsClient({ product, channelReadiness, productUrl, versions }: ProductDetailsClientProps) {
   const [copied, setCopied] = useState(false);
   const [expandedChannel, setExpandedChannel] = useState<string | null>(null);
 
@@ -176,6 +190,36 @@ export function ProductDetailsClient({ product, channelReadiness, productUrl }: 
           </Card>
         </FadeIn>
 
+        <FadeIn delay={0.13} className="mt-8">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base flex items-center gap-2">
+                <History className="h-4 w-4 text-primary" />
+                Version History
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {versions.length === 0 ? (
+                <p className="text-sm text-muted-foreground">No versions recorded yet.</p>
+              ) : (
+                <div className="space-y-3">
+                  {versions.map((version) => (
+                    <div
+                      key={version.id}
+                      className="flex items-center justify-between rounded-lg border border-border p-3"
+                    >
+                      <p className="text-sm font-medium">{version.changeSummary}</p>
+                      <span className="shrink-0 text-xs text-muted-foreground">
+                        {versionTimeAgo(version.createdAt)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </FadeIn>
+
         <div className="mt-8 grid gap-6 lg:grid-cols-2">
           <FadeIn delay={0.15}>
             {product.optimizedImages.length > 0 ? (
@@ -202,6 +246,9 @@ export function ProductDetailsClient({ product, channelReadiness, productUrl }: 
             <Card>
               <CardHeader>
                 <CardTitle className="text-base">Export Formats</CardTitle>
+                <p className="text-xs text-muted-foreground">
+                  Downloads your whole catalog in this format, not just this product.
+                </p>
               </CardHeader>
               <CardContent className="space-y-3">
                 {exportFormats.map((format) => (
@@ -209,13 +256,12 @@ export function ProductDetailsClient({ product, channelReadiness, productUrl }: 
                     key={format.name}
                     className="flex items-center justify-between rounded-lg border border-border p-3"
                   >
-                    <div>
-                      <p className="text-sm font-medium">{format.name}</p>
-                      <p className="text-xs text-muted-foreground">{format.size}</p>
-                    </div>
-                    <Button variant="outline" size="sm">
-                      <Download className="h-3 w-3" />
-                      Download
+                    <p className="text-sm font-medium">{format.name}</p>
+                    <Button variant="outline" size="sm" asChild>
+                      <a href={format.href}>
+                        <Download className="h-3 w-3" />
+                        Download
+                      </a>
                     </Button>
                   </div>
                 ))}

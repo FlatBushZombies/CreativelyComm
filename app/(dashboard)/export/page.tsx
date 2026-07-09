@@ -1,5 +1,4 @@
-"use client";
-
+import { redirect } from "next/navigation";
 import {
   Download,
   RefreshCw,
@@ -21,9 +20,12 @@ import { DashboardHeader } from "@/components/dashboard/sidebar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
 import { FadeIn, StaggerContainer, StaggerItem } from "@/components/shared/fade-in";
+import { ExportAllButton } from "@/components/export/export-all-button";
 import { exportFormats } from "@/lib/mock-data";
+import { getServerSession } from "@/lib/auth/session";
+import { getOrCreateDefaultWorkspace } from "@/lib/workspace";
+import { getProducts } from "@/lib/products";
 
 const platformColors: Record<string, string> = {
   shopify: "bg-[#96bf48]",
@@ -51,8 +53,18 @@ const statusConfig = {
   pending: { label: "Pending", variant: "warning" as const, icon: Clock },
 };
 
-export default function ExportCenterPage() {
-  const readyCount = exportFormats.filter((f) => f.status === "ready" || f.status === "exported").length;
+export default async function ExportCenterPage() {
+  const session = await getServerSession();
+  if (!session) {
+    redirect("/login");
+  }
+
+  const workspace = await getOrCreateDefaultWorkspace(session.user.id, session.user.name);
+  const products = await getProducts(workspace.id);
+  const totalExports = products.reduce((sum, p) => sum + p.exports, 0);
+
+  const readyChannels = exportFormats.filter((f) => f.status !== "pending").map((f) => f.id);
+  const readyCount = readyChannels.length;
 
   return (
     <>
@@ -78,7 +90,7 @@ export default function ExportCenterPage() {
             </Card>
             <Card>
               <CardContent className="p-6 text-center">
-                <p className="text-3xl font-bold">31</p>
+                <p className="text-3xl font-bold">{totalExports}</p>
                 <p className="text-sm text-muted-foreground">Total Exports</p>
               </CardContent>
             </Card>
@@ -92,20 +104,10 @@ export default function ExportCenterPage() {
                 <div>
                   <h3 className="font-semibold">Bulk Export</h3>
                   <p className="text-sm text-muted-foreground">
-                    Export all products to all ready platforms at once
+                    Downloads a real feed file per ready platform for every optimized/published product
                   </p>
                 </div>
-                <Button>
-                  <Download className="h-4 w-4" />
-                  Export All Platforms
-                </Button>
-              </div>
-              <div className="mt-4">
-                <div className="flex items-center justify-between text-sm mb-2">
-                  <span className="text-muted-foreground">Last bulk export</span>
-                  <span>March 28, 2026</span>
-                </div>
-                <Progress value={85} />
+                <ExportAllButton channels={readyChannels} />
               </div>
             </CardContent>
           </Card>
@@ -116,6 +118,7 @@ export default function ExportCenterPage() {
             const status = statusConfig[format.status];
             const StatusIcon = status.icon;
             const PlatformIcon = platformIcons[format.icon];
+            const isPending = format.status === "pending";
 
             return (
               <StaggerItem key={format.id}>
@@ -156,22 +159,22 @@ export default function ExportCenterPage() {
                       )}
                     </div>
                     <div className="mt-4 flex gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="flex-1"
-                        disabled={format.status === "pending"}
-                      >
+                      <Button variant="outline" size="sm" className="flex-1" disabled>
                         <RefreshCw className="h-3 w-3" />
                         Sync
                       </Button>
-                      <Button
-                        size="sm"
-                        className="flex-1"
-                        disabled={format.status === "pending"}
-                      >
-                        <Download className="h-3 w-3" />
-                        Export
+                      <Button size="sm" className="flex-1" disabled={isPending} asChild={!isPending}>
+                        {isPending ? (
+                          <>
+                            <Download className="h-3 w-3" />
+                            Export
+                          </>
+                        ) : (
+                          <a href={`/api/export/${format.id}`}>
+                            <Download className="h-3 w-3" />
+                            Export
+                          </a>
+                        )}
                       </Button>
                     </div>
                   </CardContent>
@@ -192,7 +195,7 @@ export default function ExportCenterPage() {
                 <p className="text-xs text-amber-700 mt-1">
                   Connect your Meta Business account to enable Facebook Catalog exports.
                 </p>
-                <Button variant="outline" size="sm" className="mt-2">
+                <Button variant="outline" size="sm" className="mt-2" disabled>
                   <ExternalLink className="h-3 w-3" />
                   Connect Account
                 </Button>

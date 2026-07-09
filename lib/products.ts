@@ -1,5 +1,6 @@
 import "server-only";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
+import { recordProductVersion } from "@/lib/versions";
 
 export type ProductStatus = "draft" | "pending" | "optimized" | "published";
 
@@ -121,7 +122,58 @@ export async function createProduct(
     throw new Error(`Failed to create product: ${error?.message}`);
   }
 
-  return mapRow(data as ProductRow);
+  const product = mapRow(data as ProductRow);
+  await recordProductVersion(workspaceId, product, "Product created");
+  return product;
+}
+
+/**
+ * Bulk-inserts products in a single call (used by CSV import). Records a
+ * version snapshot per product, same as the single-product createProduct.
+ */
+export async function createProducts(
+  workspaceId: string,
+  inputs: CreateProductInput[]
+): Promise<Product[]> {
+  const supabase = getSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("products")
+    .insert(
+      inputs.map((input) => ({
+        workspace_id: workspaceId,
+        name: input.name,
+        description: input.description ?? "",
+        price: input.price ?? 0,
+        category: input.category ?? "",
+        sku: input.sku ?? null,
+        tags: input.tags ?? [],
+        images: input.images ?? [],
+      }))
+    )
+    .select();
+
+  if (error || !data) {
+    throw new Error(`Failed to import products: ${error?.message}`);
+  }
+
+  const products = (data as ProductRow[]).map(mapRow);
+  await Promise.all(
+    products.map((product) => recordProductVersion(workspaceId, product, "Product created (CSV import)"))
+  );
+  return products;
+}
+
+/**
+ * Increments the `exports` counter for a batch of products after a real
+ * export file has been generated for them.
+ */
+export async function incrementProductExports(productIds: string[]): Promise<void> {
+  const supabase = getSupabaseServerClient();
+  for (const id of productIds) {
+    const { data } = await supabase.from("products").select("exports").eq("id", id).maybeSingle();
+    if (!data) continue;
+    await supabase.from("products").update({ exports: data.exports + 1 }).eq("id", id);
+  }
 }
 
 /**
@@ -157,7 +209,9 @@ export async function addOptimizedImage(
     throw new Error(`Failed to update product: ${error?.message}`);
   }
 
-  return mapRow(data as ProductRow);
+  const product = mapRow(data as ProductRow);
+  await recordProductVersion(workspaceId, product, "Background removed from an image");
+  return product;
 }
 
 /**

@@ -5,6 +5,7 @@ import { Search, SlidersHorizontal } from "lucide-react";
 import { DashboardHeader } from "@/components/dashboard/sidebar";
 import { ProductCard } from "@/components/products/product-card";
 import { AddProductDialog } from "@/components/products/add-product-dialog";
+import { ImportProductsDialog } from "@/components/products/import-products-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -61,6 +62,7 @@ export function ProductsListClient({ products }: ProductsListClientProps) {
                 <SlidersHorizontal className="h-4 w-4" />
                 Filters
               </Button>
+              <ImportProductsDialog />
               <AddProductDialog />
             </div>
           </div>

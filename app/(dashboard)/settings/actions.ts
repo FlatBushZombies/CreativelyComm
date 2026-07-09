@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { getServerSession } from "@/lib/auth/session";
 import { getOrCreateDefaultWorkspace, updateWorkspaceBranding } from "@/lib/workspace";
 import { inviteMember, removeMember, getMemberRole, type WorkspaceRole } from "@/lib/team";
+import { logActivity } from "@/lib/activity";
 
 async function requireManagerRole() {
   const session = await getServerSession();
@@ -31,6 +32,13 @@ export async function inviteTeamMember(formData: FormData) {
   if (!email) return;
 
   await inviteMember(workspace.id, email, role);
+
+  await logActivity(workspace.id, {
+    type: "share",
+    title: "Teammate invited",
+    description: `${email} was invited as ${role}`,
+  });
+
   revalidatePath("/settings");
 }
 

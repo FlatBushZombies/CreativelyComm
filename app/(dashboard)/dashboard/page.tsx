@@ -10,6 +10,7 @@ import {
   Wand2,
   Share2,
   ArrowRight,
+  FileSpreadsheet,
 } from "lucide-react";
 import { DashboardHeader } from "@/components/dashboard/sidebar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -19,7 +20,7 @@ import { FadeIn, StaggerContainer, StaggerItem } from "@/components/shared/fade-
 import { getServerSession } from "@/lib/auth/session";
 import { getOrCreateDefaultWorkspace } from "@/lib/workspace";
 import { getDashboardStats } from "@/lib/stats";
-import { activities } from "@/lib/mock-data";
+import { getRecentActivity } from "@/lib/activity";
 
 const activityIcons = {
   optimize: Wand2,
@@ -27,6 +28,7 @@ const activityIcons = {
   publish: Share2,
   upload: Upload,
   share: Share2,
+  import: FileSpreadsheet,
 };
 
 const statIcons = [Package, ImageIcon, Eye, Download];
@@ -38,7 +40,10 @@ export default async function DashboardPage() {
   }
 
   const workspace = await getOrCreateDefaultWorkspace(session.user.id, session.user.name);
-  const dashboardStats = await getDashboardStats(workspace.id);
+  const [dashboardStats, activities] = await Promise.all([
+    getDashboardStats(workspace.id),
+    getRecentActivity(workspace.id),
+  ]);
   const firstName = session.user.name.split(" ")[0];
 
   return (
@@ -81,9 +86,13 @@ export default async function DashboardPage() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle className="text-base">Recent Activity</CardTitle>
-                <Button variant="ghost" size="sm">View all</Button>
               </CardHeader>
               <CardContent>
+                {activities.length === 0 ? (
+                  <p className="py-6 text-center text-sm text-muted-foreground">
+                    Activity will show up here as you add products, optimize images, and export.
+                  </p>
+                ) : (
                 <div className="space-y-4">
                   {activities.map((activity) => {
                     const Icon = activityIcons[activity.type];
@@ -113,6 +122,7 @@ export default async function DashboardPage() {
                     );
                   })}
                 </div>
+                )}
               </CardContent>
             </Card>
           </FadeIn>
