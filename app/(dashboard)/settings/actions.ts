@@ -6,6 +6,7 @@ import { getServerSession } from "@/lib/auth/session";
 import { getOrCreateDefaultWorkspace, updateWorkspaceBranding } from "@/lib/workspace";
 import { inviteMember, removeMember, getMemberRole, type WorkspaceRole } from "@/lib/team";
 import { logActivity } from "@/lib/activity";
+import { createApiKey, revokeApiKey, type ApiKey } from "@/lib/api-keys";
 
 async function requireManagerRole() {
   const session = await getServerSession();
@@ -64,4 +65,34 @@ export async function saveBrandingAction(formData: FormData) {
   revalidatePath("/settings");
   revalidatePath("/storefront");
   revalidatePath(`/store/${workspace.slug}`);
+}
+
+export interface CreateApiKeyState {
+  error?: string;
+  apiKey?: ApiKey;
+  plaintext?: string;
+}
+
+export async function createApiKeyAction(name: string): Promise<CreateApiKeyState> {
+  const workspace = await requireManagerRole();
+  if (!name.trim()) {
+    return { error: "Please name this key." };
+  }
+
+  try {
+    const { apiKey, plaintext } = await createApiKey(workspace.id, name.trim());
+    revalidatePath("/settings");
+    return { apiKey, plaintext };
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "Failed to create API key." };
+  }
+}
+
+export async function revokeApiKeyAction(formData: FormData) {
+  const workspace = await requireManagerRole();
+  const keyId = String(formData.get("keyId") ?? "");
+  if (!keyId) return;
+
+  await revokeApiKey(keyId, workspace.id);
+  revalidatePath("/settings");
 }

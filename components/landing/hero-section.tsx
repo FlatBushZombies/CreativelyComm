@@ -24,7 +24,7 @@ export function HeroSection() {
         <FadeIn className="mx-auto max-w-3xl text-center">
           <Badge variant="secondary" className="mb-6 gap-1.5 px-3 py-1">
             <Sparkles className="h-3 w-3 text-primary" />
-            Know before you publish
+            One workspace, every marketplace
           </Badge>
 
           <h1 className="font-display text-4xl font-medium tracking-tight sm:text-6xl lg:text-7xl">
@@ -33,9 +33,10 @@ export function HeroSection() {
           </h1>
 
           <p className="mt-6 text-lg text-muted-foreground sm:text-xl leading-relaxed">
-            Upload your products once. Get a real readiness score for every channel,
-            clean up your photos, and export marketplace-ready files for Shopify,
-            Amazon, Etsy, and 7+ platforms — in minutes, not days.
+            Organize your product library, check real per-channel readiness against
+            rules you control, clean up photos, and export marketplace-ready files
+            for Shopify, Amazon, Etsy, and 7+ platforms. Then launch a branded
+            storefront and collaborate with your team — all from one workspace.
           </p>
 
           <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">

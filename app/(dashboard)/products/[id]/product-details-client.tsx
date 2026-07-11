@@ -14,6 +14,7 @@ import { DashboardHeader } from "@/components/dashboard/sidebar";
 import { ImageGallery } from "@/components/products/image-gallery";
 import { AIOptimizationPanel } from "@/components/products/ai-optimization-panel";
 import { BeforeAfterPreview } from "@/components/products/before-after-preview";
+import { TranslationsPanel } from "@/components/products/translations-panel";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -23,6 +24,7 @@ import { FadeIn } from "@/components/shared/fade-in";
 import type { Product } from "@/lib/products";
 import type { ChannelReadiness } from "@/lib/readiness";
 import type { ProductVersion } from "@/lib/versions";
+import type { ProductTranslation } from "@/lib/translations";
 import { ChevronDown, History } from "lucide-react";
 
 const exportFormats = [
@@ -49,9 +51,10 @@ interface ProductDetailsClientProps {
   channelReadiness: ChannelReadiness[];
   productUrl: string;
   versions: ProductVersion[];
+  translations: ProductTranslation[];
 }
 
-export function ProductDetailsClient({ product, channelReadiness, productUrl, versions }: ProductDetailsClientProps) {
+export function ProductDetailsClient({ product, channelReadiness, productUrl, versions, translations }: ProductDetailsClientProps) {
   const [copied, setCopied] = useState(false);
   const [expandedChannel, setExpandedChannel] = useState<string | null>(null);
 
@@ -218,6 +221,10 @@ export function ProductDetailsClient({ product, channelReadiness, productUrl, ve
               )}
             </CardContent>
           </Card>
+        </FadeIn>
+
+        <FadeIn delay={0.14} className="mt-8">
+          <TranslationsPanel productId={product.id} translations={translations} />
         </FadeIn>
 
         <div className="mt-8 grid gap-6 lg:grid-cols-2">

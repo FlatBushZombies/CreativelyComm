@@ -9,7 +9,8 @@ import { FadeIn, StaggerContainer, StaggerItem } from "@/components/shared/fade-
 import { getServerSession } from "@/lib/auth/session";
 import { getOrCreateDefaultWorkspace } from "@/lib/workspace";
 import { getProducts } from "@/lib/products";
-import { getReadinessOverview } from "@/lib/readiness";
+import { getReadinessOverview, getAllChannels, getCustomRulesByChannel } from "@/lib/readiness";
+import { ManageRules } from "@/components/readiness/manage-rules";
 
 function scoreVariant(score: number): "success" | "warning" | "destructive" {
   if (score >= 80) return "success";
@@ -25,7 +26,11 @@ export default async function ReadinessOverviewPage() {
 
   const workspace = await getOrCreateDefaultWorkspace(session.user.id, session.user.name);
   const products = await getProducts(workspace.id);
-  const overview = await getReadinessOverview(products);
+  const [overview, channels, customRules] = await Promise.all([
+    getReadinessOverview(products, workspace.id),
+    getAllChannels(),
+    getCustomRulesByChannel(workspace.id),
+  ]);
 
   return (
     <>
@@ -91,6 +96,10 @@ export default async function ReadinessOverviewPage() {
               )}
             </CardContent>
           </Card>
+        </FadeIn>
+
+        <FadeIn delay={0.15} className="mt-6">
+          <ManageRules channels={channels} customRules={customRules} />
         </FadeIn>
       </div>
     </>

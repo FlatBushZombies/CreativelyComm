@@ -14,6 +14,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FadeIn } from "@/components/shared/fade-in";
 import type { WorkspaceMember, WorkspaceRole } from "@/lib/team";
 import type { Workspace } from "@/lib/workspace";
+import type { ApiKey } from "@/lib/api-keys";
+import { ApiKeysPanel } from "@/components/settings/api-keys-panel";
 import { inviteTeamMember, removeTeamMember, saveBrandingAction } from "./actions";
 
 const colorPresets = [
@@ -56,9 +58,10 @@ interface SettingsClientProps {
   members: WorkspaceMember[];
   currentUserId: string;
   canManageTeam: boolean;
+  apiKeys: ApiKey[];
 }
 
-export function SettingsClient({ workspace, members, currentUserId, canManageTeam }: SettingsClientProps) {
+export function SettingsClient({ workspace, members, currentUserId, canManageTeam, apiKeys }: SettingsClientProps) {
   const [brandColor, setBrandColor] = useState(workspace.brandColor);
   const [storeName, setStoreName] = useState(workspace.storeName || workspace.name);
   const [storeTagline, setStoreTagline] = useState(workspace.storeTagline || "");
@@ -82,6 +85,7 @@ export function SettingsClient({ workspace, members, currentUserId, canManageTea
               <TabsTrigger value="branding">Branding</TabsTrigger>
               <TabsTrigger value="store">Store</TabsTrigger>
               <TabsTrigger value="notifications">Notifications</TabsTrigger>
+              <TabsTrigger value="api">API</TabsTrigger>
               <TabsTrigger value="billing">Billing</TabsTrigger>
             </TabsList>
 
@@ -386,6 +390,10 @@ export function SettingsClient({ workspace, members, currentUserId, canManageTea
                   </div>
                 </CardContent>
               </Card>
+            </TabsContent>
+
+            <TabsContent value="api" className="space-y-6">
+              <ApiKeysPanel apiKeys={apiKeys} />
             </TabsContent>
 
             <TabsContent value="billing" className="space-y-6">

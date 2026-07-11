@@ -4,7 +4,13 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getServerSession } from "@/lib/auth/session";
 import { getOrCreateDefaultWorkspace } from "@/lib/workspace";
-import { createProduct, createProducts, type CreateProductInput } from "@/lib/products";
+import {
+  createProduct,
+  createProducts,
+  bulkUpdateProducts,
+  type CreateProductInput,
+  type BulkProductUpdate,
+} from "@/lib/products";
 import { uploadProductImages } from "@/lib/storage";
 import { logActivity } from "@/lib/activity";
 import { parseProductsCsv } from "@/lib/import/parse";
@@ -118,4 +124,41 @@ export async function importProductsAction(
 
   revalidatePath("/products");
   return { imported: rows.length, rowErrors };
+}
+
+export interface BulkUpdateState {
+  error?: string;
+  updated?: number;
+}
+
+export async function bulkUpdateProductsAction(
+  updates: BulkProductUpdate[]
+): Promise<BulkUpdateState> {
+  const session = await getServerSession();
+  if (!session) {
+    redirect("/login");
+  }
+
+  if (updates.length === 0) {
+    return { updated: 0 };
+  }
+
+  const workspace = await getOrCreateDefaultWorkspace(session.user.id, session.user.name);
+
+  let updatedCount = 0;
+  try {
+    const result = await bulkUpdateProducts(workspace.id, updates);
+    updatedCount = result.length;
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "Failed to save changes." };
+  }
+
+  await logActivity(workspace.id, {
+    type: "upload",
+    title: "Bulk edit completed",
+    description: `${updatedCount} product${updatedCount === 1 ? "" : "s"} updated`,
+  });
+
+  revalidatePath("/products");
+  return { updated: updatedCount };
 }

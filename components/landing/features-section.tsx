@@ -5,10 +5,10 @@ import {
   Scissors,
   Store,
   Share2,
-  Layers,
+  Languages,
   Users,
   FileSpreadsheet,
-  BarChart3,
+  Settings2,
 } from "lucide-react";
 import { FadeIn, StaggerContainer, StaggerItem } from "@/components/shared/fade-in";
 
@@ -38,10 +38,10 @@ const features = [
       "Generate real, marketplace-ready feed files for Shopify, Amazon, Etsy, Google Merchant, and 7+ platforms — one click, no guesswork.",
   },
   {
-    icon: Layers,
-    title: "Product Library & Version History",
+    icon: Languages,
+    title: "Multi-Language Listings",
     description:
-      "Organize every product with searchable tags and categories, and see a real history of every change.",
+      "Translate product names and descriptions for cross-border marketplaces, powered by DeepL — with a real version history behind every change.",
   },
   {
     icon: Users,
@@ -51,15 +51,15 @@ const features = [
   },
   {
     icon: FileSpreadsheet,
-    title: "CSV Bulk Import",
+    title: "CSV Import & Bulk Editing",
     description:
-      "Import your whole catalog from a spreadsheet in one go, or add products one at a time — your call.",
+      "Import your whole catalog from a spreadsheet, or bulk-edit prices, categories, and status right in the table.",
   },
   {
-    icon: BarChart3,
-    title: "Live Dashboard",
+    icon: Settings2,
+    title: "Customizable Rules & API Access",
     description:
-      "Real product counts, store views, and export activity — not sample data, an actual read on your catalog.",
+      "Add your own readiness checks on top of the defaults, and connect the API to your own scripts or automations.",
   },
 ];
 

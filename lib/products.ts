@@ -127,6 +127,47 @@ export async function createProduct(
   return product;
 }
 
+export interface UpdateProductInput {
+  name?: string;
+  description?: string;
+  price?: number;
+  category?: string;
+  sku?: string;
+  tags?: string[];
+  status?: ProductStatus;
+}
+
+/** Partial update for a single product, scoped to workspaceId. Used by the public API's PATCH endpoint. */
+export async function updateProduct(
+  id: string,
+  workspaceId: string,
+  input: UpdateProductInput
+): Promise<Product | null> {
+  const supabase = getSupabaseServerClient();
+  const patch: Record<string, unknown> = { updated_at: new Date().toISOString() };
+  if (input.name !== undefined) patch.name = input.name;
+  if (input.description !== undefined) patch.description = input.description;
+  if (input.price !== undefined) patch.price = input.price;
+  if (input.category !== undefined) patch.category = input.category;
+  if (input.sku !== undefined) patch.sku = input.sku;
+  if (input.tags !== undefined) patch.tags = input.tags;
+  if (input.status !== undefined) patch.status = input.status;
+
+  const { data, error } = await supabase
+    .from("products")
+    .update(patch)
+    .eq("id", id)
+    .eq("workspace_id", workspaceId)
+    .select()
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(`Failed to update product: ${error.message}`);
+  }
+
+  return data ? mapRow(data as ProductRow) : null;
+}
+
 /**
  * Bulk-inserts products in a single call (used by CSV import). Records a
  * version snapshot per product, same as the single-product createProduct.
@@ -212,6 +253,64 @@ export async function addOptimizedImage(
   const product = mapRow(data as ProductRow);
   await recordProductVersion(workspaceId, product, "Background removed from an image");
   return product;
+}
+
+export interface BulkProductUpdate {
+  id: string;
+  name: string;
+  price: number;
+  category: string;
+  status: ProductStatus;
+}
+
+/**
+ * Bulk-updates products in a single call (used by the products table's bulk
+ * edit view). Filters to rows actually owned by workspaceId first, so a
+ * forged id in the payload can't touch another workspace's product.
+ */
+export async function bulkUpdateProducts(
+  workspaceId: string,
+  updates: BulkProductUpdate[]
+): Promise<Product[]> {
+  const supabase = getSupabaseServerClient();
+
+  const { data: owned, error: ownedError } = await supabase
+    .from("products")
+    .select("id")
+    .eq("workspace_id", workspaceId)
+    .in("id", updates.map((u) => u.id));
+
+  if (ownedError) {
+    throw new Error(`Failed to verify product ownership: ${ownedError.message}`);
+  }
+
+  const ownedIds = new Set((owned ?? []).map((row) => row.id as string));
+  const safeUpdates = updates.filter((u) => ownedIds.has(u.id));
+
+  if (safeUpdates.length === 0) {
+    return [];
+  }
+
+  const { data, error } = await supabase
+    .from("products")
+    .upsert(
+      safeUpdates.map((u) => ({
+        id: u.id,
+        workspace_id: workspaceId,
+        name: u.name,
+        price: u.price,
+        category: u.category,
+        status: u.status,
+        updated_at: new Date().toISOString(),
+      }))
+    )
+    .select();
+
+  if (error || !data) {
+    throw new Error(`Failed to bulk update products: ${error?.message}`);
+  }
+
+  return (data as ProductRow[]).map(mapRow);
 }
 
 /**

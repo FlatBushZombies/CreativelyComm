@@ -6,6 +6,8 @@ import type { Product } from "@/lib/products";
 // common-sense heuristics (has a SKU, enough images, a real description),
 // NOT a verified, up-to-date copy of any marketplace's actual current
 // policies -- the channel_rules table is a configurable starting point.
+// Workspaces can add their own rules on top (workspace_channel_rules) --
+// additive only, the global defaults are shared and never edited in place.
 
 export type RuleCheckType =
   | "field_present"
@@ -20,6 +22,7 @@ export interface ChannelRule {
   checkType: RuleCheckType;
   config: Record<string, unknown>;
   weight: number;
+  isCustom: boolean;
 }
 
 export interface Channel {
@@ -55,27 +58,64 @@ interface ChannelRow {
   channel_rules: ChannelRuleRow[];
 }
 
-async function getChannelsWithRules(): Promise<{ channel: Channel; rules: ChannelRule[] }[]> {
-  const supabase = getSupabaseServerClient();
-  const { data, error } = await supabase
-    .from("channels")
-    .select("id, slug, name, channel_rules(id, key, label, check_type, config, weight)");
+interface WorkspaceChannelRuleRow extends ChannelRuleRow {
+  channel_id: string;
+}
 
-  if (error) {
-    throw new Error(`Failed to load channels: ${error.message}`);
+async function getChannelsWithRules(
+  workspaceId: string
+): Promise<{ channel: Channel; rules: ChannelRule[] }[]> {
+  const supabase = getSupabaseServerClient();
+
+  const [channelsRes, customRulesRes] = await Promise.all([
+    supabase
+      .from("channels")
+      .select("id, slug, name, channel_rules(id, key, label, check_type, config, weight)"),
+    supabase
+      .from("workspace_channel_rules")
+      .select("id, channel_id, key, label, check_type, config, weight")
+      .eq("workspace_id", workspaceId),
+  ]);
+
+  if (channelsRes.error) {
+    throw new Error(`Failed to load channels: ${channelsRes.error.message}`);
+  }
+  if (customRulesRes.error) {
+    throw new Error(`Failed to load custom rules: ${customRulesRes.error.message}`);
   }
 
-  return (data as ChannelRow[]).map((row) => ({
-    channel: { id: row.id, slug: row.slug, name: row.name },
-    rules: (row.channel_rules ?? []).map((rule) => ({
+  const customByChannel = new Map<string, WorkspaceChannelRuleRow[]>();
+  for (const row of (customRulesRes.data ?? []) as WorkspaceChannelRuleRow[]) {
+    const list = customByChannel.get(row.channel_id) ?? [];
+    list.push(row);
+    customByChannel.set(row.channel_id, list);
+  }
+
+  return (channelsRes.data as ChannelRow[]).map((row) => {
+    const defaultRules: ChannelRule[] = (row.channel_rules ?? []).map((rule) => ({
       id: rule.id,
       key: rule.key,
       label: rule.label,
       checkType: rule.check_type,
       config: rule.config,
       weight: rule.weight,
-    })),
-  }));
+      isCustom: false,
+    }));
+    const customRules: ChannelRule[] = (customByChannel.get(row.id) ?? []).map((rule) => ({
+      id: rule.id,
+      key: rule.key,
+      label: rule.label,
+      checkType: rule.check_type,
+      config: rule.config,
+      weight: rule.weight,
+      isCustom: true,
+    }));
+
+    return {
+      channel: { id: row.id, slug: row.slug, name: row.name },
+      rules: [...defaultRules, ...customRules],
+    };
+  });
 }
 
 function evaluateRule(product: Product, rule: ChannelRule): boolean {
@@ -118,8 +158,11 @@ export function computeReadiness(product: Product, rules: ChannelRule[]) {
   };
 }
 
-export async function getChannelsWithReadiness(product: Product): Promise<ChannelReadiness[]> {
-  const channelsWithRules = await getChannelsWithRules();
+export async function getChannelsWithReadiness(
+  product: Product,
+  workspaceId: string
+): Promise<ChannelReadiness[]> {
+  const channelsWithRules = await getChannelsWithRules(workspaceId);
 
   return channelsWithRules.map(({ channel, rules }) => {
     const { score, passed, failed } = computeReadiness(product, rules);
@@ -143,8 +186,11 @@ export interface ReadinessOverview {
  * channels+rules once and reuses them for every product, rather than the
  * N+1 pattern getChannelsWithReadiness would produce if called in a loop.
  */
-export async function getReadinessOverview(products: Product[]): Promise<ReadinessOverview> {
-  const channelsWithRules = await getChannelsWithRules();
+export async function getReadinessOverview(
+  products: Product[],
+  workspaceId: string
+): Promise<ReadinessOverview> {
+  const channelsWithRules = await getChannelsWithRules(workspaceId);
 
   if (products.length === 0 || channelsWithRules.length === 0) {
     return {
@@ -178,4 +224,92 @@ export async function getReadinessOverview(products: Product[]): Promise<Readine
   productSummaries.sort((a, b) => a.averageScore - b.averageScore);
 
   return { channelAverages, products: productSummaries };
+}
+
+// -- Self-serve custom rules -------------------------------------------
+
+export interface CustomRule extends ChannelRule {
+  channelId: string;
+}
+
+/** All of a workspace's custom rules across every channel, for the "manage rules" UI. */
+export async function getCustomRulesByChannel(workspaceId: string): Promise<CustomRule[]> {
+  const supabase = getSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("workspace_channel_rules")
+    .select("id, channel_id, key, label, check_type, config, weight")
+    .eq("workspace_id", workspaceId)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    throw new Error(`Failed to load custom rules: ${error.message}`);
+  }
+
+  return (data as WorkspaceChannelRuleRow[]).map((row) => ({
+    id: row.id,
+    channelId: row.channel_id,
+    key: row.key,
+    label: row.label,
+    checkType: row.check_type,
+    config: row.config,
+    weight: row.weight,
+    isCustom: true,
+  }));
+}
+
+export async function getAllChannels(): Promise<Channel[]> {
+  const supabase = getSupabaseServerClient();
+  const { data, error } = await supabase.from("channels").select("id, slug, name").order("name");
+  if (error) {
+    throw new Error(`Failed to load channels: ${error.message}`);
+  }
+  return data as Channel[];
+}
+
+export interface CreateCustomRuleInput {
+  channelId: string;
+  key: string;
+  label: string;
+  checkType: RuleCheckType;
+  field: string;
+  min?: number;
+  weight: number;
+}
+
+export async function createCustomRule(
+  workspaceId: string,
+  input: CreateCustomRuleInput
+): Promise<void> {
+  const supabase = getSupabaseServerClient();
+  const config: Record<string, unknown> = { field: input.field };
+  if (input.checkType === "min_array_length" || input.checkType === "min_text_length") {
+    config.min = input.min ?? 1;
+  }
+
+  const { error } = await supabase.from("workspace_channel_rules").insert({
+    workspace_id: workspaceId,
+    channel_id: input.channelId,
+    key: input.key,
+    label: input.label,
+    check_type: input.checkType,
+    config,
+    weight: input.weight,
+  });
+
+  if (error) {
+    throw new Error(`Failed to create custom rule: ${error.message}`);
+  }
+}
+
+export async function deleteCustomRule(ruleId: string, workspaceId: string): Promise<void> {
+  const supabase = getSupabaseServerClient();
+  const { error } = await supabase
+    .from("workspace_channel_rules")
+    .delete()
+    .eq("id", ruleId)
+    .eq("workspace_id", workspaceId);
+
+  if (error) {
+    throw new Error(`Failed to delete custom rule: ${error.message}`);
+  }
 }

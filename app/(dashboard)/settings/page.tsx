@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { getServerSession } from "@/lib/auth/session";
 import { getOrCreateDefaultWorkspace } from "@/lib/workspace";
 import { getWorkspaceMembers, getMemberRole } from "@/lib/team";
+import { listApiKeys } from "@/lib/api-keys";
 import { SettingsClient } from "./settings-client";
 
 export default async function SettingsPage() {
@@ -11,9 +12,10 @@ export default async function SettingsPage() {
   }
 
   const workspace = await getOrCreateDefaultWorkspace(session.user.id, session.user.name);
-  const [members, role] = await Promise.all([
+  const [members, role, apiKeys] = await Promise.all([
     getWorkspaceMembers(workspace.id),
     getMemberRole(workspace.id, session.user.id),
+    listApiKeys(workspace.id),
   ]);
 
   return (
@@ -22,6 +24,7 @@ export default async function SettingsPage() {
       members={members}
       currentUserId={session.user.id}
       canManageTeam={role === "owner" || role === "admin"}
+      apiKeys={apiKeys}
     />
   );
 }

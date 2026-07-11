@@ -4,6 +4,7 @@ import { getOrCreateDefaultWorkspace } from "@/lib/workspace";
 import { getProductById } from "@/lib/products";
 import { getChannelsWithReadiness } from "@/lib/readiness";
 import { getProductVersions } from "@/lib/versions";
+import { getProductTranslations } from "@/lib/translations";
 import { ProductDetailsClient } from "./product-details-client";
 
 interface ProductDetailsPageProps {
@@ -24,9 +25,10 @@ export default async function ProductDetailsPage({ params }: ProductDetailsPageP
     notFound();
   }
 
-  const [channelReadiness, versions] = await Promise.all([
-    getChannelsWithReadiness(product),
+  const [channelReadiness, versions, translations] = await Promise.all([
+    getChannelsWithReadiness(product, workspace.id),
     getProductVersions(product.id, workspace.id),
+    getProductTranslations(product.id, workspace.id),
   ]);
 
   const origin = process.env.BETTER_AUTH_URL || "http://localhost:3000";
@@ -38,6 +40,7 @@ export default async function ProductDetailsPage({ params }: ProductDetailsPageP
       channelReadiness={channelReadiness}
       productUrl={productUrl}
       versions={versions}
+      translations={translations}
     />
   );
 }

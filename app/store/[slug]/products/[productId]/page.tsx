@@ -7,13 +7,16 @@ import { Separator } from "@/components/ui/separator";
 import { PublicImageGallery } from "@/components/storefront/public-image-gallery";
 import { getWorkspaceBySlug } from "@/lib/workspace";
 import { getProductById, incrementProductViews } from "@/lib/products";
+import { getProductTranslation } from "@/lib/translations";
 
 interface PublicProductPageProps {
   params: Promise<{ slug: string; productId: string }>;
+  searchParams: Promise<{ lang?: string }>;
 }
 
-export default async function PublicProductPage({ params }: PublicProductPageProps) {
+export default async function PublicProductPage({ params, searchParams }: PublicProductPageProps) {
   const { slug, productId } = await params;
+  const { lang } = await searchParams;
   const workspace = await getWorkspaceBySlug(slug);
   if (!workspace) {
     notFound();
@@ -25,6 +28,10 @@ export default async function PublicProductPage({ params }: PublicProductPagePro
   }
 
   await incrementProductViews(product.id);
+
+  const translation = lang ? await getProductTranslation(product.id, lang.toUpperCase()) : null;
+  const displayName = translation?.name || product.name;
+  const displayDescription = translation?.description || product.description;
 
   const images = product.optimizedImages.length > 0 ? product.optimizedImages : product.images;
   const storeName = workspace.storeName || workspace.name;
@@ -46,24 +53,25 @@ export default async function PublicProductPage({ params }: PublicProductPagePro
 
       <div className="mx-auto max-w-5xl px-6 py-12">
         <div className="grid gap-10 lg:grid-cols-2">
-          <PublicImageGallery images={images} productName={product.name} />
+          <PublicImageGallery images={images} productName={displayName} />
 
           <div className="space-y-6">
             <div>
               <div className="flex items-center gap-2">
                 {product.category && <Badge variant="secondary">{product.category}</Badge>}
                 {product.sku && <Badge variant="muted">{product.sku}</Badge>}
+                {translation && <Badge variant="outline">{translation.locale}</Badge>}
               </div>
-              <h1 className="font-display mt-3 text-4xl font-medium">{product.name}</h1>
+              <h1 className="font-display mt-3 text-4xl font-medium">{displayName}</h1>
               <p
                 className="mt-2 text-3xl font-display"
                 style={{ color: workspace.brandColor }}
               >
                 ${product.price.toFixed(2)}
               </p>
-              {product.description && (
+              {displayDescription && (
                 <p className="mt-4 text-muted-foreground leading-relaxed">
-                  {product.description}
+                  {displayDescription}
                 </p>
               )}
             </div>

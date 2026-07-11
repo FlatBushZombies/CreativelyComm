@@ -1,11 +1,12 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Search, SlidersHorizontal } from "lucide-react";
+import { Search, SlidersHorizontal, LayoutGrid, Table2 } from "lucide-react";
 import { DashboardHeader } from "@/components/dashboard/sidebar";
 import { ProductCard } from "@/components/products/product-card";
 import { AddProductDialog } from "@/components/products/add-product-dialog";
 import { ImportProductsDialog } from "@/components/products/import-products-dialog";
+import { BulkEditTable } from "@/components/products/bulk-edit-table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -22,6 +23,7 @@ interface ProductsListClientProps {
 export function ProductsListClient({ products }: ProductsListClientProps) {
   const [search, setSearch] = useState("");
   const [activeFilter, setActiveFilter] = useState("All");
+  const [view, setView] = useState<"grid" | "table">("grid");
 
   const filteredProducts = useMemo(() => {
     return products.filter((product) => {
@@ -58,6 +60,28 @@ export function ProductsListClient({ products }: ProductsListClientProps) {
               />
             </div>
             <div className="flex gap-2">
+              <div className="flex rounded-lg border border-border p-0.5">
+                <button
+                  onClick={() => setView("grid")}
+                  className={cn(
+                    "rounded-md p-1.5 transition-colors",
+                    view === "grid" ? "bg-accent text-accent-foreground" : "text-muted-foreground"
+                  )}
+                  aria-label="Grid view"
+                >
+                  <LayoutGrid className="h-4 w-4" />
+                </button>
+                <button
+                  onClick={() => setView("table")}
+                  className={cn(
+                    "rounded-md p-1.5 transition-colors",
+                    view === "table" ? "bg-accent text-accent-foreground" : "text-muted-foreground"
+                  )}
+                  aria-label="Table view (bulk edit)"
+                >
+                  <Table2 className="h-4 w-4" />
+                </button>
+              </div>
               <Button variant="outline" size="sm">
                 <SlidersHorizontal className="h-4 w-4" />
                 Filters
@@ -93,7 +117,7 @@ export function ProductsListClient({ products }: ProductsListClientProps) {
                 : "No products match your search."}
             </p>
           </FadeIn>
-        ) : (
+        ) : view === "grid" ? (
           <StaggerContainer className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {filteredProducts.map((product) => (
               <StaggerItem key={product.id}>
@@ -101,6 +125,10 @@ export function ProductsListClient({ products }: ProductsListClientProps) {
               </StaggerItem>
             ))}
           </StaggerContainer>
+        ) : (
+          <div className="mt-6">
+            <BulkEditTable products={filteredProducts} />
+          </div>
         )}
 
         <div className="mt-6 flex items-center justify-between text-sm text-muted-foreground">
