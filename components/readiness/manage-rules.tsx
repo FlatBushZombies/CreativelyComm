@@ -171,6 +171,7 @@ export function ManageRules({
                   </div>
                   <form action={deleteCustomRuleAction}>
                     <input type="hidden" name="ruleId" value={rule.id} />
+                    <input type="hidden" name="channelName" value={channel?.name ?? ""} />
                     <Button type="submit" variant="ghost" size="icon" className="h-8 w-8 shrink-0">
                       <Trash2 className="h-4 w-4 text-red-500" />
                     </Button>

@@ -24,19 +24,21 @@ export function HeroSection() {
         <FadeIn className="mx-auto max-w-3xl text-center">
           <Badge variant="secondary" className="mb-6 gap-1.5 px-3 py-1">
             <Sparkles className="h-3 w-3 text-primary" />
-            One workspace, every marketplace
+            Every product deserves a story worth sharing
           </Badge>
 
           <h1 className="font-display text-4xl font-medium tracking-tight sm:text-6xl lg:text-7xl">
-            Turn products into{" "}
-            <span className="gradient-text italic">marketplace-ready</span> listings
+            Where every product gets{" "}
+            <span className="gradient-text italic">marketplace-ready</span>
           </h1>
 
           <p className="mt-6 text-lg text-muted-foreground sm:text-xl leading-relaxed">
-            Organize your product library, check real per-channel readiness against
-            rules you control, clean up photos, and export marketplace-ready files
-            for Shopify, Amazon, Etsy, and 7+ platforms. Then launch a branded
-            storefront and collaborate with your team — all from one workspace.
+            CreativelyComm isn&apos;t another ecommerce platform — it&apos;s the workspace
+            where products are created, refined, and prepared before they reach
+            customers. Organize your library, check real per-channel readiness against
+            rules you control, clean up photos, and export marketplace-ready files for
+            Shopify, Amazon, Etsy, and 7+ platforms — then publish everywhere your
+            customers already are.
           </p>
 
           <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">

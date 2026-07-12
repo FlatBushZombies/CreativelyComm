@@ -151,6 +151,20 @@ export function ApiKeysPanel({ apiKeys }: { apiKeys: ApiKey[] }) {
   -d '{"price": 24.99}'`}
             </pre>
           </div>
+          <div>
+            <p className="font-medium">Check a product&apos;s channel readiness</p>
+            <pre className="mt-1.5 overflow-x-auto rounded-lg bg-muted p-3 text-xs">
+{`curl https://your-app.example.com/api/v1/products/{id}/readiness \\
+  -H "Authorization: Bearer sk_live_..."`}
+            </pre>
+          </div>
+          <div>
+            <p className="font-medium">Catalog-wide readiness overview</p>
+            <pre className="mt-1.5 overflow-x-auto rounded-lg bg-muted p-3 text-xs">
+{`curl https://your-app.example.com/api/v1/readiness \\
+  -H "Authorization: Bearer sk_live_..."`}
+            </pre>
+          </div>
         </CardContent>
       </Card>
     </div>

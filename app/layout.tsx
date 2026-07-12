@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     template: "%s | CreativelyComm",
   },
   description:
-    "AI-powered product marketing platform for optimizing images, building storefronts, and exporting to marketplaces.",
+    "The workspace where products are created, refined, and made ready for every channel — not another ecommerce platform.",
 };
 
 export default function RootLayout({

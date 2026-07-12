@@ -69,11 +69,12 @@ export function FeaturesSection() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <FadeIn className="mx-auto max-w-2xl text-center">
           <h2 className="font-display text-3xl font-medium tracking-tight sm:text-5xl">
-            Everything you need to sell everywhere
+            Everything a product needs before it&apos;s ready for the world
           </h2>
           <p className="mt-4 text-lg text-muted-foreground">
-            From raw product photos to marketplace-ready listings — CreativelyComm
-            handles the entire product marketing workflow.
+            The online store is just one output. CreativelyComm is where the product
+            experience actually begins — from raw photos to a real readiness score for
+            every channel.
           </p>
         </FadeIn>
 
