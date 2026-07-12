@@ -21,17 +21,26 @@ export function PricingSection() {
           </p>
         </FadeIn>
 
-        <StaggerContainer className="mt-16 grid gap-8 lg:grid-cols-3">
+        <StaggerContainer className="mt-16 grid gap-8 lg:grid-cols-3 lg:items-center">
           {pricingPlans.map((plan) => (
-            <StaggerItem key={plan.name}>
+            <StaggerItem
+              key={plan.name}
+              className={plan.highlighted ? "lg:-translate-y-4" : ""}
+            >
               <div
                 className={cn(
-                  "relative flex h-full flex-col rounded-2xl border p-8 transition-all",
+                  "relative flex h-full flex-col overflow-hidden rounded-2xl border p-8 transition-all",
                   plan.highlighted
                     ? "border-primary/40 bg-card card-shadow-glow scale-[1.02] ring-1 ring-primary/15"
                     : "border-border bg-card card-shadow"
                 )}
               >
+                <div
+                  className={cn(
+                    "absolute inset-x-0 top-0 h-1.5",
+                    plan.highlighted ? "bg-primary" : "bg-border"
+                  )}
+                />
                 {plan.highlighted && (
                   <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 shadow-sm">
                     Most Popular

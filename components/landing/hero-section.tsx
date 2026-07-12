@@ -9,6 +9,8 @@ import {
   Upload,
   Wand2,
   Store,
+  ShieldCheck,
+  Layers,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -16,60 +18,69 @@ import { FadeIn } from "@/components/shared/fade-in";
 
 export function HeroSection() {
   return (
-    <section className="relative overflow-hidden pt-32 pb-20 sm:pt-40 sm:pb-28">
+    <section className="relative overflow-hidden pt-32 pb-24 sm:pt-40 sm:pb-32">
       <div className="hero-gradient absolute inset-0" />
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#e4e4e7_1px,transparent_1px),linear-gradient(to_bottom,#e4e4e7_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
 
+      {/* Floating decorative shapes, purely ornamental */}
+      <div className="pointer-events-none absolute left-[6%] top-[22%] hidden h-16 w-16 rotate-12 rounded-2xl bg-amber-200/50 blur-[2px] lg:block" />
+      <div className="pointer-events-none absolute right-[8%] top-[14%] hidden h-10 w-10 -rotate-6 rounded-full bg-violet-200/60 lg:block" />
+      <div className="pointer-events-none absolute bottom-[8%] left-[10%] hidden h-8 w-8 rounded-full bg-primary/15 lg:block" />
+
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <FadeIn className="mx-auto max-w-3xl text-center">
-          <Badge variant="secondary" className="mb-6 gap-1.5 px-3 py-1">
-            <Sparkles className="h-3 w-3 text-primary" />
-            Every product deserves a story worth sharing
-          </Badge>
+        <div className="grid items-center gap-16 lg:grid-cols-[1.05fr_1fr] lg:gap-12">
+          <FadeIn className="relative mx-auto max-w-xl text-center lg:mx-0 lg:max-w-none lg:text-left">
+            <Badge variant="secondary" className="mb-6 gap-1.5 px-3 py-1">
+              <Sparkles className="h-3 w-3 text-primary" />
+              Every product deserves a story worth sharing
+            </Badge>
 
-          <h1 className="font-display text-4xl font-medium tracking-tight sm:text-6xl lg:text-7xl">
-            Where every product gets{" "}
-            <span className="gradient-text italic">marketplace-ready</span>
-          </h1>
+            <h1 className="font-display text-4xl font-medium tracking-tight sm:text-6xl lg:text-6xl xl:text-7xl">
+              Where every product gets{" "}
+              <span className="gradient-text italic">marketplace-ready</span>
+            </h1>
 
-          <p className="mt-6 text-lg text-muted-foreground sm:text-xl leading-relaxed">
-            CreativelyComm isn&apos;t another ecommerce platform — it&apos;s the workspace
-            where products are created, refined, and prepared before they reach
-            customers. Organize your library, check real per-channel readiness against
-            rules you control, clean up photos, and export marketplace-ready files for
-            Shopify, Amazon, Etsy, and 7+ platforms — then publish everywhere your
-            customers already are.
-          </p>
+            <p className="mt-6 text-lg text-muted-foreground sm:text-xl leading-relaxed">
+              CreativelyComm isn&apos;t another ecommerce platform — it&apos;s the workspace
+              where products are created, refined, and prepared before they reach
+              customers. Organize your library, check real per-channel readiness against
+              rules you control, clean up photos, and export marketplace-ready files for
+              Shopify, Amazon, Etsy, and 7+ platforms — then publish everywhere your
+              customers already are.
+            </p>
 
-          <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-            <Button
-              size="lg"
-              asChild
-              className="w-full transition-all hover:-translate-y-0.5 hover:card-shadow-glow sm:w-auto"
-            >
-              <Link href="/signup">
-                Start free
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-            </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              asChild
-              className="w-full transition-all hover:-translate-y-0.5 sm:w-auto"
-            >
-              <Link href="#workflow">See how it works</Link>
-            </Button>
-          </div>
+            <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center lg:justify-start">
+              <Button
+                size="lg"
+                asChild
+                className="w-full transition-all hover:-translate-y-0.5 hover:card-shadow-glow sm:w-auto"
+              >
+                <Link href="/signup">
+                  Start free
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                asChild
+                className="w-full transition-all hover:-translate-y-0.5 sm:w-auto"
+              >
+                <Link href="#workflow">See how it works</Link>
+              </Button>
+            </div>
 
-          <p className="mt-4 text-sm text-muted-foreground">
-            No credit card required · Free to start
-          </p>
-        </FadeIn>
+            <p className="mt-4 text-sm text-muted-foreground">
+              No credit card required · Free to start
+            </p>
+          </FadeIn>
 
-        <FadeIn delay={0.2} className="mt-16 sm:mt-20">
-          <div className="relative mx-auto max-w-5xl">
-            <div className="rounded-2xl border border-border bg-card p-2 card-shadow-lg">
+          <FadeIn delay={0.2} className="relative">
+            {/* Soft glow + a second, rotated card peeking out for cinematic depth */}
+            <div className="absolute inset-6 -z-10 rounded-[2rem] bg-gradient-to-br from-primary/25 via-primary/10 to-transparent blur-2xl" />
+            <div className="absolute -right-3 -top-3 hidden h-full w-full rotate-3 rounded-2xl border border-border bg-card/60 sm:block" />
+
+            <div className="relative rounded-2xl border border-border bg-card p-2 card-shadow-lg -rotate-1">
               <div className="rounded-lg bg-muted/50 p-4 sm:p-6">
                 <div className="flex items-center gap-2 mb-4">
                   <div className="h-3 w-3 rounded-full bg-red-400" />
@@ -112,8 +123,27 @@ export function HeroSection() {
                 </div>
               </div>
             </div>
-          </div>
-        </FadeIn>
+
+            {/* Floating accent badges -- decorative only, reusing existing on-page wording */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              transition={{ delay: 0.9 }}
+              className="absolute -left-6 top-10 hidden rotate-[-6deg] items-center gap-1.5 rounded-full bg-card px-3 py-1.5 text-xs font-medium card-shadow-lg sm:flex"
+            >
+              <ShieldCheck className="h-3.5 w-3.5 text-primary" />
+              Readiness
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8, y: -10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              transition={{ delay: 1.05 }}
+              className="absolute -bottom-5 right-2 hidden rotate-[4deg] items-center justify-center rounded-full bg-primary p-2.5 text-primary-foreground card-shadow-lg sm:flex"
+            >
+              <Layers className="h-4 w-4" />
+            </motion.div>
+          </FadeIn>
+        </div>
       </div>
     </section>
   );

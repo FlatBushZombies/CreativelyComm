@@ -13,6 +13,10 @@ export function CTASection() {
           <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary via-primary to-[#20401f] px-8 py-16 text-center card-shadow-glow sm:px-16">
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_0%,rgba(255,255,255,0.12),transparent)]" />
             <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.07)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.07)_1px,transparent_1px)] bg-[size:3rem_3rem]" />
+            {/* Floating decorative shapes, purely ornamental */}
+            <div className="pointer-events-none absolute -left-8 top-8 hidden h-24 w-24 rotate-12 rounded-3xl bg-white/10 sm:block" />
+            <div className="pointer-events-none absolute -right-6 bottom-10 hidden h-16 w-16 -rotate-6 rounded-full bg-white/10 sm:block" />
+            <div className="pointer-events-none absolute right-16 top-10 hidden h-8 w-8 rounded-full bg-white/20 md:block" />
             <div className="relative">
               <h2 className="font-display text-3xl font-medium text-white sm:text-5xl">
                 Is this product ready inside CreativelyComm?

@@ -53,7 +53,7 @@ export function WorkflowSection() {
           </p>
         </FadeIn>
 
-        <div className="mt-16 space-y-20">
+        <div className="mt-20 space-y-24">
           {steps.map((step, index) => (
             <FadeIn key={step.step} delay={index * 0.1}>
               <div
@@ -63,7 +63,6 @@ export function WorkflowSection() {
               >
                 <div className="flex-1">
                   <div className="flex items-center gap-3">
-                    <span className="font-display text-2xl text-primary/50">{step.step}</span>
                     <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/10 via-accent to-accent/30 shadow-[0_8px_20px_-8px_rgba(56,102,65,0.35)]">
                       <step.icon className="h-5 w-5 text-primary" />
                     </div>
@@ -85,8 +84,15 @@ export function WorkflowSection() {
                     )}
                   </ul>
                 </div>
-                <div className="flex-1 w-full">
-                  <div className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-border/60 card-shadow-lg ring-1 ring-black/[0.03]">
+                <div className="relative flex-1 w-full">
+                  <span
+                    className={`font-display pointer-events-none absolute -top-10 z-0 text-[7rem] leading-none text-primary/10 sm:text-[9rem] ${
+                      index % 2 === 0 ? "-left-4 sm:-left-8" : "-right-4 sm:-right-8"
+                    }`}
+                  >
+                    {step.step}
+                  </span>
+                  <div className="relative z-10 aspect-[4/3] overflow-hidden rounded-2xl border border-border/60 card-shadow-lg ring-1 ring-black/[0.03]">
                     <Image
                       src={step.image}
                       alt={step.title}
