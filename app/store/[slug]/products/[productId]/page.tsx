@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import type { Metadata } from "next";
 import { ArrowLeft } from "lucide-react";
 import { Logo } from "@/components/shared/logo";
 import { Badge } from "@/components/ui/badge";
@@ -12,6 +13,22 @@ import { getProductTranslation } from "@/lib/translations";
 interface PublicProductPageProps {
   params: Promise<{ slug: string; productId: string }>;
   searchParams: Promise<{ lang?: string }>;
+}
+
+export async function generateMetadata({ params }: PublicProductPageProps): Promise<Metadata> {
+  const { slug, productId } = await params;
+  const workspace = await getWorkspaceBySlug(slug);
+  if (!workspace) return {};
+
+  const product = await getProductById(productId, workspace.id);
+  if (!product) return {};
+
+  const images = product.optimizedImages.length > 0 ? product.optimizedImages : product.images;
+  return {
+    title: product.metaTitle || product.name,
+    description: product.metaDescription || product.description || undefined,
+    openGraph: images.length > 0 ? { images: [images[0]] } : undefined,
+  };
 }
 
 export default async function PublicProductPage({ params, searchParams }: PublicProductPageProps) {
@@ -36,8 +53,30 @@ export default async function PublicProductPage({ params, searchParams }: Public
   const images = product.optimizedImages.length > 0 ? product.optimizedImages : product.images;
   const storeName = workspace.storeName || workspace.name;
 
+  const productJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: displayName,
+    description: displayDescription || undefined,
+    image: images.length > 0 ? images : undefined,
+    sku: product.sku || undefined,
+    offers: {
+      "@type": "Offer",
+      price: product.price.toFixed(2),
+      priceCurrency: "USD",
+      availability:
+        product.trackInventory && product.stockQuantity <= 0
+          ? "https://schema.org/OutOfStock"
+          : "https://schema.org/InStock",
+    },
+  };
+
   return (
     <div className="min-h-screen bg-background">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd).replace(/</g, "\\u003c") }}
+      />
       <header className="border-b border-border/50 bg-background/80 px-6 py-3 backdrop-blur-xl">
         <div className="mx-auto flex max-w-5xl items-center justify-between">
           <Logo size="sm" />

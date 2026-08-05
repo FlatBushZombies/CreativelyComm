@@ -4,11 +4,12 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getServerSession } from "@/lib/auth/session";
 import { getOrCreateDefaultWorkspace } from "@/lib/workspace";
-import { addOptimizedImage, getProductById } from "@/lib/products";
+import { addOptimizedImage, getProductById, updateProduct } from "@/lib/products";
 import { uploadOptimizedImage } from "@/lib/storage";
 import { removeBackground } from "@/lib/remove-bg";
 import { logActivity } from "@/lib/activity";
 import { translateProduct, deleteTranslation, type ProductTranslation } from "@/lib/translations";
+import { adjustStock, type StockAdjustmentReason } from "@/lib/inventory";
 
 export interface RemoveBackgroundResult {
   error?: string;
@@ -93,4 +94,77 @@ export async function deleteTranslationAction(formData: FormData) {
   const workspace = await getOrCreateDefaultWorkspace(session.user.id, session.user.name);
   await deleteTranslation(translationId, workspace.id);
   revalidatePath(`/products/${productId}`);
+}
+
+export interface AdjustStockState {
+  error?: string;
+}
+
+export async function adjustStockAction(formData: FormData): Promise<AdjustStockState> {
+  const session = await getServerSession();
+  if (!session) {
+    redirect("/login");
+  }
+
+  const productId = String(formData.get("productId") ?? "");
+  const delta = Number(formData.get("delta") ?? 0);
+  const reason = String(formData.get("reason") ?? "") as StockAdjustmentReason;
+  const note = String(formData.get("note") ?? "").trim() || undefined;
+
+  if (!productId || !delta || !reason) {
+    return { error: "A quantity and reason are required." };
+  }
+
+  const workspace = await getOrCreateDefaultWorkspace(session.user.id, session.user.name);
+
+  try {
+    await adjustStock(productId, workspace.id, { delta, reason, note, createdBy: session.user.id });
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "Failed to adjust stock." };
+  }
+
+  revalidatePath(`/products/${productId}`);
+  return {};
+}
+
+export async function assignVendorAction(formData: FormData) {
+  const session = await getServerSession();
+  if (!session) {
+    redirect("/login");
+  }
+
+  const productId = String(formData.get("productId") ?? "");
+  const vendorId = String(formData.get("vendorId") ?? "");
+  if (!productId) return;
+
+  const workspace = await getOrCreateDefaultWorkspace(session.user.id, session.user.name);
+  await updateProduct(productId, workspace.id, { vendorId: vendorId || null });
+  revalidatePath(`/products/${productId}`);
+}
+
+export interface UpdateSeoState {
+  error?: string;
+}
+
+export async function updateSeoAction(formData: FormData): Promise<UpdateSeoState> {
+  const session = await getServerSession();
+  if (!session) {
+    redirect("/login");
+  }
+
+  const productId = String(formData.get("productId") ?? "");
+  const workspace = await getOrCreateDefaultWorkspace(session.user.id, session.user.name);
+
+  try {
+    await updateProduct(productId, workspace.id, {
+      metaTitle: String(formData.get("metaTitle") ?? "").trim() || null,
+      metaDescription: String(formData.get("metaDescription") ?? "").trim() || null,
+      slug: String(formData.get("slug") ?? "").trim() || null,
+    });
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "Failed to save SEO settings." };
+  }
+
+  revalidatePath(`/products/${productId}`);
+  return {};
 }

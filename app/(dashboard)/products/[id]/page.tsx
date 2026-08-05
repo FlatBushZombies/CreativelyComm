@@ -5,6 +5,9 @@ import { getProductById } from "@/lib/products";
 import { getChannelsWithReadiness } from "@/lib/readiness";
 import { getProductVersions } from "@/lib/versions";
 import { getProductTranslations } from "@/lib/translations";
+import { getStockHistory } from "@/lib/inventory";
+import { computeSeoScore } from "@/lib/seo";
+import { getVendors } from "@/lib/vendors";
 import { ProductDetailsClient } from "./product-details-client";
 
 interface ProductDetailsPageProps {
@@ -25,11 +28,14 @@ export default async function ProductDetailsPage({ params }: ProductDetailsPageP
     notFound();
   }
 
-  const [channelReadiness, versions, translations] = await Promise.all([
+  const [channelReadiness, versions, translations, stockHistory, vendors] = await Promise.all([
     getChannelsWithReadiness(product, workspace.id),
     getProductVersions(product.id, workspace.id),
     getProductTranslations(product.id, workspace.id),
+    getStockHistory(product.id, workspace.id),
+    getVendors(workspace.id),
   ]);
+  const seoScore = computeSeoScore(product);
 
   const origin = process.env.BETTER_AUTH_URL || "http://localhost:3000";
   const productUrl = `${origin}/store/${workspace.slug}/products/${product.id}`;
@@ -41,6 +47,9 @@ export default async function ProductDetailsPage({ params }: ProductDetailsPageP
       productUrl={productUrl}
       versions={versions}
       translations={translations}
+      stockHistory={stockHistory}
+      seoScore={seoScore}
+      vendors={vendors}
     />
   );
 }

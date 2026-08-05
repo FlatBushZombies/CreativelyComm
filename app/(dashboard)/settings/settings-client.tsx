@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Upload, Palette, Globe, Bell, CreditCard, Users, Copy, Check, Trash2 } from "lucide-react";
+import { Upload, Palette, Globe, Bell, CreditCard, Users, Copy, Check, Trash2, Store } from "lucide-react";
 import { DashboardHeader } from "@/components/dashboard/sidebar";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -15,8 +15,17 @@ import { FadeIn } from "@/components/shared/fade-in";
 import type { WorkspaceMember, WorkspaceRole } from "@/lib/team";
 import type { Workspace } from "@/lib/workspace";
 import type { ApiKey } from "@/lib/api-keys";
+import type { Vendor } from "@/lib/vendors";
+import type { IntegrationSummary } from "@/lib/integrations/store";
 import { ApiKeysPanel } from "@/components/settings/api-keys-panel";
-import { inviteTeamMember, removeTeamMember, saveBrandingAction } from "./actions";
+import { IntegrationsPanel } from "@/components/settings/integrations-panel";
+import {
+  inviteTeamMember,
+  removeTeamMember,
+  saveBrandingAction,
+  createVendorAction,
+  archiveVendorAction,
+} from "./actions";
 
 const colorPresets = [
   "#386641",
@@ -59,9 +68,27 @@ interface SettingsClientProps {
   currentUserId: string;
   canManageTeam: boolean;
   apiKeys: ApiKey[];
+  vendors: Vendor[];
+  canManageVendors: boolean;
+  integrations: IntegrationSummary[];
+  quickbooksConfigured: boolean;
+  googleFeedUrl: string;
+  facebookFeedUrl: string;
 }
 
-export function SettingsClient({ workspace, members, currentUserId, canManageTeam, apiKeys }: SettingsClientProps) {
+export function SettingsClient({
+  workspace,
+  members,
+  currentUserId,
+  canManageTeam,
+  apiKeys,
+  vendors,
+  canManageVendors,
+  integrations,
+  quickbooksConfigured,
+  googleFeedUrl,
+  facebookFeedUrl,
+}: SettingsClientProps) {
   const [brandColor, setBrandColor] = useState(workspace.brandColor);
   const [storeName, setStoreName] = useState(workspace.storeName || workspace.name);
   const [storeTagline, setStoreTagline] = useState(workspace.storeTagline || "");
@@ -82,6 +109,8 @@ export function SettingsClient({ workspace, members, currentUserId, canManageTea
           <Tabs defaultValue="team">
             <TabsList className="mb-6">
               <TabsTrigger value="team">Team</TabsTrigger>
+              <TabsTrigger value="vendors">Vendors</TabsTrigger>
+              <TabsTrigger value="integrations">Integrations</TabsTrigger>
               <TabsTrigger value="branding">Branding</TabsTrigger>
               <TabsTrigger value="store">Store</TabsTrigger>
               <TabsTrigger value="notifications">Notifications</TabsTrigger>
@@ -170,6 +199,81 @@ export function SettingsClient({ workspace, members, currentUserId, canManageTea
                   ))}
                 </CardContent>
               </Card>
+            </TabsContent>
+
+            <TabsContent value="vendors" className="space-y-6">
+              {canManageVendors && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-base flex items-center gap-2">
+                      <Store className="h-4 w-4 text-primary" />
+                      Add a vendor
+                    </CardTitle>
+                    <CardDescription>
+                      Vendors manage their own products, stock, and orders within your marketplace.
+                      Optionally invite a user to manage this vendor now.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <form action={createVendorAction} className="grid gap-3 sm:grid-cols-3">
+                      <Input name="name" placeholder="Vendor name" required />
+                      <Input name="contactEmail" type="email" placeholder="Contact email (optional)" />
+                      <Input name="inviteEmail" type="email" placeholder="Invite a user (optional)" />
+                      <Button type="submit" className="sm:col-span-3 sm:w-fit">
+                        Add Vendor
+                      </Button>
+                    </form>
+                  </CardContent>
+                </Card>
+              )}
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">Vendors</CardTitle>
+                  <CardDescription>{vendors.length} vendors in this marketplace</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {vendors.length === 0 ? (
+                    <p className="py-4 text-center text-sm text-muted-foreground">
+                      No vendors yet. Add one above to start onboarding sellers.
+                    </p>
+                  ) : (
+                    vendors.map((vendor) => (
+                      <div
+                        key={vendor.id}
+                        className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border p-3"
+                      >
+                        <div className="min-w-0">
+                          <p className="text-sm font-medium truncate">{vendor.name}</p>
+                          {vendor.contactEmail && (
+                            <p className="text-xs text-muted-foreground truncate">{vendor.contactEmail}</p>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Badge variant={vendor.status === "active" ? "success" : "muted"}>{vendor.status}</Badge>
+                          {canManageVendors && vendor.status === "active" && (
+                            <form action={archiveVendorAction}>
+                              <input type="hidden" name="vendorId" value={vendor.id} />
+                              <Button variant="ghost" size="icon" type="submit" className="h-8 w-8">
+                                <Trash2 className="h-4 w-4 text-red-500" />
+                              </Button>
+                            </form>
+                          )}
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="integrations" className="space-y-6">
+              <IntegrationsPanel
+                integrations={integrations}
+                quickbooksConfigured={quickbooksConfigured}
+                googleFeedUrl={googleFeedUrl}
+                facebookFeedUrl={facebookFeedUrl}
+              />
             </TabsContent>
 
             <TabsContent value="branding" className="space-y-6">

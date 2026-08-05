@@ -1,7 +1,16 @@
 import "server-only";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 
-export type ActivityType = "upload" | "optimize" | "export" | "publish" | "share" | "import";
+export type ActivityType =
+  | "upload"
+  | "optimize"
+  | "export"
+  | "publish"
+  | "share"
+  | "import"
+  | "low_stock"
+  | "order"
+  | "integration";
 
 export interface Activity {
   id: string;

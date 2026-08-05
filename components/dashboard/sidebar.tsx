@@ -12,6 +12,7 @@ import {
   ChevronRight,
   ShieldCheck,
   Search,
+  ShoppingCart,
 } from "lucide-react";
 import { Logo } from "@/components/shared/logo";
 import { cn } from "@/lib/utils";
@@ -24,6 +25,7 @@ import { NotificationsDropdown } from "@/components/dashboard/notifications-drop
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/products", label: "Products", icon: Package },
+  { href: "/orders", label: "Orders", icon: ShoppingCart },
   { href: "/storefront", label: "Storefront", icon: Store },
   { href: "/readiness", label: "Readiness", icon: ShieldCheck },
   { href: "/export", label: "Export Center", icon: Download },

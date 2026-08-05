@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Bell, Wand2, Download, Share2, Upload, FileSpreadsheet } from "lucide-react";
+import { Bell, Wand2, Download, Share2, Upload, FileSpreadsheet, AlertTriangle, ShoppingCart, Plug } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -21,6 +21,9 @@ const activityIcons = {
   upload: Upload,
   share: Share2,
   import: FileSpreadsheet,
+  low_stock: AlertTriangle,
+  order: ShoppingCart,
+  integration: Plug,
 };
 
 export function NotificationsDropdown() {

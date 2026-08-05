@@ -28,7 +28,9 @@ export default async function DashboardLayout({
       workspace={{ id: workspace.id, name: workspace.name, slug: workspace.slug }}
     >
       <div className="flex min-h-screen">
-        <DashboardSidebar />
+        <div className="print:hidden">
+          <DashboardSidebar />
+        </div>
         <div className="flex flex-1 flex-col pb-16 lg:pb-0">
           {children}
         </div>

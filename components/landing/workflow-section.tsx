@@ -1,110 +1,153 @@
 "use client";
 
-import Image from "next/image";
-import { Upload, Wand2, Store, Share2, Check } from "lucide-react";
+import Link from "next/link";
+import {
+  ArrowUpRight,
+  Check,
+  Share2,
+  Store,
+  ShoppingBag,
+  Package,
+  Globe2,
+  Languages,
+  FileSpreadsheet,
+} from "lucide-react";
 import { FadeIn } from "@/components/shared/fade-in";
 
-const steps = [
-  {
-    step: "01",
-    icon: Upload,
-    title: "Upload your products",
-    description:
-      "Drag and drop product photos and details, or import your whole catalog from a CSV in one go.",
-    image: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=600&q=80",
-  },
-  {
-    step: "02",
-    icon: Wand2,
-    title: "Check readiness, clean up photos",
-    description:
-      "See a real readiness score for every marketplace, then remove backgrounds with one click.",
-    image: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600&q=80",
-  },
-  {
-    step: "03",
-    icon: Store,
-    title: "Launch your storefront",
-    description:
-      "Customize your branded store with your colors and layout. Share a link, or embed it on your own site.",
-    image: "https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=600&q=80",
-  },
-  {
-    step: "04",
-    icon: Share2,
-    title: "Export & publish everywhere",
-    description:
-      "One-click export to real, marketplace-ready files for Shopify, Amazon, Etsy, Google Merchant, and more.",
-    image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&q=80",
-  },
+const exportChannels = [
+  { label: "Shopify", icon: Store, className: "bg-emerald-500" },
+  { label: "Amazon", icon: ShoppingBag, className: "bg-amber-500" },
+  { label: "Etsy", icon: Package, className: "bg-orange-500" },
+  { label: "Google Merchant", icon: Globe2, className: "bg-sky-500" },
+];
+
+const exportChecklist = [
+  "Real, marketplace-ready files — not a generic CSV export",
+  "One click generates every channel's format at once",
+  "Re-export anytime as products change, no manual re-formatting",
 ];
 
 export function WorkflowSection() {
   return (
-    <section id="workflow" className="bg-muted/30 py-20 sm:py-28">
+    <section id="features" className="bg-muted/30 py-20 sm:py-28">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <FadeIn className="mx-auto max-w-2xl text-center">
+        {/* Asymmetric heading row, matching the pattern above */}
+        <FadeIn className="grid gap-6 lg:grid-cols-[1.2fr_1fr] lg:items-end lg:gap-12">
           <h2 className="font-display text-3xl font-medium tracking-tight sm:text-5xl">
-            From upload to everywhere in 4 steps
+            Every channel,
+            <br />
+            one product library
           </h2>
-          <p className="mt-4 text-lg text-muted-foreground">
-            A streamlined workflow designed for speed. Go from raw photos to
-            live listings in under an hour.
+          <p className="text-lg text-muted-foreground lg:text-right">
+            Stop maintaining separate spreadsheets per marketplace. Prepare a
+            product once, then push it wherever it needs to sell.
           </p>
         </FadeIn>
 
-        <div className="mt-20 space-y-24">
-          {steps.map((step, index) => (
-            <FadeIn key={step.step} delay={index * 0.1}>
-              <div
-                className={`flex flex-col items-center gap-10 lg:gap-16 ${
-                  index % 2 === 0 ? "lg:flex-row" : "lg:flex-row-reverse"
-                }`}
-              >
-                <div className="flex-1">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/10 via-accent to-accent/30 shadow-[0_8px_20px_-8px_rgba(56,102,65,0.35)]">
-                      <step.icon className="h-5 w-5 text-primary" />
-                    </div>
-                  </div>
-                  <h3 className="font-display mt-4 text-2xl font-medium">{step.title}</h3>
-                  <p className="mt-3 text-muted-foreground leading-relaxed">
-                    {step.description}
-                  </p>
-                  <ul className="mt-6 space-y-2">
-                    {["Automated processing", "Real-time preview", "Real version history"].map(
-                      (item) => (
-                        <li key={item} className="flex items-center gap-2 text-sm">
-                          <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/10">
-                            <Check className="h-3 w-3 text-primary" />
-                          </span>
-                          {item}
-                        </li>
-                      )
-                    )}
-                  </ul>
-                </div>
-                <div className="relative flex-1 w-full">
-                  <span
-                    className={`font-display pointer-events-none absolute -top-10 z-0 text-[7rem] leading-none text-primary/10 sm:text-[9rem] ${
-                      index % 2 === 0 ? "-left-4 sm:-left-8" : "-right-4 sm:-right-8"
-                    }`}
-                  >
-                    {step.step}
+        <FadeIn delay={0.1}>
+          <Link
+            href="/signup"
+            className="group mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-primary"
+          >
+            Get Started
+            <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+          </Link>
+        </FadeIn>
+
+        {/* One large full-width colored feature card */}
+        <FadeIn delay={0.15} className="mt-10">
+          <div className="grid overflow-hidden rounded-3xl bg-primary text-primary-foreground card-shadow-glow lg:grid-cols-2">
+            <div className="flex flex-col items-start justify-center gap-3 p-8 sm:p-10">
+              {exportChannels.map(({ label, icon: Icon, className }, i) => (
+                <div
+                  key={label}
+                  className="flex items-center gap-3 rounded-full bg-white/10 py-2 pl-2 pr-5"
+                  style={{ marginLeft: `${i * 1.5}rem` }}
+                >
+                  <span className={`flex h-8 w-8 items-center justify-center rounded-full ${className}`}>
+                    <Icon className="h-4 w-4 text-white" />
                   </span>
-                  <div className="relative z-10 aspect-[4/3] overflow-hidden rounded-2xl border border-border/60 card-shadow-lg ring-1 ring-black/[0.03]">
-                    <Image
-                      src={step.image}
-                      alt={step.title}
-                      fill
-                      className="object-cover"
-                      sizes="(max-width: 1024px) 100vw, 50vw"
-                    />
-                  </div>
+                  <span className="text-sm font-medium">{label}</span>
                 </div>
+              ))}
+              <div className="flex items-center gap-3 rounded-full bg-white/5 py-2 pl-2 pr-5" style={{ marginLeft: "6rem" }}>
+                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/20">
+                  <Share2 className="h-4 w-4 text-white" />
+                </span>
+                <span className="text-sm font-medium">+7 more</span>
               </div>
-            </FadeIn>
-          ))}
+            </div>
+
+            <div className="flex flex-col justify-center border-t border-white/15 p-8 sm:p-10 lg:border-l lg:border-t-0">
+              <h3 className="font-display text-2xl font-medium sm:text-3xl">
+                Real multi-channel export
+              </h3>
+              <p className="mt-3 text-primary-foreground/80">
+                Generate marketplace-ready feed files for every platform you
+                sell on, all from one product library.
+              </p>
+              <ul className="mt-6 space-y-3">
+                {exportChecklist.map((item) => (
+                  <li key={item} className="flex items-start gap-2 text-sm">
+                    <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-white/15">
+                      <Check className="h-3 w-3" />
+                    </span>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </FadeIn>
+
+        {/* Two smaller white cards side-by-side */}
+        <div className="mt-5 grid gap-5 sm:grid-cols-2">
+          <FadeIn delay={0.2}>
+            <div className="flex h-full flex-col rounded-2xl border border-border bg-card p-6 card-shadow sm:p-8">
+              <div className="flex items-center gap-2">
+                {["EN", "ES", "DE", "FR"].map((lang, i) => (
+                  <span
+                    key={lang}
+                    className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-accent text-xs font-semibold text-accent-foreground"
+                    style={{ marginLeft: i === 0 ? 0 : "-0.5rem" }}
+                  >
+                    {lang}
+                  </span>
+                ))}
+                <Languages className="ml-3 h-5 w-5 text-primary" />
+              </div>
+              <h3 className="mt-5 text-lg font-semibold">Multi-language listings</h3>
+              <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
+                Translate product names and descriptions for cross-border
+                marketplaces with DeepL, with a real version history behind
+                every change.
+              </p>
+            </div>
+          </FadeIn>
+
+          <FadeIn delay={0.3}>
+            <div className="flex h-full flex-col rounded-2xl border border-border bg-card p-6 card-shadow sm:p-8">
+              <div className="flex items-center gap-1.5">
+                {[0, 1, 2].map((row) => (
+                  <div key={row} className="flex flex-1 flex-col gap-1.5">
+                    {[0, 1, 2].map((cell) => (
+                      <div
+                        key={cell}
+                        className="h-2.5 rounded-sm bg-accent"
+                        style={{ opacity: 1 - (row + cell) * 0.12 }}
+                      />
+                    ))}
+                  </div>
+                ))}
+                <FileSpreadsheet className="ml-2 h-5 w-5 shrink-0 text-primary" />
+              </div>
+              <h3 className="mt-5 text-lg font-semibold">CSV import & bulk editing</h3>
+              <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
+                Import your whole catalog from a spreadsheet, or bulk-edit
+                prices, categories, and status right in the table.
+              </p>
+            </div>
+          </FadeIn>
         </div>
       </div>
     </section>

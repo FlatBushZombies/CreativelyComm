@@ -2,7 +2,7 @@ import "server-only";
 import { randomUUID } from "crypto";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 
-export type WorkspaceRole = "owner" | "admin" | "editor" | "viewer";
+export type WorkspaceRole = "owner" | "admin" | "editor" | "viewer" | "vendor";
 export type MembershipStatus = "active" | "pending";
 
 export interface WorkspaceMember {

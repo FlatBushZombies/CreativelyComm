@@ -1,6 +1,6 @@
 import "server-only";
 import { cache } from "react";
-import { randomUUID } from "crypto";
+import { randomUUID, randomBytes } from "crypto";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 
 export interface Workspace {
@@ -12,6 +12,7 @@ export interface Workspace {
   storeTagline: string | null;
   brandColor: string;
   hideBranding: boolean;
+  feedToken: string;
 }
 
 interface WorkspaceRow {
@@ -23,10 +24,11 @@ interface WorkspaceRow {
   store_tagline: string | null;
   brand_color: string;
   hide_branding: boolean;
+  feed_token: string;
 }
 
 const WORKSPACE_COLUMNS =
-  "id, name, slug, owner_id, store_name, store_tagline, brand_color, hide_branding";
+  "id, name, slug, owner_id, store_name, store_tagline, brand_color, hide_branding, feed_token";
 
 function mapWorkspaceRow(row: WorkspaceRow): Workspace {
   return {
@@ -38,6 +40,7 @@ function mapWorkspaceRow(row: WorkspaceRow): Workspace {
     storeTagline: row.store_tagline,
     brandColor: row.brand_color,
     hideBranding: row.hide_branding,
+    feedToken: row.feed_token,
   };
 }
 
@@ -99,6 +102,34 @@ export async function getWorkspaceBySlug(slug: string): Promise<Workspace | null
   }
 
   return data ? mapWorkspaceRow(data as WorkspaceRow) : null;
+}
+
+export async function getWorkspaceById(id: string): Promise<Workspace | null> {
+  const supabase = getSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("workspaces")
+    .select(WORKSPACE_COLUMNS)
+    .eq("id", id)
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(`Failed to load workspace: ${error.message}`);
+  }
+
+  return data ? mapWorkspaceRow(data as WorkspaceRow) : null;
+}
+
+export async function regenerateFeedToken(workspaceId: string): Promise<string> {
+  const supabase = getSupabaseServerClient();
+  const token = randomBytes(24).toString("hex");
+
+  const { error } = await supabase.from("workspaces").update({ feed_token: token }).eq("id", workspaceId);
+
+  if (error) {
+    throw new Error(`Failed to regenerate feed token: ${error.message}`);
+  }
+
+  return token;
 }
 
 export async function updateWorkspaceBranding(

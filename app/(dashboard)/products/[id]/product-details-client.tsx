@@ -8,6 +8,8 @@ import {
   ExternalLink,
   Copy,
   Check,
+  Boxes,
+  Search as SearchIcon,
 } from "lucide-react";
 import { useState } from "react";
 import { DashboardHeader } from "@/components/dashboard/sidebar";
@@ -20,12 +22,19 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { FadeIn } from "@/components/shared/fade-in";
 import type { Product } from "@/lib/products";
 import type { ChannelReadiness } from "@/lib/readiness";
 import type { ProductVersion } from "@/lib/versions";
 import type { ProductTranslation } from "@/lib/translations";
+import type { StockAdjustment, StockAdjustmentReason } from "@/lib/inventory";
+import type { SeoScore } from "@/lib/seo";
+import type { Vendor } from "@/lib/vendors";
 import { ChevronDown, History } from "lucide-react";
+import { adjustStockAction, updateSeoAction, assignVendorAction } from "./actions";
 
 const exportFormats = [
   { name: "Shopify CSV", href: "/api/export/shopify" },
@@ -52,11 +61,30 @@ interface ProductDetailsClientProps {
   productUrl: string;
   versions: ProductVersion[];
   translations: ProductTranslation[];
+  stockHistory: StockAdjustment[];
+  seoScore: SeoScore;
+  vendors: Vendor[];
 }
 
-export function ProductDetailsClient({ product, channelReadiness, productUrl, versions, translations }: ProductDetailsClientProps) {
+const stockReasons: StockAdjustmentReason[] = ["restock", "correction", "damaged"];
+
+export function ProductDetailsClient({
+  product,
+  channelReadiness,
+  productUrl,
+  versions,
+  translations,
+  stockHistory,
+  seoScore,
+  vendors,
+}: ProductDetailsClientProps) {
   const [copied, setCopied] = useState(false);
   const [expandedChannel, setExpandedChannel] = useState<string | null>(null);
+  const [stockDelta, setStockDelta] = useState("");
+  const [stockReason, setStockReason] = useState<StockAdjustmentReason>("restock");
+  const [stockError, setStockError] = useState<string | undefined>();
+  const [seoError, setSeoError] = useState<string | undefined>();
+  const [vendorId, setVendorId] = useState(product.vendorId ?? "");
 
   const handleCopy = () => {
     navigator.clipboard.writeText(productUrl);
@@ -102,9 +130,34 @@ export function ProductDetailsClient({ product, channelReadiness, productUrl, ve
           <FadeIn delay={0.1}>
             <div className="space-y-6">
               <div>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   <Badge variant="success">{product.status}</Badge>
                   <Badge variant="muted">{product.sku}</Badge>
+                  {vendors.length > 0 && (
+                    <Select
+                      value={vendorId || "none"}
+                      onValueChange={(v) => {
+                        const next = v === "none" ? "" : v;
+                        setVendorId(next);
+                        const formData = new FormData();
+                        formData.set("productId", product.id);
+                        formData.set("vendorId", next);
+                        assignVendorAction(formData);
+                      }}
+                    >
+                      <SelectTrigger className="h-7 w-40 text-xs">
+                        <SelectValue placeholder="Workspace-owned" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="none">Workspace-owned</SelectItem>
+                        {vendors.map((vendor) => (
+                          <SelectItem key={vendor.id} value={vendor.id}>
+                            {vendor.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
                 </div>
                 <h2 className="mt-3 text-2xl font-bold">{product.name}</h2>
                 <p className="mt-2 text-3xl font-bold text-primary">
@@ -192,6 +245,147 @@ export function ProductDetailsClient({ product, channelReadiness, productUrl, ve
             </CardContent>
           </Card>
         </FadeIn>
+
+        <div className="mt-8 grid gap-6 lg:grid-cols-2">
+          <FadeIn delay={0.125}>
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base flex items-center gap-2">
+                  <Boxes className="h-4 w-4 text-primary" />
+                  Stock
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {product.trackInventory ? (
+                  <>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-2xl font-bold">{product.stockQuantity}</p>
+                        <p className="text-xs text-muted-foreground">units in stock</p>
+                      </div>
+                      {product.stockQuantity <= product.lowStockThreshold && (
+                        <Badge variant="warning">Low stock</Badge>
+                      )}
+                    </div>
+
+                    <form
+                      action={async (formData) => {
+                        setStockError(undefined);
+                        const result = await adjustStockAction(formData);
+                        if (result.error) setStockError(result.error);
+                        else setStockDelta("");
+                      }}
+                      className="flex flex-wrap gap-2"
+                    >
+                      <input type="hidden" name="productId" value={product.id} />
+                      <Input
+                        type="number"
+                        name="delta"
+                        placeholder="e.g. 10 or -5"
+                        value={stockDelta}
+                        onChange={(e) => setStockDelta(e.target.value)}
+                        className="w-32"
+                      />
+                      <Select value={stockReason} onValueChange={(v) => setStockReason(v as StockAdjustmentReason)}>
+                        <SelectTrigger className="w-36">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {stockReasons.map((reason) => (
+                            <SelectItem key={reason} value={reason}>
+                              {reason}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <input type="hidden" name="reason" value={stockReason} />
+                      <Button type="submit" variant="outline">
+                        Adjust
+                      </Button>
+                    </form>
+                    {stockError && <p className="text-sm text-red-600">{stockError}</p>}
+
+                    {stockHistory.length > 0 && (
+                      <div className="space-y-1.5 border-t border-border pt-3">
+                        {stockHistory.slice(0, 5).map((entry) => (
+                          <div key={entry.id} className="flex items-center justify-between text-xs text-muted-foreground">
+                            <span className="capitalize">{entry.reason}</span>
+                            <span className={entry.delta >= 0 ? "text-emerald-600" : "text-red-600"}>
+                              {entry.delta >= 0 ? "+" : ""}
+                              {entry.delta}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <p className="text-sm text-muted-foreground">This product doesn&apos;t track inventory.</p>
+                )}
+              </CardContent>
+            </Card>
+          </FadeIn>
+
+          <FadeIn delay={0.128}>
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base flex items-center gap-2">
+                  <SearchIcon className="h-4 w-4 text-primary" />
+                  SEO
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <Progress value={seoScore.score} className="h-2 flex-1" />
+                  <span className="text-sm font-medium">{seoScore.score}%</span>
+                </div>
+
+                <form
+                  action={async (formData) => {
+                    setSeoError(undefined);
+                    const result = await updateSeoAction(formData);
+                    if (result.error) setSeoError(result.error);
+                  }}
+                  className="space-y-3"
+                >
+                  <input type="hidden" name="productId" value={product.id} />
+                  <div>
+                    <Label htmlFor="metaTitle">Meta title</Label>
+                    <Input id="metaTitle" name="metaTitle" defaultValue={product.metaTitle ?? ""} className="mt-1.5" />
+                  </div>
+                  <div>
+                    <Label htmlFor="metaDescription">Meta description</Label>
+                    <Input
+                      id="metaDescription"
+                      name="metaDescription"
+                      defaultValue={product.metaDescription ?? ""}
+                      className="mt-1.5"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="slug">URL slug</Label>
+                    <Input id="slug" name="slug" defaultValue={product.slug ?? ""} className="mt-1.5" />
+                  </div>
+                  {seoError && <p className="text-sm text-red-600">{seoError}</p>}
+                  <Button type="submit" size="sm">
+                    Save SEO
+                  </Button>
+                </form>
+
+                <div className="space-y-1 border-t border-border pt-3">
+                  {seoScore.checks.map((check) => (
+                    <p key={check.key} className="text-xs text-muted-foreground">
+                      <span className={check.passed ? "text-emerald-600" : "text-amber-600"}>
+                        {check.passed ? "✓" : "○"}
+                      </span>{" "}
+                      {check.label}
+                    </p>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </FadeIn>
+        </div>
 
         <FadeIn delay={0.13} className="mt-8">
           <Card>

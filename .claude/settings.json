@@ -2,7 +2,31 @@
   "permissions": {
     "allow": [
       "Bash(curl -s https://registry.npmjs.org/ui-ux-pro-max-cli)",
-      "WebFetch(domain:registry.npmjs.org)"
+      "WebFetch(domain:registry.npmjs.org)",
+      "Bash(curl -s \"https://dns.google/resolve?name=zfsytkmqsilatjumscgw.supabase.co&type=A\" --max-time 15)",
+      "Bash(gh api *)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(mkdir -p \"c:\\\\Users\\\\gamerrdotcom\\\\Desktop\\\\creatly-ecommerce\\\\app\\\\api\\\\webhooks\\\\shopify\" \"c:\\\\Users\\\\gamerrdotcom\\\\Desktop\\\\creatly-ecommerce\\\\app\\\\api\\\\integrations\\\\quickbooks\\\\authorize\" \"c:\\\\Users\\\\gamerrdotcom\\\\Desktop\\\\creatly-ecommerce\\\\app\\\\api\\\\integrations\\\\quickbooks\\\\callback\" \"c:\\\\Users\\\\gamerrdotcom\\\\Desktop\\\\creatly-ecommerce\\\\app\\\\api\\\\feed\\\\[workspaceId]\\\\[token]\\\\[format]\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" --max-time 8 http://localhost:3000/)",
+      "Bash(timeout 60 bash -c 'until grep -q \"Ready in\" \"C:\\\\Users\\\\GAMERR~1\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Users-gamerrdotcom-Desktop-creatly-ecommerce\\\\b3976859-50cb-47d0-8d57-c4c1769c6f67\\\\tasks\\\\bhs04tna4.output\" 2>/dev/null; do sleep 2; done; cat \"C:\\\\Users\\\\GAMERR~1\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Users-gamerrdotcom-Desktop-creatly-ecommerce\\\\b3976859-50cb-47d0-8d57-c4c1769c6f67\\\\tasks\\\\bhs04tna4.output\"')",
+      "Bash(curl -s http://localhost:3000/api/feed/05c0a207-089b-4fc6-a83f-4f321d163d46/f38adcfa765d118f0d898ad4cd8466c51a3ed5ab803b0d70/google.xml)",
+      "Bash(curl -s http://localhost:3000/api/feed/05c0a207-089b-4fc6-a83f-4f321d163d46/f38adcfa765d118f0d898ad4cd8466c51a3ed5ab803b0d70/facebook.csv)",
+      "Bash(curl -s -o /dev/null -w 'HTTP:%{http_code}\\\\n' http://localhost:3000/api/feed/05c0a207-089b-4fc6-a83f-4f321d163d46/wrongtoken/google.xml)",
+      "Bash(curl -s -o /dev/null -w 'HTTP:%{http_code}\\\\n' http://localhost:3000/api/v1/vendors)",
+      "Bash(curl -s -o /dev/null -w \"HTTP:%{http_code}\\\\n\" -L \"http://localhost:3000/api/integrations/quickbooks/authorize\")",
+      "Bash(echo \"EXIT_CODE=$?\")",
+      "Bash(curl -s -o \"C:\\\\Users\\\\GAMERR~1\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Users-gamerrdotcom-Desktop-creatly-ecommerce\\\\b3976859-50cb-47d0-8d57-c4c1769c6f67\\\\scratchpad\\\\home.html\" -w \"HTTP_STATUS:%{http_code}\\\\n\" http://localhost:3001/)",
+      "Bash(curl -s -o \"C:\\\\Users\\\\GAMERR~1\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Users-gamerrdotcom-Desktop-creatly-ecommerce\\\\b3976859-50cb-47d0-8d57-c4c1769c6f67\\\\scratchpad\\\\home.html\" -w \"HTTP_STATUS:%{http_code}\\\\n\" http://localhost:3000/)",
+      "Bash(tasklist //FI \"IMAGENAME eq node.exe\")",
+      "Bash(wmic process *)",
+      "Bash(taskkill //PID 16300 //F)",
+      "Bash(taskkill //PID 4412 //F)",
+      "Bash(curl -s -o /dev/null -w \"HTTP_STATUS:%{http_code}\\\\n\" http://localhost:3000/)",
+      "Bash(curl -s -w \"\\\\nHTTP_STATUS:%{http_code}\\\\n\" http://localhost:3000/ -o \"C:\\\\Users\\\\GAMERR~1\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Users-gamerrdotcom-Desktop-creatly-ecommerce\\\\b3976859-50cb-47d0-8d57-c4c1769c6f67\\\\scratchpad\\\\home2.html\")"
+    ],
+    "additionalDirectories": [
+      "c:\\Users\\gamerrdotcom\\Desktop\\creatly-ecommerce\\app\\api\\feed\\[workspaceId]\\[token]"
     ]
   }
 }

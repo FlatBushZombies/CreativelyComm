@@ -34,6 +34,11 @@ export function ProductCard({ product }: ProductCardProps) {
           <div className="absolute top-3 left-3">
             <Badge variant={status.variant}>{status.label}</Badge>
           </div>
+          {product.trackInventory && product.stockQuantity <= product.lowStockThreshold && (
+            <div className="absolute top-3 right-3">
+              <Badge variant="warning">{product.stockQuantity} left</Badge>
+            </div>
+          )}
         </div>
       </Link>
       <CardContent className="p-4">

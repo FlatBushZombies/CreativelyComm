@@ -1,110 +1,132 @@
 "use client";
 
-import {
-  ShieldCheck,
-  Scissors,
-  Store,
-  Share2,
-  Languages,
-  Users,
-  FileSpreadsheet,
-  Settings2,
-} from "lucide-react";
+import Link from "next/link";
+import { ArrowUpRight, ShieldCheck, Scissors, RefreshCw, type LucideIcon } from "lucide-react";
 import { FadeIn, StaggerContainer, StaggerItem } from "@/components/shared/fade-in";
 import { cn } from "@/lib/utils";
 
-const features = [
+interface CapabilityCard {
+  icon: LucideIcon;
+  label: string;
+  statement: string;
+  reply: string;
+  tone: "brand" | "neutral";
+  span?: string;
+}
+
+// Each card keeps the reference's "conversation" shape -- avatar, bold
+// statement, lighter reply bubble underneath -- but the content is an
+// honest capability callout, not an invented customer quote.
+const cards: CapabilityCard[] = [
   {
     icon: ShieldCheck,
-    title: "Channel Readiness Engine",
-    description:
-      "Get a real readiness score for every marketplace before you publish — see exactly what's missing instead of finding out after a rejection.",
-    accent: "bg-primary/10 text-primary",
-    span: "sm:col-span-2 sm:row-span-2",
+    label: "Readiness Engine",
+    statement: "Never guess if a listing is ready.",
+    reply: "Real per-channel scoring against rules you control — not a generic checklist.",
+    tone: "brand",
+    span: "lg:col-span-2 lg:row-span-2",
   },
   {
     icon: Scissors,
-    title: "One-Click Background Removal",
-    description:
-      "Strip backgrounds from product photos instantly, powered by Remove.bg — no design tools required.",
-    accent: "bg-amber-100 text-amber-700",
+    label: "Photo cleanup",
+    statement: "Skip the photo editor entirely.",
+    reply: "One-click background removal, powered by Remove.bg.",
+    tone: "neutral",
+    span: "lg:col-start-3 lg:row-start-1",
   },
   {
-    icon: Store,
-    title: "Branded Storefront & Embeds",
-    description:
-      "Launch a customizable online store in minutes. Share a link, or embed your product grid directly on your own website.",
-    accent: "bg-violet-100 text-violet-700",
-  },
-  {
-    icon: Share2,
-    title: "Real Multi-Channel Export",
-    description:
-      "Generate real, marketplace-ready feed files for Shopify, Amazon, Etsy, Google Merchant, and 7+ platforms — one click, no guesswork.",
-    accent: "bg-rose-100 text-rose-700",
-  },
-  {
-    icon: Languages,
-    title: "Multi-Language Listings",
-    description:
-      "Translate product names and descriptions for cross-border marketplaces, powered by DeepL — with a real version history behind every change.",
-    accent: "bg-sky-100 text-sky-700",
-  },
-  {
-    icon: Users,
-    title: "Team Collaboration",
-    description:
-      "Invite teammates with owner, admin, editor, or viewer roles — everyone works from the same product library.",
-    accent: "bg-teal-100 text-teal-700",
-  },
-  {
-    icon: FileSpreadsheet,
-    title: "CSV Import & Bulk Editing",
-    description:
-      "Import your whole catalog from a spreadsheet, or bulk-edit prices, categories, and status right in the table.",
-    accent: "bg-fuchsia-100 text-fuchsia-700",
-  },
-  {
-    icon: Settings2,
-    title: "Customizable Rules & API Access",
-    description:
-      "Add your own readiness checks on top of the defaults, and connect the API to your own scripts or automations.",
-    accent: "bg-orange-100 text-orange-700",
+    icon: RefreshCw,
+    label: "Shopify sync",
+    statement: "Stop re-typing stock counts.",
+    reply: "Two-way sync keeps products and inventory identical, in both directions.",
+    tone: "neutral",
+    span: "lg:col-start-3 lg:row-start-2",
   },
 ];
 
-export function FeaturesSection() {
+function CapabilityCardView({ card }: { card: CapabilityCard }) {
+  const isBrand = card.tone === "brand";
   return (
-    <section id="features" className="py-20 sm:py-28">
+    <div
+      className={cn(
+        "flex h-full flex-col justify-between rounded-2xl border p-6 sm:p-7",
+        isBrand
+          ? "border-transparent bg-primary text-primary-foreground card-shadow-glow"
+          : "border-border bg-card card-shadow"
+      )}
+    >
+      <div>
+        <div className="flex items-center gap-3">
+          <span
+            className={cn(
+              "flex h-10 w-10 shrink-0 items-center justify-center rounded-full",
+              isBrand ? "bg-white/15" : "bg-accent"
+            )}
+          >
+            <card.icon className={cn("h-5 w-5", isBrand ? "text-white" : "text-primary")} />
+          </span>
+          <span
+            className={cn(
+              "text-xs font-semibold uppercase tracking-wide",
+              isBrand ? "text-white/70" : "text-muted-foreground"
+            )}
+          >
+            {card.label}
+          </span>
+        </div>
+
+        <p className={cn("mt-5 font-display text-xl font-medium sm:text-2xl", isBrand ? "text-white" : "text-foreground")}>
+          {card.statement}
+        </p>
+      </div>
+
+      <div
+        className={cn(
+          "mt-6 w-fit max-w-full rounded-2xl rounded-tl-sm px-4 py-3 text-sm leading-relaxed",
+          isBrand ? "bg-white/12 text-white/90" : "bg-muted text-muted-foreground"
+        )}
+      >
+        {card.reply}
+      </div>
+    </div>
+  );
+}
+
+// Renamed from the original FeaturesSection: this now covers the reference
+// layout's "Increase efficiency & drive growth" block (asymmetric heading +
+// three conversation-shaped capability cards). The exhaustive feature list
+// lives further down in FeatureDeepDiveSection (workflow-section.tsx).
+export function EfficiencySection() {
+  return (
+    <section className="py-20 sm:py-28">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <FadeIn className="mx-auto max-w-2xl text-center">
+        {/* Asymmetric heading row: left-aligned heading, short paragraph pinned right */}
+        <FadeIn className="grid gap-6 lg:grid-cols-[1.2fr_1fr] lg:items-end lg:gap-12">
           <h2 className="font-display text-3xl font-medium tracking-tight sm:text-5xl">
-            Everything a product needs before it&apos;s ready for the world
+            Increase efficiency,
+            <br />
+            skip the guesswork
           </h2>
-          <p className="mt-4 text-lg text-muted-foreground">
-            The online store is just one output. CreativelyComm is where the product
-            experience actually begins — from raw photos to a real readiness score for
-            every channel.
+          <p className="text-lg text-muted-foreground lg:text-right">
+            The product experience starts long before checkout. CreativelyComm is where
+            it gets organized, scored, and cleaned up first.
           </p>
         </FadeIn>
 
-        <StaggerContainer className="mt-16 grid auto-rows-[minmax(0,1fr)] gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {features.map((feature) => (
-            <StaggerItem key={feature.title} className={feature.span}>
-              <div className="group flex h-full flex-col rounded-2xl border border-border bg-card p-6 transition-all duration-300 hover:-translate-y-1 hover:border-primary/25 hover:card-shadow-glow">
-                <div
-                  className={cn(
-                    "flex h-14 w-14 items-center justify-center rounded-2xl transition-transform duration-300 group-hover:scale-105",
-                    feature.accent
-                  )}
-                >
-                  <feature.icon className="h-6 w-6" />
-                </div>
-                <h3 className="mt-4 text-base font-semibold">{feature.title}</h3>
-                <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-                  {feature.description}
-                </p>
-              </div>
+        <FadeIn delay={0.1}>
+          <Link
+            href="/signup"
+            className="group mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-primary"
+          >
+            Get Started
+            <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+          </Link>
+        </FadeIn>
+
+        <StaggerContainer className="mt-10 grid gap-5 lg:grid-cols-3 lg:grid-rows-2">
+          {cards.map((card) => (
+            <StaggerItem key={card.label} className={card.span}>
+              <CapabilityCardView card={card} />
             </StaggerItem>
           ))}
         </StaggerContainer>

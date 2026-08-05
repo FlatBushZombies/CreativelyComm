@@ -2,10 +2,12 @@ import type { Metadata } from "next";
 import { LandingNav } from "@/components/landing/landing-nav";
 import { LandingFooter } from "@/components/landing/landing-footer";
 import { HeroSection } from "@/components/landing/hero-section";
-import { FeaturesSection } from "@/components/landing/features-section";
+import { EfficiencySection } from "@/components/landing/features-section";
+import { ConversationSection } from "@/components/landing/conversation-section";
 import { WorkflowSection } from "@/components/landing/workflow-section";
+import { DevicePromoSection } from "@/components/landing/cta-section";
 import { PricingSection } from "@/components/landing/pricing-section";
-import { CTASection } from "@/components/landing/cta-section";
+import { FAQSection } from "@/components/landing/faq-section";
 
 export const metadata: Metadata = {
   title: "CreativelyComm — AI-Powered Product Marketing Platform",
@@ -19,10 +21,12 @@ export default function HomePage() {
       <LandingNav />
       <main>
         <HeroSection />
-        <FeaturesSection />
+        <EfficiencySection />
+        <ConversationSection />
         <WorkflowSection />
+        <DevicePromoSection />
         <PricingSection />
-        <CTASection />
+        <FAQSection />
       </main>
       <LandingFooter />
     </div>

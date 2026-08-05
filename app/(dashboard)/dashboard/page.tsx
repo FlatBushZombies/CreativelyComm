@@ -11,6 +11,9 @@ import {
   Share2,
   ArrowRight,
   FileSpreadsheet,
+  AlertTriangle,
+  ShoppingCart,
+  Plug,
 } from "lucide-react";
 import { DashboardHeader } from "@/components/dashboard/sidebar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -21,6 +24,7 @@ import { getServerSession } from "@/lib/auth/session";
 import { getOrCreateDefaultWorkspace } from "@/lib/workspace";
 import { getDashboardStats } from "@/lib/stats";
 import { getRecentActivity } from "@/lib/activity";
+import { getLowStockProducts } from "@/lib/inventory";
 
 const activityIcons = {
   optimize: Wand2,
@@ -29,6 +33,9 @@ const activityIcons = {
   upload: Upload,
   share: Share2,
   import: FileSpreadsheet,
+  low_stock: AlertTriangle,
+  order: ShoppingCart,
+  integration: Plug,
 };
 
 const statIcons = [Package, ImageIcon, Eye, Download];
@@ -40,9 +47,10 @@ export default async function DashboardPage() {
   }
 
   const workspace = await getOrCreateDefaultWorkspace(session.user.id, session.user.name);
-  const [dashboardStats, activities] = await Promise.all([
+  const [dashboardStats, activities, lowStockProducts] = await Promise.all([
     getDashboardStats(workspace.id),
     getRecentActivity(workspace.id),
+    getLowStockProducts(workspace.id),
   ]);
   const firstName = session.user.name.split(" ")[0];
 
@@ -156,6 +164,29 @@ export default async function DashboardPage() {
                 ))}
               </CardContent>
             </Card>
+
+            {lowStockProducts.length > 0 && (
+              <Card className="mt-6">
+                <CardHeader>
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <AlertTriangle className="h-4 w-4 text-amber-600" />
+                    Low Stock
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  {lowStockProducts.slice(0, 4).map((product) => (
+                    <Link
+                      key={product.id}
+                      href={`/products/${product.id}`}
+                      className="flex items-center justify-between rounded-lg p-2 text-sm transition-colors hover:bg-accent/50"
+                    >
+                      <span className="truncate">{product.name}</span>
+                      <Badge variant="warning">{product.stockQuantity} left</Badge>
+                    </Link>
+                  ))}
+                </CardContent>
+              </Card>
+            )}
 
             <Card className="mt-6">
               <CardContent className="p-6">

@@ -1,6 +1,7 @@
 import "server-only";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { recordProductVersion } from "@/lib/versions";
+import { syncProductToShopify } from "@/lib/integrations/shopify";
 
 export type ProductStatus = "draft" | "pending" | "optimized" | "published";
 
@@ -19,6 +20,13 @@ export interface Product {
   updatedAt: string;
   views: number;
   exports: number;
+  vendorId: string | null;
+  trackInventory: boolean;
+  stockQuantity: number;
+  lowStockThreshold: number;
+  metaTitle: string | null;
+  metaDescription: string | null;
+  slug: string | null;
 }
 
 interface ProductRow {
@@ -36,6 +44,13 @@ interface ProductRow {
   exports: number;
   created_at: string;
   updated_at: string;
+  vendor_id: string | null;
+  track_inventory: boolean;
+  stock_quantity: number;
+  low_stock_threshold: number;
+  meta_title: string | null;
+  meta_description: string | null;
+  slug: string | null;
 }
 
 function mapRow(row: ProductRow): Product {
@@ -54,16 +69,28 @@ function mapRow(row: ProductRow): Product {
     exports: row.exports,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
+    vendorId: row.vendor_id,
+    trackInventory: row.track_inventory,
+    stockQuantity: row.stock_quantity,
+    lowStockThreshold: row.low_stock_threshold,
+    metaTitle: row.meta_title,
+    metaDescription: row.meta_description,
+    slug: row.slug,
   };
 }
 
-export async function getProducts(workspaceId: string): Promise<Product[]> {
+export async function getProducts(workspaceId: string, vendorId?: string): Promise<Product[]> {
   const supabase = getSupabaseServerClient();
-  const { data, error } = await supabase
+  let query = supabase
     .from("products")
     .select("*")
-    .eq("workspace_id", workspaceId)
-    .order("created_at", { ascending: false });
+    .eq("workspace_id", workspaceId);
+
+  if (vendorId) {
+    query = query.eq("vendor_id", vendorId);
+  }
+
+  const { data, error } = await query.order("created_at", { ascending: false });
 
   if (error) {
     throw new Error(`Failed to load products: ${error.message}`);
@@ -96,6 +123,13 @@ export interface CreateProductInput {
   sku?: string;
   tags?: string[];
   images?: string[];
+  vendorId?: string | null;
+  trackInventory?: boolean;
+  stockQuantity?: number;
+  lowStockThreshold?: number;
+  metaTitle?: string;
+  metaDescription?: string;
+  slug?: string;
 }
 
 export async function createProduct(
@@ -114,6 +148,13 @@ export async function createProduct(
       sku: input.sku ?? null,
       tags: input.tags ?? [],
       images: input.images ?? [],
+      vendor_id: input.vendorId ?? null,
+      track_inventory: input.trackInventory ?? true,
+      stock_quantity: input.stockQuantity ?? 0,
+      low_stock_threshold: input.lowStockThreshold ?? 5,
+      meta_title: input.metaTitle ?? null,
+      meta_description: input.metaDescription ?? null,
+      slug: input.slug ?? null,
     })
     .select()
     .single();
@@ -135,6 +176,14 @@ export interface UpdateProductInput {
   sku?: string;
   tags?: string[];
   status?: ProductStatus;
+  vendorId?: string | null;
+  trackInventory?: boolean;
+  lowStockThreshold?: number;
+  metaTitle?: string | null;
+  metaDescription?: string | null;
+  slug?: string | null;
+  /** 'shopify' when this update originated FROM an inbound Shopify webhook -- prevents echoing it straight back out. Defaults to 'local'. */
+  source?: "local" | "shopify";
 }
 
 /** Partial update for a single product, scoped to workspaceId. Used by the public API's PATCH endpoint. */
@@ -152,6 +201,12 @@ export async function updateProduct(
   if (input.sku !== undefined) patch.sku = input.sku;
   if (input.tags !== undefined) patch.tags = input.tags;
   if (input.status !== undefined) patch.status = input.status;
+  if (input.vendorId !== undefined) patch.vendor_id = input.vendorId;
+  if (input.trackInventory !== undefined) patch.track_inventory = input.trackInventory;
+  if (input.lowStockThreshold !== undefined) patch.low_stock_threshold = input.lowStockThreshold;
+  if (input.metaTitle !== undefined) patch.meta_title = input.metaTitle;
+  if (input.metaDescription !== undefined) patch.meta_description = input.metaDescription;
+  if (input.slug !== undefined) patch.slug = input.slug;
 
   const { data, error } = await supabase
     .from("products")
@@ -165,7 +220,25 @@ export async function updateProduct(
     throw new Error(`Failed to update product: ${error.message}`);
   }
 
-  return data ? mapRow(data as ProductRow) : null;
+  if (!data) return null;
+  const product = mapRow(data as ProductRow);
+
+  // Loop guard: only push outbound when this change didn't originate FROM
+  // Shopify itself, otherwise an inbound webhook would echo straight back out.
+  const touchedSyncableField = input.name !== undefined || input.description !== undefined || input.price !== undefined;
+  if (touchedSyncableField && input.source !== "shopify") {
+    await syncProductToShopify(workspaceId, {
+      id: product.id,
+      name: product.name,
+      description: product.description,
+      price: product.price,
+      sku: product.sku,
+      category: product.category,
+      imageUrl: product.optimizedImages[0] || product.images[0] || null,
+    });
+  }
+
+  return product;
 }
 
 /**

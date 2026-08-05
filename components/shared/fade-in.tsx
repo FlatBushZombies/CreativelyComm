@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, type HTMLMotionProps } from "framer-motion";
+import { motion, useReducedMotion, type HTMLMotionProps } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 interface FadeInProps extends HTMLMotionProps<"div"> {
@@ -17,6 +17,12 @@ const directionOffset = {
   none: {},
 };
 
+/**
+ * Every animated wrapper in this file respects prefers-reduced-motion: a
+ * near-instant opacity crossfade replaces the position offset/springs
+ * instead of just disabling animation outright (apple-design's "reduced
+ * motion" principle -- respond independently, don't just turn everything off).
+ */
 export function FadeIn({
   children,
   className,
@@ -25,12 +31,17 @@ export function FadeIn({
   direction = "up",
   ...props
 }: FadeInProps) {
+  const reduceMotion = useReducedMotion();
+  const offset = reduceMotion ? {} : directionOffset[direction];
+
   return (
     <motion.div
-      initial={{ opacity: 0, ...directionOffset[direction] }}
+      initial={{ opacity: 0, ...offset }}
       whileInView={{ opacity: 1, x: 0, y: 0 }}
       viewport={{ once: true, margin: "-50px" }}
-      transition={{ duration, delay, ease: [0.21, 0.47, 0.32, 0.98] }}
+      transition={
+        reduceMotion ? { duration: 0.15, delay: 0 } : { duration, delay, ease: [0.21, 0.47, 0.32, 0.98] }
+      }
       className={cn(className)}
       {...props}
     >
@@ -48,6 +59,7 @@ export function StaggerContainer({
   className?: string;
   staggerDelay?: number;
 }) {
+  const reduceMotion = useReducedMotion();
   return (
     <motion.div
       initial="hidden"
@@ -55,7 +67,7 @@ export function StaggerContainer({
       viewport={{ once: true, margin: "-50px" }}
       variants={{
         hidden: {},
-        visible: { transition: { staggerChildren: staggerDelay } },
+        visible: { transition: { staggerChildren: reduceMotion ? 0 : staggerDelay } },
       }}
       className={className}
     >
@@ -71,14 +83,15 @@ export function StaggerItem({
   children: React.ReactNode;
   className?: string;
 }) {
+  const reduceMotion = useReducedMotion();
   return (
     <motion.div
       variants={{
-        hidden: { opacity: 0, y: 20 },
+        hidden: { opacity: 0, y: reduceMotion ? 0 : 20 },
         visible: {
           opacity: 1,
           y: 0,
-          transition: { duration: 0.5, ease: [0.21, 0.47, 0.32, 0.98] },
+          transition: reduceMotion ? { duration: 0.15 } : { duration: 0.5, ease: [0.21, 0.47, 0.32, 0.98] },
         },
       }}
       className={className}

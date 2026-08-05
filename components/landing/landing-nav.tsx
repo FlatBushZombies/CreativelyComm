@@ -9,8 +9,10 @@ import { cn } from "@/lib/utils";
 
 const navLinks = [
   { href: "#features", label: "Features" },
+  { href: "#features", label: "Integrations" },
   { href: "#workflow", label: "Workflow" },
   { href: "#pricing", label: "Pricing" },
+  { href: "#faq", label: "FAQ" },
 ];
 
 export function LandingNav() {
@@ -18,13 +20,18 @@ export function LandingNav() {
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-xl">
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        <Logo />
+      {/* Three equal-width flex zones keep the nav links visually centered
+          regardless of how the logo / CTA widths shift -- the classic
+          self-centering nav trick, rather than a plain justify-between row. */}
+      <div className="mx-auto flex h-16 max-w-7xl items-center px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-1 items-center">
+          <Logo />
+        </div>
 
-        <nav className="hidden items-center gap-8 md:flex">
+        <nav className="hidden flex-1 items-center justify-center gap-8 md:flex">
           {navLinks.map((link) => (
             <a
-              key={link.href}
+              key={link.label}
               href={link.href}
               className="group relative text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
             >
@@ -34,17 +41,17 @@ export function LandingNav() {
           ))}
         </nav>
 
-        <div className="hidden items-center gap-3 md:flex">
+        <div className="hidden flex-1 items-center justify-end gap-3 md:flex">
           <Button variant="ghost" asChild>
             <Link href="/login">Sign in</Link>
           </Button>
-          <Button asChild>
-            <Link href="/signup">Start free</Link>
+          <Button asChild className="rounded-full px-5">
+            <Link href="/signup">Get started</Link>
           </Button>
         </div>
 
         <button
-          className="md:hidden p-2"
+          className="ml-auto p-2 md:hidden"
           onClick={() => setMobileOpen(!mobileOpen)}
           aria-label="Toggle menu"
         >
@@ -61,7 +68,7 @@ export function LandingNav() {
         <div className="flex flex-col gap-1 p-4">
           {navLinks.map((link) => (
             <a
-              key={link.href}
+              key={link.label}
               href={link.href}
               className="rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-accent"
               onClick={() => setMobileOpen(false)}
@@ -73,8 +80,8 @@ export function LandingNav() {
             <Button variant="outline" asChild>
               <Link href="/login">Sign in</Link>
             </Button>
-            <Button asChild>
-              <Link href="/signup">Start free</Link>
+            <Button asChild className="rounded-full">
+              <Link href="/signup">Get started</Link>
             </Button>
           </div>
         </div>
