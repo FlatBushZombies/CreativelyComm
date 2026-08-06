@@ -47,7 +47,7 @@ export function ConversationSection() {
             direction="left"
             className="absolute left-0 top-0 hidden -rotate-3 sm:block"
           >
-            <div className="flex items-center gap-2 rounded-2xl rounded-bl-sm border border-border bg-card px-4 py-3 text-left text-sm card-shadow-lg">
+            <div className="flex items-center gap-2 rounded-2xl rounded-bl-sm border border-border-strong bg-card px-4 py-3 text-left text-sm card-shadow-lg">
               <CheckCircle2 className="h-4 w-4 shrink-0 text-primary" />
               <span>Marked 6 listings ready for Amazon</span>
             </div>
@@ -58,7 +58,7 @@ export function ConversationSection() {
             direction="right"
             className="absolute right-2 top-14 hidden rotate-2 sm:block"
           >
-            <div className="flex items-center gap-2 rounded-2xl rounded-br-sm border border-border bg-card px-4 py-3 text-left text-sm card-shadow-lg">
+            <div className="flex items-center gap-2 rounded-2xl rounded-br-sm border border-border-strong bg-card px-4 py-3 text-left text-sm card-shadow-lg">
               <MessageCircle className="h-4 w-4 shrink-0 text-primary" />
               <span>Left a note on SKU-1042 before export</span>
             </div>
@@ -68,7 +68,7 @@ export function ConversationSection() {
             delay={0.55}
             className="absolute left-1/2 bottom-0 hidden -translate-x-1/2 rotate-1 sm:block"
           >
-            <div className="flex items-center gap-2 rounded-2xl rounded-bl-sm border border-border bg-card px-4 py-3 text-left text-sm card-shadow-lg">
+            <div className="flex items-center gap-2 rounded-2xl rounded-bl-sm border border-border-strong bg-card px-4 py-3 text-left text-sm card-shadow-lg">
               <Pencil className="h-4 w-4 shrink-0 text-primary" />
               <span>Editor role can&apos;t touch billing or team settings</span>
             </div>

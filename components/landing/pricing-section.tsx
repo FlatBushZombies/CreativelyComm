@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { FadeIn } from "@/components/shared/fade-in";
+import { SectionHeading } from "@/components/landing/section-heading";
 import { pricingPlans } from "@/lib/mock-data";
 
 export function PricingSection() {
@@ -15,17 +16,13 @@ export function PricingSection() {
   return (
     <section id="pricing" className="py-20 sm:py-28">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <FadeIn className="mx-auto max-w-2xl text-center">
-          <h2 className="font-display text-3xl font-medium tracking-tight sm:text-5xl">
-            One plan. Everything included.
-          </h2>
-          <p className="mt-4 text-lg text-muted-foreground">
-            No tiers to compare, no feature paywalled behind an upsell.
-          </p>
-        </FadeIn>
+        <SectionHeading
+          title="One plan. Everything included."
+          description="No tiers to compare, no feature paywalled behind an upsell."
+        />
 
         <FadeIn delay={0.1} className="mx-auto mt-16 max-w-4xl">
-          <div className="grid overflow-hidden rounded-3xl border border-border card-shadow-lg lg:grid-cols-[0.9fr_1.1fr]">
+          <div className="grid overflow-hidden rounded-3xl border border-border-strong card-shadow-lg lg:grid-cols-[0.9fr_1.1fr]">
             {/* Bold color-blocked price panel */}
             <div className="flex flex-col justify-between bg-primary p-8 text-primary-foreground sm:p-10">
               <div>

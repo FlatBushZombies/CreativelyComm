@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Plus, X } from "lucide-react";
-import { FadeIn } from "@/components/shared/fade-in";
+import { SectionHeading } from "@/components/landing/section-heading";
 import { cn } from "@/lib/utils";
 
 const faqs = [
@@ -57,14 +57,7 @@ export function FAQSection() {
   return (
     <section id="faq" className="py-20 sm:py-28">
       <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
-        <FadeIn className="text-center">
-          <h2 className="font-display text-3xl font-medium tracking-tight sm:text-5xl">
-            Questions, answered
-          </h2>
-          <p className="mt-4 text-lg text-muted-foreground">
-            Everything you need to know before you start.
-          </p>
-        </FadeIn>
+        <SectionHeading title="Questions, answered" description="Everything you need to know before you start." />
 
         <div className="mt-12 divide-y divide-border border-t border-border">
           {faqs.map((faq, index) => {
@@ -89,7 +82,7 @@ export function FAQSection() {
                 </button>
                 <div
                   className={cn(
-                    "grid overflow-hidden transition-all duration-300 ease-out",
+                    "grid overflow-hidden transition-all duration-300 ease-[cubic-bezier(0.21,0.47,0.32,0.98)]",
                     isOpen ? "grid-rows-[1fr] pb-5 opacity-100" : "grid-rows-[0fr] opacity-0"
                   )}
                 >

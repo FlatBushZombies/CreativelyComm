@@ -13,6 +13,7 @@ import {
   FileSpreadsheet,
 } from "lucide-react";
 import { FadeIn } from "@/components/shared/fade-in";
+import { SectionHeading } from "@/components/landing/section-heading";
 
 const exportChannels = [
   { label: "Shopify", icon: Store, className: "bg-emerald-500" },
@@ -29,20 +30,19 @@ const exportChecklist = [
 
 export function WorkflowSection() {
   return (
-    <section id="features" className="bg-muted/30 py-20 sm:py-28">
+    <section id="how-it-works" className="bg-muted/30 py-20 sm:py-28">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        {/* Asymmetric heading row, matching the pattern above */}
-        <FadeIn className="grid gap-6 lg:grid-cols-[1.2fr_1fr] lg:items-end lg:gap-12">
-          <h2 className="font-display text-3xl font-medium tracking-tight sm:text-5xl">
-            Every channel,
-            <br />
-            one product library
-          </h2>
-          <p className="text-lg text-muted-foreground lg:text-right">
-            Stop maintaining separate spreadsheets per marketplace. Prepare a
-            product once, then push it wherever it needs to sell.
-          </p>
-        </FadeIn>
+        <SectionHeading
+          layout="split"
+          title={
+            <>
+              Every channel,
+              <br />
+              one product library
+            </>
+          }
+          description="Stop maintaining separate spreadsheets per marketplace. Prepare a product once, then push it wherever it needs to sell."
+        />
 
         <FadeIn delay={0.1}>
           <Link
@@ -103,7 +103,7 @@ export function WorkflowSection() {
         {/* Two smaller white cards side-by-side */}
         <div className="mt-5 grid gap-5 sm:grid-cols-2">
           <FadeIn delay={0.2}>
-            <div className="flex h-full flex-col rounded-2xl border border-border bg-card p-6 card-shadow sm:p-8">
+            <div className="flex h-full flex-col rounded-2xl border border-border-strong bg-card p-6 card-shadow sm:p-8">
               <div className="flex items-center gap-2">
                 {["EN", "ES", "DE", "FR"].map((lang, i) => (
                   <span
@@ -126,7 +126,7 @@ export function WorkflowSection() {
           </FadeIn>
 
           <FadeIn delay={0.3}>
-            <div className="flex h-full flex-col rounded-2xl border border-border bg-card p-6 card-shadow sm:p-8">
+            <div className="flex h-full flex-col rounded-2xl border border-border-strong bg-card p-6 card-shadow sm:p-8">
               <div className="flex items-center gap-1.5">
                 {[0, 1, 2].map((row) => (
                   <div key={row} className="flex flex-1 flex-col gap-1.5">

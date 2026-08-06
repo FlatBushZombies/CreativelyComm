@@ -15,6 +15,7 @@
   --accent: #eef4ef;
   --accent-foreground: #386641;
   --border: #e6e3d8;
+  --border-strong: #d8d4c4;
   --input: #e6e3d8;
   --ring: #386641;
   --radius: 0.75rem;
@@ -35,6 +36,7 @@
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
   --color-input: var(--input);
   --color-ring: var(--ring);
   --font-sans: var(--font-geist-sans);

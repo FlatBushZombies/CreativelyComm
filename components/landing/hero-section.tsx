@@ -66,39 +66,50 @@ export function HeroSection() {
 
       <div className="relative mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
         <FadeIn>
-          <h1 className="font-display flex flex-wrap items-center justify-center gap-x-3 gap-y-3 text-4xl font-medium leading-tight tracking-tight sm:text-5xl lg:text-[3.75rem]">
-            <span className="gradient-text italic">CreativelyComm</span>
-            <span className="flex items-center -space-x-3" aria-hidden="true">
+          {/* Eyebrow: the channel-avatar stack lives here now, as a supporting
+              trust signal, instead of fused into the headline sentence. */}
+          <span className="inline-flex items-center gap-3 rounded-full border border-border-strong bg-card py-1.5 pl-2 pr-4 card-shadow">
+            <span className="flex items-center -space-x-2.5" aria-hidden="true">
               {channelAvatars.map(({ icon: Icon, className }, i) => (
                 <span
                   key={i}
                   className={cn(
-                    "flex h-9 w-9 items-center justify-center rounded-full border-2 border-background text-white shadow-sm sm:h-11 sm:w-11",
+                    "flex h-6 w-6 items-center justify-center rounded-full border-2 border-card text-white",
                     className
                   )}
                   style={{ zIndex: channelAvatars.length - i }}
                 >
-                  <Icon className="h-4 w-4 sm:h-5 sm:w-5" />
+                  <Icon className="h-3 w-3" />
                 </span>
               ))}
             </span>
-            <span>readies every product for every channel it sells on</span>
+            <span className="text-sm font-medium text-muted-foreground">
+              Works with Shopify, Amazon, Etsy &amp; more
+            </span>
+          </span>
+        </FadeIn>
+
+        <FadeIn delay={0.05}>
+          <h1 className="font-display mt-6 text-4xl font-medium leading-tight tracking-tight sm:text-5xl lg:text-6xl">
+            Never publish a listing that{" "}
+            <span className="gradient-text italic">gets rejected</span>
           </h1>
         </FadeIn>
 
         <FadeIn delay={0.1}>
           <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-muted-foreground sm:text-xl">
-            Not another ecommerce platform — the workspace where products are
-            organized, checked, and cleaned up before they ever reach a
-            customer. Real per-channel readiness scoring, one-click photo
-            cleanup, and export to Shopify, Amazon, Etsy, and 7+ platforms.
+            Mismatched photos, missing fields, inconsistent listings across
+            channels — most rejections are avoidable, and you find out too
+            late. CreativelyComm catches all of it before you publish: real
+            per-channel readiness scoring, one-click photo cleanup, and
+            export to Shopify, Amazon, Etsy, and 7+ platforms.
           </p>
         </FadeIn>
 
         <FadeIn delay={0.2}>
           <form
             onSubmit={handleSubmit}
-            className="mx-auto mt-10 flex max-w-md flex-col items-center gap-3 sm:flex-row sm:gap-1.5 sm:rounded-full sm:border sm:border-border sm:bg-card sm:p-1.5 sm:card-shadow"
+            className="mx-auto mt-10 flex max-w-md flex-col items-center gap-3 sm:flex-row sm:gap-1.5 sm:rounded-full sm:border sm:border-border-strong sm:bg-card sm:p-1.5 sm:card-shadow"
           >
             <Input
               type="email"
@@ -117,7 +128,7 @@ export function HeroSection() {
           <p className="mt-4 text-sm text-muted-foreground">
             No credit card required · Free to start ·{" "}
             <Link
-              href="#workflow"
+              href="#how-it-works"
               className="font-medium text-foreground underline underline-offset-4 hover:text-primary"
             >
               see how it works
@@ -130,9 +141,10 @@ export function HeroSection() {
           <motion.div
             initial={{ opacity: 0, x: -16, rotate: -10 }}
             whileInView={{ opacity: 1, x: 0, rotate: -6 }}
+            whileHover={{ rotate: -3, y: -4, scale: 1.03 }}
             viewport={{ once: true, margin: "-80px" }}
             transition={{ delay: 0.4, duration: 0.5, ease: [0.21, 0.47, 0.32, 0.98] }}
-            className="absolute -left-4 top-8 z-20 hidden w-48 rounded-2xl border border-border bg-card p-4 text-left card-shadow-lg sm:-left-10 sm:block lg:-left-16"
+            className="absolute -left-4 top-8 z-20 hidden w-48 rounded-2xl border border-border-strong bg-card p-4 text-left card-shadow-lg sm:-left-10 sm:block lg:-left-16"
           >
             <div className="flex items-center gap-2">
               <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10">
@@ -153,9 +165,10 @@ export function HeroSection() {
           <motion.div
             initial={{ opacity: 0, x: 16, y: 8, rotate: 10 }}
             whileInView={{ opacity: 1, x: 0, y: 0, rotate: 4 }}
+            whileHover={{ rotate: 2, y: -4, scale: 1.03 }}
             viewport={{ once: true, margin: "-80px" }}
             transition={{ delay: 0.55, duration: 0.5, ease: [0.21, 0.47, 0.32, 0.98] }}
-            className="absolute -right-3 bottom-14 z-20 hidden w-52 rounded-2xl rounded-bl-sm border border-border bg-card p-4 text-left card-shadow-lg sm:-right-8 sm:block lg:-right-12"
+            className="absolute -right-3 bottom-14 z-20 hidden w-52 rounded-2xl rounded-bl-sm border border-border-strong bg-card p-4 text-left card-shadow-lg sm:-right-8 sm:block lg:-right-12"
           >
             <div className="flex items-start gap-2">
               <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-emerald-500 text-white">

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { ArrowUpRight, ShieldCheck, Scissors, RefreshCw, type LucideIcon } from "lucide-react";
 import { FadeIn, StaggerContainer, StaggerItem } from "@/components/shared/fade-in";
+import { SectionHeading } from "@/components/landing/section-heading";
 import { cn } from "@/lib/utils";
 
 interface CapabilityCard {
@@ -52,7 +53,7 @@ function CapabilityCardView({ card }: { card: CapabilityCard }) {
         "flex h-full flex-col justify-between rounded-2xl border p-6 sm:p-7",
         isBrand
           ? "border-transparent bg-primary text-primary-foreground card-shadow-glow"
-          : "border-border bg-card card-shadow"
+          : "border-border-strong bg-card card-shadow"
       )}
     >
       <div>
@@ -98,20 +99,19 @@ function CapabilityCardView({ card }: { card: CapabilityCard }) {
 // lives further down in FeatureDeepDiveSection (workflow-section.tsx).
 export function EfficiencySection() {
   return (
-    <section className="py-20 sm:py-28">
+    <section id="features" className="py-20 sm:py-28">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        {/* Asymmetric heading row: left-aligned heading, short paragraph pinned right */}
-        <FadeIn className="grid gap-6 lg:grid-cols-[1.2fr_1fr] lg:items-end lg:gap-12">
-          <h2 className="font-display text-3xl font-medium tracking-tight sm:text-5xl">
-            Increase efficiency,
-            <br />
-            skip the guesswork
-          </h2>
-          <p className="text-lg text-muted-foreground lg:text-right">
-            The product experience starts long before checkout. CreativelyComm is where
-            it gets organized, scored, and cleaned up first.
-          </p>
-        </FadeIn>
+        <SectionHeading
+          layout="split"
+          title={
+            <>
+              Stop finding out
+              <br />
+              after the rejection
+            </>
+          }
+          description="Every marketplace has different rules for photos, fields, and formatting. Miss one and the listing bounces — CreativelyComm checks all of it first."
+        />
 
         <FadeIn delay={0.1}>
           <Link
