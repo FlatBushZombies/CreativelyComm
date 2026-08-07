@@ -5,26 +5,26 @@ import { cn } from "@/lib/utils";
 
 const useCases = [
   {
-    label: "Storefront",
-    title: "A branded storefront, out of the box",
+    label: "Capture",
+    title: "Hardware photo booth for consistent shots",
     src: "https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=900&q=80",
     span: "lg:col-span-3 lg:row-span-2",
   },
   {
     label: "Marketplaces",
-    title: "Shopify, Amazon, Etsy listings",
+    title: "Ready-to-list on Shopify, Amazon, Etsy",
     src: "https://images.unsplash.com/photo-1590874103328-eac38a683ce7?w=700&q=80",
     span: "lg:col-span-2",
   },
   {
-    label: "Ads & social",
-    title: "Google and Meta catalog feeds",
+    label: "Fulfillment",
+    title: "Pack verification + in-person POS",
     src: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=700&q=80",
     span: "lg:col-span-2",
   },
   {
-    label: "Catalogs",
-    title: "Bulk export for wholesale and CSV catalogs",
+    label: "Ads & Retargeting",
+    title: "Meta/Google feeds + offline-to-online audience syncing",
     src: "https://images.unsplash.com/photo-1560769629-975ec94e6a86?w=900&q=80",
     span: "lg:col-span-3",
   },
@@ -36,8 +36,8 @@ export function UseCasesSection() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <SectionHeading
           eyebrow="Use cases"
-          title="Wherever your products need to show up."
-          description="One product library feeds every surface — no re-uploading, no re-formatting."
+          title="From raw photo to multi-channel sales."
+          description="Integrated software + hardware systems solve the entire product intelligence pipeline — capture, clean, score, verify, and sell everywhere."
         />
 
         <div className="mt-12 grid gap-4 lg:grid-cols-5 lg:auto-rows-[220px]">

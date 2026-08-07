@@ -39,16 +39,12 @@ export function ProblemSection() {
             eyebrow="The problem"
             title={
               <>
-                Great products shouldn&apos;t
-                <br />
-                look inconsistent online.
-              </>
-            }
-            description="Mismatched crops, cluttered backgrounds, and missing fields are the most common reason a listing gets flagged or ignored — and every marketplace checks for something different."
-            className="max-w-none text-left lg:mx-0"
-          />
-
-          <FadeIn
+              Small sellers waste time battling
+              <br />
+              inconsistent product photos.
+            </>
+          }
+          description="Messy raw photos, mismatched crops, cluttered backgrounds — these are the #1 reasons listings get flagged by marketplaces or ignored by buyers. And every marketplace checks for something different. The real bottleneck isn't editing; it's capturing clean photos at the source."
             direction="right"
             delay={0.15}
             className="relative mx-auto h-[26rem] w-full max-w-md lg:mx-0"

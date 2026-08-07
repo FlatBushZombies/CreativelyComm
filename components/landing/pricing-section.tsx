@@ -17,8 +17,8 @@ export function PricingSection() {
     <section id="pricing" className="py-20 sm:py-28">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <SectionHeading
-          title="One plan. Everything included."
-          description="No tiers to compare, no feature paywalled behind an upsell."
+          title="One plan. Infinite scalability."
+          description="Core software scales from $19/month. Hardware systems (Capture Dock, Scan Station, POS Reader) are optional add-ons for sellers ready to build defensible moats."
         />
 
         <FadeIn delay={0.1} className="mx-auto mt-16 max-w-4xl">
@@ -41,7 +41,7 @@ export function PricingSection() {
                 asChild
                 className="mt-8 w-full rounded-full sm:w-auto"
               >
-                <Link href="/signup">Get started</Link>
+                <Link href="/signup">Start free</Link>
               </Button>
             </div>
 
@@ -67,6 +67,66 @@ export function PricingSection() {
             </div>
           </div>
         </FadeIn>
+
+        {/* Hardware Add-ons Section */}
+        <div className="mt-16 rounded-2xl border border-primary/20 bg-primary/5 p-8 sm:p-10">
+          <h3 className="text-lg font-semibold">Optional Hardware Add-ons</h3>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Build defensible moats with proprietary capture and fulfillment data:
+          </p>
+          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {[
+              {
+                name: "Capture Dock",
+                price: "$300",
+                cogs: true,
+                desc: "Turntable + ring light for consistent multi-angle shots",
+              },
+              {
+                name: "Scan Station",
+                price: "$150",
+                cogs: true,
+                desc: "Barcode scanner + printer for inventory tracking",
+              },
+              {
+                name: "QC Camera",
+                price: "$200",
+                cogs: true,
+                desc: "Fixed station for pack verification & dispute defense",
+              },
+              {
+                name: "POS Reader",
+                price: "$120",
+                cogs: true,
+                desc: "Card reader for omni-channel in-person sales",
+              },
+              {
+                name: "Content Kit",
+                price: "$20",
+                cogs: true,
+                desc: "Ring light + backdrop + mount (shipped free to new signups)",
+              },
+            ].map((addon) => (
+              <div
+                key={addon.name}
+                className="rounded-lg border border-border bg-card p-4"
+              >
+                <p className="font-semibold text-sm">{addon.name}</p>
+                <p className="text-xs text-muted-foreground mt-1">{addon.desc}</p>
+                <p className="text-xs text-primary font-mono mt-3">COGS {addon.price}</p>
+              </div>
+            ))}
+          </div>
+          <p className="mt-4 text-xs text-muted-foreground">
+            Each system integrates into the workspace and generates proprietary data that strengthens your
+            competitive position. Start with Content Kit to test hardware appetite; scale to Capture Dock
+            or Scan Station for strongest moats.{" "}
+            <Link href="/settings/hardware" className="text-primary hover:underline">
+              Configure in Settings
+            </Link>
+            .
+          </p>
+        </div>
       </div>
     </section>
   );

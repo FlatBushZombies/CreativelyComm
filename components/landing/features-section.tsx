@@ -77,7 +77,7 @@ export function FeatureStorySection() {
           label="Clean"
           layout="visual-right"
           title="Clean product photos without a photo editor."
-          description="Select an image and remove the background instantly, powered by Remove.bg. No round-trip to Photoshop, no waiting on a designer."
+          description="Select an image and remove the background instantly, powered by Remove.bg. Upload from your phone, integrate with our optional Capture Dock hardware for auto-cleaned multi-angle shots, or use raw photos from anywhere. No round-trip to Photoshop, no waiting on a designer."
           visual={
             <div className="overflow-hidden rounded-2xl border border-border-strong bg-card card-shadow-lg">
               <div className="relative aspect-square">

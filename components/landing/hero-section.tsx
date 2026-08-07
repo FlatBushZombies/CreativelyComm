@@ -36,22 +36,19 @@ export function HeroSection() {
         <div className="max-w-3xl">
           <FadeIn>
             <p className="text-xs font-semibold uppercase tracking-[0.12em] text-primary">
-              Channel Readiness Engine
+              Product Intelligence Platform
             </p>
           </FadeIn>
 
           <FadeIn delay={0.05}>
             <h1 className="font-display mt-5 text-[2.75rem] font-medium leading-[0.98] tracking-[-0.045em] sm:text-6xl lg:text-[5.25rem]">
-              Never publish a listing that gets rejected.
+              Turn raw product photos into marketplace wins.
             </h1>
           </FadeIn>
 
           <FadeIn delay={0.1}>
             <p className="mt-6 max-w-xl text-lg leading-relaxed text-muted-foreground">
-              Every marketplace has its own rules for photos, fields, and
-              formatting. CreativelyComm scores each listing against them
-              before you publish, cleans up product photos in one click, and
-              exports ready-to-list files for Shopify, Amazon, Etsy, and more.
+              CreativelyComm combines intelligent photo cleaning, channel readiness scoring, and optional hardware capture systems to solve the entire product intelligence problem — from raw photo to ready-to-list. Score listings before publishing, clean photos in one click, integrate proprietary capture hardware, and export to Shopify, Amazon, Etsy, and 7+ more.
             </p>
           </FadeIn>
 

@@ -8,15 +8,16 @@ import { BeforeAfterSection } from "@/components/landing/before-after-section";
 import { FeatureStorySection } from "@/components/landing/features-section";
 import { WorkflowSection } from "@/components/landing/workflow-section";
 import { UseCasesSection } from "@/components/landing/use-cases-section";
+import { HardwareEcosystemSection } from "@/components/landing/hardware-ecosystem-section";
 import { ProofSection } from "@/components/landing/proof-section";
 import { PricingSection } from "@/components/landing/pricing-section";
 import { FAQSection } from "@/components/landing/faq-section";
 import { FinalCtaSection } from "@/components/landing/cta-section";
 
 export const metadata: Metadata = {
-  title: "CreativelyComm — Never publish a listing that gets rejected",
+  title: "CreativelyComm — Product Intelligence for Small Sellers",
   description:
-    "Score every product against real per-channel readiness rules, clean up photos in one click, and export to Shopify, Amazon, Etsy, and 7+ more.",
+    "Turn raw product photos into marketplace wins. Clean photos, score listings against readiness rules, enable hardware capture systems, and export ready-to-list files to Shopify, Amazon, Etsy, and more.",
 };
 
 export default function HomePage() {
@@ -31,6 +32,7 @@ export default function HomePage() {
         <FeatureStorySection />
         <WorkflowSection />
         <UseCasesSection />
+        <HardwareEcosystemSection />
         <ProofSection />
         <PricingSection />
         <FAQSection />
