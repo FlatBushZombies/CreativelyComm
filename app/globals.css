@@ -85,16 +85,9 @@ html {
   font-family: var(--font-display), Georgia, serif;
 }
 
-.gradient-text {
-  background: linear-gradient(135deg, #386641 0%, #4a8a55 50%, #2d5235 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
 .hero-gradient {
-  background: radial-gradient(ellipse 80% 55% at 50% -20%, rgba(56, 102, 65, 0.16), transparent),
-    radial-gradient(ellipse 60% 40% at 85% 10%, rgba(56, 102, 65, 0.08), transparent);
+  background: radial-gradient(ellipse 80% 55% at 50% -20%, rgba(56, 102, 65, 0.11), transparent),
+    radial-gradient(ellipse 60% 40% at 85% 10%, rgba(56, 102, 65, 0.06), transparent);
 }
 
 .card-shadow {

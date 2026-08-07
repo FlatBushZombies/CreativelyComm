@@ -1,135 +1,169 @@
-"use client";
-
-import Link from "next/link";
-import { ArrowUpRight, ShieldCheck, Scissors, RefreshCw, type LucideIcon } from "lucide-react";
-import { FadeIn, StaggerContainer, StaggerItem } from "@/components/shared/fade-in";
-import { SectionHeading } from "@/components/landing/section-heading";
+import Image from "next/image";
+import { Scissors, Sparkles, CheckCircle2, XCircle, Settings2 } from "lucide-react";
+import { SiShopify, SiEtsy, SiGoogle, SiFacebook, SiTiktok } from "react-icons/si";
+import { FaAmazon } from "react-icons/fa6";
+import { FadeIn } from "@/components/shared/fade-in";
+import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
-interface CapabilityCard {
-  icon: LucideIcon;
+interface FeatureStoryProps {
+  number: string;
   label: string;
-  statement: string;
-  reply: string;
-  tone: "brand" | "neutral";
-  span?: string;
+  title: React.ReactNode;
+  description: string;
+  visual: React.ReactNode;
+  layout: "visual-right" | "visual-left" | "visual-full";
 }
 
-// Each card keeps the reference's "conversation" shape -- avatar, bold
-// statement, lighter reply bubble underneath -- but the content is an
-// honest capability callout, not an invented customer quote.
-const cards: CapabilityCard[] = [
-  {
-    icon: ShieldCheck,
-    label: "Readiness Engine",
-    statement: "Never guess if a listing is ready.",
-    reply: "Real per-channel scoring against rules you control — not a generic checklist.",
-    tone: "brand",
-    span: "lg:col-span-2 lg:row-span-2",
-  },
-  {
-    icon: Scissors,
-    label: "Photo cleanup",
-    statement: "Skip the photo editor entirely.",
-    reply: "One-click background removal, powered by Remove.bg.",
-    tone: "neutral",
-    span: "lg:col-start-3 lg:row-start-1",
-  },
-  {
-    icon: RefreshCw,
-    label: "Shopify sync",
-    statement: "Stop re-typing stock counts.",
-    reply: "Two-way sync keeps products and inventory identical, in both directions.",
-    tone: "neutral",
-    span: "lg:col-start-3 lg:row-start-2",
-  },
-];
+function FeatureStory({ number, label, title, description, visual, layout }: FeatureStoryProps) {
+  const text = (
+    <FadeIn direction={layout === "visual-left" ? "right" : "left"} className="max-w-md">
+      <p className="flex items-baseline gap-2 text-xs font-semibold uppercase tracking-[0.12em] text-primary">
+        <span className="font-mono text-muted-foreground">{number}</span>
+        {label}
+      </p>
+      <h3 className="font-display mt-4 text-3xl font-medium leading-tight tracking-tight sm:text-4xl">
+        {title}
+      </h3>
+      <p className="mt-4 text-base leading-relaxed text-muted-foreground">{description}</p>
+    </FadeIn>
+  );
 
-function CapabilityCardView({ card }: { card: CapabilityCard }) {
-  const isBrand = card.tone === "brand";
+  if (layout === "visual-full") {
+    return (
+      <div>
+        <FadeIn>{visual}</FadeIn>
+        <div className="mt-8 max-w-2xl">{text}</div>
+      </div>
+    );
+  }
+
   return (
     <div
       className={cn(
-        "flex h-full flex-col justify-between rounded-2xl border p-6 sm:p-7",
-        isBrand
-          ? "border-transparent bg-primary text-primary-foreground card-shadow-glow"
-          : "border-border-strong bg-card card-shadow"
+        "grid items-center gap-10 lg:grid-cols-2 lg:gap-16",
+        layout === "visual-left" && "lg:[&>*:first-child]:order-2"
       )}
     >
-      <div>
-        <div className="flex items-center gap-3">
-          <span
-            className={cn(
-              "flex h-10 w-10 shrink-0 items-center justify-center rounded-full",
-              isBrand ? "bg-white/15" : "bg-accent"
-            )}
-          >
-            <card.icon className={cn("h-5 w-5", isBrand ? "text-white" : "text-primary")} />
-          </span>
-          <span
-            className={cn(
-              "text-xs font-semibold uppercase tracking-wide",
-              isBrand ? "text-white/70" : "text-muted-foreground"
-            )}
-          >
-            {card.label}
-          </span>
-        </div>
-
-        <p className={cn("mt-5 font-display text-xl font-medium sm:text-2xl", isBrand ? "text-white" : "text-foreground")}>
-          {card.statement}
-        </p>
-      </div>
-
-      <div
-        className={cn(
-          "mt-6 w-fit max-w-full rounded-2xl rounded-tl-sm px-4 py-3 text-sm leading-relaxed",
-          isBrand ? "bg-white/12 text-white/90" : "bg-muted text-muted-foreground"
-        )}
-      >
-        {card.reply}
-      </div>
+      {text}
+      <FadeIn direction={layout === "visual-left" ? "left" : "right"} delay={0.1}>
+        {visual}
+      </FadeIn>
     </div>
   );
 }
 
-// Renamed from the original FeaturesSection: this now covers the reference
-// layout's "Increase efficiency & drive growth" block (asymmetric heading +
-// three conversation-shaped capability cards). The exhaustive feature list
-// lives further down in FeatureDeepDiveSection (workflow-section.tsx).
-export function EfficiencySection() {
+const ruleChecks = [
+  { label: "Has care instructions", channel: "Etsy", weight: 10, passed: true },
+  { label: "SKU present", channel: "Amazon", weight: 15, passed: true },
+  { label: "4+ product images", channel: "Shopify", weight: 12, passed: false },
+];
+
+const exportChannels = [
+  { name: "Shopify", icon: SiShopify, status: "Exported" },
+  { name: "Amazon", icon: FaAmazon, status: "Exported" },
+  { name: "Etsy", icon: SiEtsy, status: "Ready" },
+  { name: "Google", icon: SiGoogle, status: "Ready" },
+  { name: "Meta", icon: SiFacebook, status: "Pending" },
+  { name: "TikTok", icon: SiTiktok, status: "Ready" },
+];
+
+export function FeatureStorySection() {
   return (
     <section id="features" className="py-20 sm:py-28">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <SectionHeading
-          layout="split"
-          title={
-            <>
-              Stop finding out
-              <br />
-              after the rejection
-            </>
+      <div className="mx-auto max-w-7xl space-y-24 px-4 sm:space-y-32 sm:px-6 lg:px-8">
+        <FeatureStory
+          number="01"
+          label="Clean"
+          layout="visual-right"
+          title="Clean product photos without a photo editor."
+          description="Select an image and remove the background instantly, powered by Remove.bg. No round-trip to Photoshop, no waiting on a designer."
+          visual={
+            <div className="overflow-hidden rounded-2xl border border-border-strong bg-card card-shadow-lg">
+              <div className="relative aspect-square">
+                <Image
+                  src="https://images.unsplash.com/photo-1610701596007-11502861dcfa?w=700&q=80"
+                  alt="Product photo canvas with a background removal control"
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 1024px) 100vw, 500px"
+                />
+                <span className="absolute top-3 right-3 inline-flex items-center gap-1 rounded-full bg-primary px-2.5 py-1 text-xs font-medium text-primary-foreground">
+                  <Sparkles className="h-3 w-3" />
+                  Optimized
+                </span>
+              </div>
+              <div className="flex items-center border-t border-border p-1.5">
+                <span className="flex-1 rounded-lg px-3 py-2 text-center text-sm font-medium text-muted-foreground">
+                  Original
+                </span>
+                <span className="flex-1 rounded-lg bg-accent px-3 py-2 text-center text-sm font-medium text-accent-foreground">
+                  <Scissors className="mr-1.5 inline h-3.5 w-3.5" />
+                  Background removed
+                </span>
+              </div>
+            </div>
           }
-          description="Every marketplace has different rules for photos, fields, and formatting. Miss one and the listing bounces — CreativelyComm checks all of it first."
         />
 
-        <FadeIn delay={0.1}>
-          <Link
-            href="/signup"
-            className="group mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-primary"
-          >
-            Get Started
-            <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-          </Link>
-        </FadeIn>
+        <FeatureStory
+          number="02"
+          label="Standardize"
+          layout="visual-left"
+          title="Know exactly what's blocking a listing."
+          description="The Channel Readiness Engine checks every product against rules you control — per marketplace, weighted, and customizable. No more guessing why a listing got rejected."
+          visual={
+            <div className="rounded-2xl border border-border-strong bg-card p-6 card-shadow-lg sm:p-7">
+              <div className="flex items-center gap-2">
+                <Settings2 className="h-4 w-4 text-primary" />
+                <span className="text-sm font-semibold">Readiness rules</span>
+              </div>
+              <div className="mt-5 space-y-3">
+                {ruleChecks.map((rule) => (
+                  <div
+                    key={rule.label}
+                    className="flex items-center justify-between gap-3 rounded-lg border border-border p-3"
+                  >
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      {rule.passed ? (
+                        <CheckCircle2 className="h-4 w-4 shrink-0 text-primary" />
+                      ) : (
+                        <XCircle className="h-4 w-4 shrink-0 text-muted-foreground" />
+                      )}
+                      <span className="truncate text-sm">{rule.label}</span>
+                    </div>
+                    <div className="flex shrink-0 items-center gap-2">
+                      <Badge variant="secondary">{rule.channel}</Badge>
+                      <span className="text-xs text-muted-foreground">w{rule.weight}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          }
+        />
 
-        <StaggerContainer className="mt-10 grid gap-5 lg:grid-cols-3 lg:grid-rows-2">
-          {cards.map((card) => (
-            <StaggerItem key={card.label} className={card.span}>
-              <CapabilityCardView card={card} />
-            </StaggerItem>
-          ))}
-        </StaggerContainer>
+        <FeatureStory
+          number="03"
+          label="Publish"
+          layout="visual-full"
+          title="Export files every marketplace already expects."
+          description="Generate Shopify CSVs, Amazon Seller Central flat files, Etsy listings, and Google or Meta feeds — all from one product library, all in the format each channel actually wants."
+          visual={
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+              {exportChannels.map(({ name, icon: Icon, status }) => (
+                <div
+                  key={name}
+                  className="flex flex-col items-center gap-3 rounded-2xl border border-border-strong bg-card p-6 text-center card-shadow"
+                >
+                  <Icon className="h-6 w-6 text-foreground/80" />
+                  <span className="text-sm font-medium">{name}</span>
+                  <Badge variant={status === "Pending" ? "muted" : "success"}>{status}</Badge>
+                </div>
+              ))}
+            </div>
+          }
+        />
       </div>
     </section>
   );

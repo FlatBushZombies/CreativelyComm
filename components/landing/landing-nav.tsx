@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
 import { Logo } from "@/components/shared/logo";
 import { Button } from "@/components/ui/button";
@@ -16,15 +16,29 @@ const navLinks = [
 
 export function LandingNav() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    function onScroll() {
+      setScrolled(window.scrollY > 8);
+    }
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-xl">
-      {/* Three equal-width flex zones keep the nav links visually centered
-          regardless of how the logo / CTA widths shift -- the classic
-          self-centering nav trick, rather than a plain justify-between row. */}
-      <div className="mx-auto flex h-16 max-w-7xl items-center px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-1 items-center">
-          <Logo />
+    <header className="fixed inset-x-0 top-4 z-50 flex justify-center px-4 sm:top-5">
+      <div
+        className={cn(
+          "flex h-14 w-full max-w-[1200px] items-center rounded-2xl border transition-all duration-300",
+          scrolled
+            ? "border-border-strong bg-background/90 shadow-[0_8px_24px_-8px_rgb(22_22_15_/_0.10)] backdrop-blur-xl"
+            : "border-border/60 bg-background/60 backdrop-blur-md"
+        )}
+      >
+        <div className="flex flex-1 items-center pl-4 sm:pl-5">
+          <Logo size="sm" />
         </div>
 
         <nav className="hidden flex-1 items-center justify-center gap-8 md:flex">
@@ -40,7 +54,7 @@ export function LandingNav() {
           ))}
         </nav>
 
-        <div className="hidden flex-1 items-center justify-end gap-3 md:flex">
+        <div className="hidden flex-1 items-center justify-end gap-2 pr-2 md:flex">
           <Button variant="ghost" asChild>
             <Link href="/login">Sign in</Link>
           </Button>
@@ -50,41 +64,39 @@ export function LandingNav() {
         </div>
 
         <button
-          className="ml-auto p-2 md:hidden"
-          onClick={() => setMobileOpen(!mobileOpen)}
+          className="ml-auto p-2 pr-4 md:hidden"
+          onClick={() => setMobileOpen((v) => !v)}
           aria-label="Toggle menu"
+          aria-expanded={mobileOpen}
         >
           {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </button>
       </div>
 
-      <div
-        className={cn(
-          "md:hidden border-t border-border bg-background",
-          mobileOpen ? "block" : "hidden"
-        )}
-      >
-        <div className="flex flex-col gap-1 p-4">
-          {navLinks.map((link) => (
-            <a
-              key={link.label}
-              href={link.href}
-              className="rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-accent"
-              onClick={() => setMobileOpen(false)}
-            >
-              {link.label}
-            </a>
-          ))}
-          <div className="mt-2 flex flex-col gap-2">
-            <Button variant="outline" asChild>
-              <Link href="/login">Sign in</Link>
-            </Button>
-            <Button asChild className="rounded-full">
-              <Link href="/signup">Get started</Link>
-            </Button>
+      {mobileOpen && (
+        <div className="absolute top-[calc(100%+8px)] w-full max-w-[1200px] rounded-2xl border border-border-strong bg-background shadow-[0_8px_24px_-8px_rgb(22_22_15_/_0.10)] md:hidden">
+          <div className="flex flex-col gap-1 p-4">
+            {navLinks.map((link) => (
+              <a
+                key={link.label}
+                href={link.href}
+                className="rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-accent"
+                onClick={() => setMobileOpen(false)}
+              >
+                {link.label}
+              </a>
+            ))}
+            <div className="mt-2 flex flex-col gap-2">
+              <Button variant="outline" asChild>
+                <Link href="/login">Sign in</Link>
+              </Button>
+              <Button asChild className="rounded-full">
+                <Link href="/signup">Get started</Link>
+              </Button>
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </header>
   );
 }

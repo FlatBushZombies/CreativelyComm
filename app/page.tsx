@@ -2,17 +2,21 @@ import type { Metadata } from "next";
 import { LandingNav } from "@/components/landing/landing-nav";
 import { LandingFooter } from "@/components/landing/landing-footer";
 import { HeroSection } from "@/components/landing/hero-section";
-import { EfficiencySection } from "@/components/landing/features-section";
-import { ConversationSection } from "@/components/landing/conversation-section";
+import { TrustStrip } from "@/components/landing/trust-strip";
+import { ProblemSection } from "@/components/landing/problem-section";
+import { BeforeAfterSection } from "@/components/landing/before-after-section";
+import { FeatureStorySection } from "@/components/landing/features-section";
 import { WorkflowSection } from "@/components/landing/workflow-section";
-import { DevicePromoSection } from "@/components/landing/cta-section";
+import { UseCasesSection } from "@/components/landing/use-cases-section";
+import { ProofSection } from "@/components/landing/proof-section";
 import { PricingSection } from "@/components/landing/pricing-section";
 import { FAQSection } from "@/components/landing/faq-section";
+import { FinalCtaSection } from "@/components/landing/cta-section";
 
 export const metadata: Metadata = {
-  title: "CreativelyComm — AI-Powered Product Marketing Platform",
+  title: "CreativelyComm — Never publish a listing that gets rejected",
   description:
-    "Upload products once, optimize images with AI, build a storefront, and export to every major ecommerce platform.",
+    "Score every product against real per-channel readiness rules, clean up photos in one click, and export to Shopify, Amazon, Etsy, and 7+ more.",
 };
 
 export default function HomePage() {
@@ -21,12 +25,16 @@ export default function HomePage() {
       <LandingNav />
       <main>
         <HeroSection />
-        <EfficiencySection />
-        <ConversationSection />
+        <TrustStrip />
+        <ProblemSection />
+        <BeforeAfterSection />
+        <FeatureStorySection />
         <WorkflowSection />
-        <DevicePromoSection />
+        <UseCasesSection />
+        <ProofSection />
         <PricingSection />
         <FAQSection />
+        <FinalCtaSection />
       </main>
       <LandingFooter />
     </div>
