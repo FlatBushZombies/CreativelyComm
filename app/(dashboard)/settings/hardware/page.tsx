@@ -217,3 +217,5 @@ export function HardwareSettingsPage() {
     </div>
   );
 }
+
+export default HardwareSettingsPage;
