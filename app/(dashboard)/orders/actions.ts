@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getServerSession } from "@/lib/auth/session";
 import { getOrCreateDefaultWorkspace } from "@/lib/workspace";
-import { createOrder, updateOrderStatus, type OrderStatus, type PaymentMethod } from "@/lib/orders";
+import { createOrder, updateOrderStatus, type OrderStatus, type PaymentMethod, type OrderSource } from "@/lib/orders";
 
 export interface CreateOrderState {
   error?: string;
@@ -38,12 +38,16 @@ export async function createOrderAction(formData: FormData): Promise<CreateOrder
     ? (paymentMethodRaw as PaymentMethod)
     : undefined;
 
+  const sourceRaw = String(formData.get("source") ?? "");
+  const source: OrderSource = sourceRaw === "pos" ? "pos" : "manual";
+
   try {
     const order = await createOrder(workspace.id, {
       items,
       customerName: String(formData.get("customerName") ?? "").trim() || undefined,
       customerEmail: String(formData.get("customerEmail") ?? "").trim() || undefined,
       paymentMethod,
+      source,
       note: String(formData.get("note") ?? "").trim() || undefined,
       createdBy: session.user.id,
     });

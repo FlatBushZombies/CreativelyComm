@@ -117,6 +117,11 @@ export function OrdersListClient({ orders, isVendorScoped }: OrdersListClientPro
                   </div>
                   <div className="flex items-center gap-3">
                     <span className="text-sm font-semibold">${order.total.toFixed(2)}</span>
+                    {order.source === "pos" && (
+                      <Badge variant="outline" className="text-xs">
+                        Quick Sale
+                      </Badge>
+                    )}
                     <Badge variant={statusVariant[order.status]} className="capitalize">
                       {order.status}
                     </Badge>

@@ -115,6 +115,24 @@ export async function getProductById(id: string, workspaceId: string): Promise<P
   return data ? mapRow(data as ProductRow) : null;
 }
 
+/** Looks up a product by case-insensitive exact SKU match, scoped to a workspace. Used by barcode scanning (Scan Station, Quick Sale). */
+export async function getProductBySku(sku: string, workspaceId: string): Promise<Product | null> {
+  const supabase = getSupabaseServerClient();
+  const escaped = sku.replace(/[%_]/g, (c) => `\\${c}`);
+  const { data, error } = await supabase
+    .from("products")
+    .select("*")
+    .eq("workspace_id", workspaceId)
+    .ilike("sku", escaped)
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(`Failed to look up product by SKU: ${error.message}`);
+  }
+
+  return data ? mapRow(data as ProductRow) : null;
+}
+
 export interface CreateProductInput {
   name: string;
   description?: string;
@@ -325,6 +343,44 @@ export async function addOptimizedImage(
 
   const product = mapRow(data as ProductRow);
   await recordProductVersion(workspaceId, product, "Background removed from an image");
+  return product;
+}
+
+/**
+ * Appends captured photos (e.g. a Capture Dock multi-angle session) to a
+ * product's raw images. Same append-and-scope pattern as addOptimizedImage,
+ * but targets the raw `images` array since these are unprocessed shots, not
+ * background-removed output.
+ */
+export async function attachCaptureShotsToProduct(
+  productId: string,
+  workspaceId: string,
+  imageUrls: string[]
+): Promise<Product> {
+  const supabase = getSupabaseServerClient();
+
+  const existing = await getProductById(productId, workspaceId);
+  if (!existing) {
+    throw new Error("Product not found.");
+  }
+
+  const { data, error } = await supabase
+    .from("products")
+    .update({
+      images: [...existing.images, ...imageUrls],
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", productId)
+    .eq("workspace_id", workspaceId)
+    .select()
+    .single();
+
+  if (error || !data) {
+    throw new Error(`Failed to update product: ${error?.message}`);
+  }
+
+  const product = mapRow(data as ProductRow);
+  await recordProductVersion(workspaceId, product, "Photos added via multi-angle capture");
   return product;
 }
 

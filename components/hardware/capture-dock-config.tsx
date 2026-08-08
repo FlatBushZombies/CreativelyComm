@@ -1,40 +1,95 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
+import Image from "next/image";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
-import { CaptureDock, CaptureMetadata } from "@/lib/hardware";
-import { Camera, Bluetooth, RotateCw } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { CameraCapture } from "@/components/hardware/camera-capture";
+import { Camera, Check, Loader2 } from "lucide-react";
+import {
+  setHardwareEnabledAction,
+  saveHardwareConfigAction,
+  uploadCaptureShotAction,
+  attachCaptureShotsAction,
+} from "@/app/(dashboard)/hardware/actions";
 
 interface CaptureDockConfigProps {
-  onSave?: (config: CaptureDock) => void;
-  initialConfig?: CaptureDock;
+  enabled: boolean;
+  config: { angleCount?: number; ringLightIntensity?: number };
+  products: { id: string; name: string }[];
 }
 
-export function CaptureDockConfig({ onSave, initialConfig }: CaptureDockConfigProps) {
-  const [config, setConfig] = useState<CaptureDock>(
-    initialConfig || {
-      id: crypto.randomUUID(),
-      name: "Primary Capture Dock",
-      enabled: false,
-      bluetoothPaired: false,
-      angleCount: 8,
-      ringLightIntensity: 75,
-      turntableRotationStep: 45,
-      autoFireDelay: 2000,
-      capturedMetadata: [],
-    }
-  );
+interface CapturedShot {
+  imageUrl: string;
+  angle: number;
+}
 
-  const [showAdvanced, setShowAdvanced] = useState(false);
+export function CaptureDockConfig({ enabled: initialEnabled, config, products }: CaptureDockConfigProps) {
+  const [enabled, setEnabled] = useState(initialEnabled);
+  const [angleCount, setAngleCount] = useState(config.angleCount ?? 8);
+  const [ringLightIntensity, setRingLightIntensity] = useState(config.ringLightIntensity ?? 60);
+  const [sessionId] = useState(() => crypto.randomUUID());
+  const [shots, setShots] = useState<CapturedShot[]>([]);
+  const [selectedProductId, setSelectedProductId] = useState("");
+  const [attached, setAttached] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
 
-  const handleSave = () => {
-    onSave?.(config);
-  };
+  function handleEnabledChange(next: boolean) {
+    setEnabled(next);
+    startTransition(async () => {
+      await setHardwareEnabledAction("capture-dock", next);
+    });
+  }
+
+  function saveSettings(nextAngleCount = angleCount, nextRingLight = ringLightIntensity) {
+    startTransition(async () => {
+      await saveHardwareConfigAction("capture-dock", {
+        angleCount: nextAngleCount,
+        ringLightIntensity: nextRingLight,
+      });
+    });
+  }
+
+  function handleCapture(blob: Blob) {
+    const angle = Math.round((shots.length * 360) / angleCount);
+    const formData = new FormData();
+    formData.append("photo", blob, `shot-${shots.length}.jpg`);
+    formData.set("sessionId", sessionId);
+    formData.set("angle", String(angle));
+
+    startTransition(async () => {
+      const result = await uploadCaptureShotAction(formData);
+      if (result.error) {
+        setError(result.error);
+        return;
+      }
+      if (result.imageUrl) {
+        setShots((prev) => [...prev, { imageUrl: result.imageUrl!, angle }]);
+        setError(null);
+      }
+    });
+  }
+
+  function handleAttach() {
+    if (!selectedProductId || shots.length === 0) return;
+    startTransition(async () => {
+      const result = await attachCaptureShotsAction(
+        selectedProductId,
+        shots.map((s) => s.imageUrl)
+      );
+      if (result.error) {
+        setError(result.error);
+        return;
+      }
+      setAttached(true);
+    });
+  }
 
   return (
     <div className="space-y-6">
@@ -46,209 +101,118 @@ export function CaptureDockConfig({ onSave, initialConfig }: CaptureDockConfigPr
                 <Camera className="h-5 w-5 text-primary" />
               </div>
               <div>
-                <CardTitle>Capture Dock Setup</CardTitle>
-                <CardDescription>
-                  Configure your turntable + ring light photo booth
-                </CardDescription>
+                <CardTitle>Multi-Angle Capture</CardTitle>
+                <CardDescription>Guided photo session using your device camera</CardDescription>
               </div>
             </div>
-            <Badge variant={config.enabled ? "default" : "outline"}>
-              {config.enabled ? "Active" : "Inactive"}
-            </Badge>
+            <Badge variant={enabled ? "default" : "outline"}>{enabled ? "Active" : "Inactive"}</Badge>
           </div>
         </CardHeader>
         <CardContent className="space-y-6">
-          {/* Basic Settings */}
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="dock-name">Device Name</Label>
-              <Input
-                id="dock-name"
-                value={config.name}
-                onChange={(e) => setConfig({ ...config, name: e.target.value })}
-                placeholder="e.g., Studio Dock A"
-                className="mt-2"
-              />
-            </div>
-
-            {config.serialNumber && (
-              <div>
-                <Label htmlFor="dock-serial">Serial Number</Label>
-                <Input
-                  id="dock-serial"
-                  value={config.serialNumber}
-                  disabled
-                  className="mt-2"
-                />
-              </div>
-            )}
-          </div>
-
-          {/* Bluetooth Pairing */}
-          <div className="rounded-lg border border-border/50 bg-muted/30 p-4 space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Bluetooth className="h-4 w-4 text-primary" />
-                <span className="font-semibold text-sm">Bluetooth Connection</span>
-              </div>
-              <Badge variant={config.bluetoothPaired ? "default" : "secondary"}>
-                {config.bluetoothPaired ? "Paired" : "Unpaired"}
-              </Badge>
-            </div>
-            <Button
-              variant="outline"
-              size="sm"
-              className="w-full"
-              onClick={() => setConfig({ ...config, bluetoothPaired: !config.bluetoothPaired })}
-            >
-              {config.bluetoothPaired ? "Unpair Device" : "Scan & Pair"}
-            </Button>
-          </div>
-
-          {/* Active Settings */}
           <div className="flex items-center justify-between p-4 rounded-lg bg-muted/50 border border-border/50">
             <div>
-              <Label className="text-sm font-medium">Enable Capture Dock</Label>
-              <p className="text-xs text-muted-foreground mt-1">
-                Start capturing multi-angle product photos
-              </p>
+              <Label className="text-sm font-medium">Enable Multi-Angle Capture</Label>
+              <p className="text-xs text-muted-foreground mt-1">Turns on the guided capture session below</p>
             </div>
-            <Switch
-              checked={config.enabled}
-              onCheckedChange={(checked) => setConfig({ ...config, enabled: checked })}
-            />
+            <Switch checked={enabled} onCheckedChange={handleEnabledChange} />
           </div>
 
-          {/* Capture Configuration */}
-          {config.enabled && (
-            <div className="rounded-lg border border-border/50 bg-card p-4 space-y-4">
-              <h4 className="font-semibold text-sm">Capture Settings</h4>
-
+          {enabled && (
+            <>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="angle-count" className="text-xs">
-                    Number of Angles
+                    Number of angles
                   </Label>
-                  <div className="flex items-center gap-2 mt-2">
-                    <Input
-                      id="angle-count"
-                      type="number"
-                      min="4"
-                      max="32"
-                      step="4"
-                      value={config.angleCount}
-                      onChange={(e) =>
-                        setConfig({ ...config, angleCount: parseInt(e.target.value) || 8 })
-                      }
-                      className="flex-1"
-                    />
-                    <span className="text-xs text-muted-foreground font-mono">shots</span>
-                  </div>
+                  <Input
+                    id="angle-count"
+                    type="number"
+                    min={2}
+                    max={24}
+                    value={angleCount}
+                    onChange={(e) => setAngleCount(parseInt(e.target.value) || 8)}
+                    onBlur={() => saveSettings()}
+                    className="mt-2"
+                  />
                 </div>
-
                 <div>
-                  <Label htmlFor="fire-delay" className="text-xs">
-                    Time Between Shots
+                  <Label htmlFor="ring-light" className="text-xs">
+                    Screen fill-light intensity
                   </Label>
                   <div className="flex items-center gap-2 mt-2">
                     <Input
-                      id="fire-delay"
-                      type="number"
-                      min="500"
-                      max="5000"
-                      step="500"
-                      value={config.autoFireDelay}
-                      onChange={(e) =>
-                        setConfig({ ...config, autoFireDelay: parseInt(e.target.value) || 2000 })
-                      }
-                      className="flex-1"
-                    />
-                    <span className="text-xs text-muted-foreground font-mono">ms</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="light-intensity" className="text-xs">
-                    Ring Light Intensity
-                  </Label>
-                  <div className="flex items-center gap-2 mt-2">
-                    <Input
-                      id="light-intensity"
+                      id="ring-light"
                       type="range"
-                      min="0"
-                      max="100"
-                      value={config.ringLightIntensity}
-                      onChange={(e) =>
-                        setConfig({
-                          ...config,
-                          ringLightIntensity: parseInt(e.target.value),
-                        })
-                      }
+                      min={0}
+                      max={100}
+                      value={ringLightIntensity}
+                      onChange={(e) => setRingLightIntensity(parseInt(e.target.value))}
+                      onMouseUp={() => saveSettings()}
+                      onTouchEnd={() => saveSettings()}
                       className="flex-1"
                     />
-                    <span className="text-xs text-muted-foreground font-mono w-8">
-                      {config.ringLightIntensity}%
-                    </span>
-                  </div>
-                </div>
-
-                <div>
-                  <Label htmlFor="rotation-step" className="text-xs">
-                    Rotation Step
-                  </Label>
-                  <div className="flex items-center gap-2 mt-2">
-                    <Input
-                      id="rotation-step"
-                      type="number"
-                      min="5"
-                      max="90"
-                      step="5"
-                      value={config.turntableRotationStep}
-                      onChange={(e) =>
-                        setConfig({
-                          ...config,
-                          turntableRotationStep: parseInt(e.target.value) || 45,
-                        })
-                      }
-                      className="flex-1"
-                    />
-                    <span className="text-xs text-muted-foreground font-mono">deg</span>
+                    <span className="text-xs font-mono w-8">{ringLightIntensity}%</span>
                   </div>
                 </div>
               </div>
 
-              <div className="flex items-center justify-between p-3 rounded bg-primary/5 border border-primary/20">
-                <span className="text-xs font-medium">
-                  Data Moat: Proprietary capture metadata (angle, lighting) compounds your
-                  bg-removal model
-                </span>
+              <div className="rounded-lg border border-border/50 bg-card p-4 space-y-4">
+                <div className="flex items-center justify-between">
+                  <h4 className="font-semibold text-sm">Capture session</h4>
+                  <Badge variant="outline">
+                    {shots.length} / {angleCount} shots
+                  </Badge>
+                </div>
+                <CameraCapture
+                  onCapture={handleCapture}
+                  flashIntensity={ringLightIntensity}
+                  captureLabel={`Capture shot ${shots.length + 1}`}
+                  disabled={isPending || shots.length >= angleCount}
+                />
+                {error && <p className="text-xs text-red-600">{error}</p>}
+                {shots.length > 0 && (
+                  <div className="flex gap-2 overflow-x-auto pb-1">
+                    {shots.map((shot, i) => (
+                      <div key={i} className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg border border-border">
+                        <Image src={shot.imageUrl} alt={`Angle ${shot.angle}°`} fill sizes="64px" className="object-cover" />
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
-            </div>
-          )}
 
-          {/* Captured Photos Stats */}
-          {config.capturedMetadata.length > 0 && (
-            <div className="rounded-lg border border-border/50 bg-muted/30 p-4">
-              <div className="flex items-center justify-between mb-3">
-                <span className="font-semibold text-sm">Capture History</span>
-                <Badge variant="outline">{config.capturedMetadata.length} photos</Badge>
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Last session: {config.lastCaptureSession?.toLocaleDateString() || "Never"}
-              </p>
-            </div>
+              {shots.length > 0 && (
+                <div className="rounded-lg border border-border/50 bg-muted/30 p-4 space-y-3">
+                  <h4 className="font-semibold text-sm">Attach to a product</h4>
+                  <Select value={selectedProductId} onValueChange={setSelectedProductId}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Choose a product" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {products.map((p) => (
+                        <SelectItem key={p.id} value={p.id}>
+                          {p.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Button
+                    size="sm"
+                    className="w-full"
+                    disabled={!selectedProductId || isPending || attached}
+                    onClick={handleAttach}
+                  >
+                    {isPending ? (
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    ) : attached ? (
+                      <Check className="h-3.5 w-3.5" />
+                    ) : null}
+                    {attached ? "Added to product" : `Add ${shots.length} photo${shots.length === 1 ? "" : "s"} to product`}
+                  </Button>
+                </div>
+              )}
+            </>
           )}
-
-          <div className="flex gap-3 pt-4">
-            <Button onClick={handleSave} className="flex-1">
-              Save Configuration
-            </Button>
-            <Button variant="outline" size="icon">
-              <RotateCw className="h-4 w-4" />
-            </Button>
-          </div>
         </CardContent>
       </Card>
     </div>

@@ -72,3 +72,39 @@ export async function uploadOptimizedImage(
   const { data } = supabase.storage.from(BUCKET).getPublicUrl(path);
   return data.publicUrl;
 }
+
+/**
+ * Uploads a photo captured through a hardware feature (Capture Dock
+ * multi-angle session, QC Camera pack-verification shot) to the same public
+ * bucket, under `workspaceId/hardware/<feature>/`. Same bucket/size/type
+ * constraints as the other upload helpers here -- these are real camera
+ * captures (getUserMedia + canvas.toBlob), not synthetic data.
+ */
+export async function uploadHardwarePhoto(
+  workspaceId: string,
+  feature: string,
+  blob: Blob
+): Promise<string> {
+  const supabase = getSupabaseServerClient();
+
+  if (!ALLOWED_TYPES.has(blob.type)) {
+    throw new Error(`Unsupported image type: ${blob.type || "unknown"}`);
+  }
+  if (blob.size > MAX_FILE_BYTES) {
+    throw new Error("Captured photo is larger than 8MB");
+  }
+
+  const extension = blob.type.split("/")[1] || "jpg";
+  const path = `${workspaceId}/hardware/${feature}/${crypto.randomUUID()}.${extension}`;
+
+  const { error } = await supabase.storage
+    .from(BUCKET)
+    .upload(path, blob, { contentType: blob.type, upsert: false });
+
+  if (error) {
+    throw new Error(`Failed to upload photo: ${error.message}`);
+  }
+
+  const { data } = supabase.storage.from(BUCKET).getPublicUrl(path);
+  return data.publicUrl;
+}

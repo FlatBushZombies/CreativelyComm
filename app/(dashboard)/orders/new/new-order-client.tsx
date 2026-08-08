@@ -15,6 +15,7 @@ import { createOrderAction } from "../actions";
 
 interface NewOrderClientProps {
   products: Product[];
+  source?: "manual" | "pos";
 }
 
 interface LineItem {
@@ -24,7 +25,7 @@ interface LineItem {
   quantity: number;
 }
 
-export function NewOrderClient({ products }: NewOrderClientProps) {
+export function NewOrderClient({ products, source = "manual" }: NewOrderClientProps) {
   const router = useRouter();
   const [search, setSearch] = useState("");
   const [lineItems, setLineItems] = useState<LineItem[]>([]);
@@ -98,6 +99,7 @@ export function NewOrderClient({ products }: NewOrderClientProps) {
     formData.set("customerName", customerName);
     formData.set("customerEmail", customerEmail);
     formData.set("paymentMethod", paymentMethod);
+    formData.set("source", source);
 
     const result = await createOrderAction(formData);
     setSubmitting(false);
@@ -112,7 +114,14 @@ export function NewOrderClient({ products }: NewOrderClientProps) {
 
   return (
     <>
-      <DashboardHeader title="New Order" description="Add products, then mark the sale as paid" />
+      <DashboardHeader
+        title={source === "pos" ? "Quick Sale" : "New Order"}
+        description={
+          source === "pos"
+            ? "Scan items and record the sale — payment method is noted, not processed"
+            : "Add products, then mark the sale as paid"
+        }
+      />
 
       <div className="flex-1 p-4 sm:p-6 lg:p-8">
         <FadeIn className="grid gap-6 lg:grid-cols-[1.2fr_1fr]">

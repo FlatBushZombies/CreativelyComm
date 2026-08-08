@@ -7,6 +7,7 @@ import { createInvoiceForOrder } from "@/lib/integrations/quickbooks";
 
 export type OrderStatus = "open" | "paid" | "fulfilled" | "cancelled" | "refunded";
 export type PaymentMethod = "cash" | "card" | "other";
+export type OrderSource = "manual" | "pos";
 
 export interface OrderItem {
   id: string;
@@ -23,6 +24,7 @@ export interface Order {
   id: string;
   status: OrderStatus;
   paymentMethod: PaymentMethod | null;
+  source: OrderSource;
   customerName: string | null;
   customerEmail: string | null;
   subtotal: number;
@@ -38,6 +40,7 @@ interface OrderRow {
   id: string;
   status: OrderStatus;
   payment_method: PaymentMethod | null;
+  source: OrderSource;
   customer_name: string | null;
   customer_email: string | null;
   subtotal: number | string;
@@ -78,6 +81,7 @@ function mapOrderRow(row: OrderRow, items: OrderItemRow[]): Order {
     id: row.id,
     status: row.status,
     paymentMethod: row.payment_method,
+    source: row.source,
     customerName: row.customer_name,
     customerEmail: row.customer_email,
     subtotal: Number(row.subtotal),
@@ -97,6 +101,8 @@ export interface CreateOrderInput {
   paymentMethod?: PaymentMethod;
   note?: string;
   createdBy?: string;
+  /** 'pos' when created through the Quick Sale hardware flow. Defaults to 'manual' (the standard New Order flow). */
+  source?: OrderSource;
 }
 
 /**
@@ -157,6 +163,7 @@ export async function createOrder(workspaceId: string, input: CreateOrderInput):
       workspace_id: workspaceId,
       status: initialStatus,
       payment_method: input.paymentMethod ?? null,
+      source: input.source ?? "manual",
       customer_name: input.customerName ?? null,
       customer_email: input.customerEmail ?? null,
       subtotal,
@@ -219,6 +226,8 @@ export async function createOrder(workspaceId: string, input: CreateOrderInput):
 export interface GetOrdersFilter {
   status?: OrderStatus;
   vendorId?: string;
+  source?: OrderSource;
+  limit?: number;
 }
 
 export async function getOrders(workspaceId: string, filter: GetOrdersFilter = {}): Promise<Order[]> {
@@ -231,8 +240,16 @@ export async function getOrders(workspaceId: string, filter: GetOrdersFilter = {
   if (filter.status) {
     query = query.eq("status", filter.status);
   }
+  if (filter.source) {
+    query = query.eq("source", filter.source);
+  }
 
-  const { data, error } = await query.order("created_at", { ascending: false });
+  query = query.order("created_at", { ascending: false });
+  if (filter.limit) {
+    query = query.limit(filter.limit);
+  }
+
+  const { data, error } = await query;
 
   if (error) {
     throw new Error(`Failed to load orders: ${error.message}`);
