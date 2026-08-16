@@ -39,9 +39,10 @@
   --color-border-strong: var(--border-strong);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-inter);
   --font-mono: var(--font-geist-mono);
   --font-display: var(--font-display);
+  --font-accent: var(--font-accent);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -83,6 +84,13 @@ html {
 
 .font-display {
   font-family: var(--font-display), Georgia, serif;
+}
+
+/* Elegant italic serif reserved for single accent words inside headlines —
+   see hero-section.tsx. Not intended for full headings or body text. */
+.font-accent {
+  font-family: var(--font-accent), Georgia, serif;
+  font-style: italic;
 }
 
 .hero-gradient {

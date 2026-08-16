@@ -1,160 +1,104 @@
-"use client";
-
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight, Scissors, CheckCircle2, XCircle } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
-import { FadeIn } from "@/components/shared/fade-in";
-import { cn } from "@/lib/utils";
+import { FadeIn, StaggerContainer, StaggerItem } from "@/components/shared/fade-in";
 
-const channelScores = [
-  { label: "Shopify", pct: 100 },
-  { label: "Amazon", pct: 94 },
-  { label: "Etsy", pct: 78 },
-];
-
-const ruleChecks = [
-  { label: "4+ product images", passed: true },
-  { label: "Description present", passed: true },
-  { label: "SKU assigned", passed: false },
-];
-
-const productThumbnails = [
-  "https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?w=200&q=80",
-  "https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=200&q=80",
-  "https://images.unsplash.com/photo-1627123424574-724758594e93?w=200&q=80",
+const featureStrip = [
+  {
+    title: "10× Faster Delivery",
+    description: "Automate the work that used to take days.",
+  },
+  {
+    title: "Higher-Converting Commerce",
+    description: "AI-powered pages, upsells, bundles, and optimized product content.",
+  },
+  {
+    title: "One Product, Every Channel",
+    description:
+      "Prepare and publish to Shopify, Amazon, Etsy, Google, Meta, TikTok Shop, and more.",
+  },
 ];
 
 export function HeroSection() {
   return (
-    <section className="relative overflow-hidden pt-40 pb-24 sm:pt-48 sm:pb-32">
-      <div className="hero-gradient absolute inset-0" />
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#e4e4e7_1px,transparent_1px),linear-gradient(to_bottom,#e4e4e7_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_60%,transparent_100%)] opacity-60" />
-
-      <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="max-w-3xl">
-          <FadeIn>
-            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-primary">
-              Product Intelligence Platform
-            </p>
-          </FadeIn>
-
-          <FadeIn delay={0.05}>
-            <h1 className="font-display mt-5 text-[2.75rem] font-medium leading-[0.98] tracking-[-0.045em] sm:text-6xl lg:text-[5.25rem]">
-              Turn raw product photos into marketplace wins.
-            </h1>
-          </FadeIn>
-
-          <FadeIn delay={0.1}>
-            <p className="mt-6 max-w-xl text-lg leading-relaxed text-muted-foreground">
-              CreativelyComm combines intelligent photo cleaning, channel readiness scoring, and optional hardware capture systems to solve the entire product intelligence problem — from raw photo to ready-to-list. Score listings before publishing, clean photos in one click, integrate proprietary capture hardware, and export to Shopify, Amazon, Etsy, and 7+ more.
-            </p>
-          </FadeIn>
-
-          <FadeIn delay={0.15}>
-            <div className="mt-9 flex flex-wrap items-center gap-3">
-              <Button size="lg" className="rounded-full px-6" asChild>
-                <Link href="/signup">
-                  Start free
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-              </Button>
-              <Button size="lg" variant="ghost" className="rounded-full px-6" asChild>
-                <Link href="#how-it-works">See how it works</Link>
-              </Button>
-            </div>
-            <p className="mt-4 text-sm text-muted-foreground">
-              No credit card required · Free to start
-            </p>
-          </FadeIn>
+    <section className="relative overflow-hidden">
+      <div className="relative flex min-h-[92vh] items-center pt-32 pb-20 sm:min-h-screen sm:pt-40 sm:pb-24">
+        <div className="absolute inset-0">
+          <Image
+            src="https://images.pexels.com/photos/3814573/pexels-photo-3814573.jpeg?auto=compress&cs=tinysrgb&w=1920"
+            alt="A small workshop where a craftsman and an assistant prepare a handmade leather bag"
+            fill
+            priority
+            className="object-cover"
+            sizes="100vw"
+          />
+          {/* Same dark linear-gradient overlay technique used in use-cases-section.tsx,
+              layered on two axes so left-aligned text stays legible across the full photo. */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-black/30" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/20 to-transparent" />
         </div>
 
-        <FadeIn delay={0.25} className="relative mt-16 sm:mt-20">
-          <div className="overflow-hidden rounded-[1.75rem] border border-border-strong bg-card card-shadow-lg">
-            <div className="flex items-center gap-2 border-b border-border px-5 py-3.5 sm:px-6">
-              <span className="h-2.5 w-2.5 rounded-full bg-border-strong" />
-              <span className="h-2.5 w-2.5 rounded-full bg-border-strong" />
-              <span className="h-2.5 w-2.5 rounded-full bg-border-strong" />
-              <span className="ml-3 font-mono text-xs text-muted-foreground">
-                creativelycomm.app/products/artisan-ceramic-mug
-              </span>
-            </div>
+        <div className="relative mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="max-w-2xl">
+            <FadeIn>
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/80">
+                Built for brands &amp; agencies
+              </p>
+            </FadeIn>
 
-            <div className="grid lg:grid-cols-[1.35fr_1fr]">
-              <div className="border-b border-border p-5 sm:p-7 lg:border-b-0 lg:border-r">
-                <div className="relative aspect-[4/3] overflow-hidden rounded-xl border border-border bg-muted">
-                  <Image
-                    src="https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?w=900&q=80"
-                    alt="Artisan ceramic mug product photo in the CreativelyComm workspace canvas"
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 1024px) 100vw, 640px"
-                    priority
-                  />
-                  <span className="absolute left-3 top-3 rounded-md bg-black/55 px-2 py-1 text-[11px] font-medium text-white">
-                    Original
-                  </span>
-                  <Button
-                    size="sm"
-                    variant="secondary"
-                    className="absolute bottom-3 right-3 opacity-95"
-                  >
-                    <Scissors className="h-3.5 w-3.5" />
-                    Remove background
-                  </Button>
-                </div>
-                <div className="mt-3 flex gap-2">
-                  {productThumbnails.map((src, i) => (
-                    <div
-                      key={src}
-                      className={cn(
-                        "relative h-14 w-14 shrink-0 overflow-hidden rounded-lg border-2",
-                        i === 0 ? "border-primary" : "border-transparent"
-                      )}
-                    >
-                      <Image src={src} alt="" fill className="object-cover" sizes="56px" />
-                    </div>
-                  ))}
-                </div>
+            <FadeIn delay={0.05}>
+              <h1 className="mt-5 text-[2.5rem] font-bold leading-[1.05] tracking-tight text-white sm:text-6xl lg:text-[4.5rem]">
+                Raw photos in.
+                <br />
+                <span className="font-accent text-primary">Sell-everywhere</span> listings out.
+              </h1>
+            </FadeIn>
+
+            <FadeIn delay={0.1}>
+              <p className="mt-6 max-w-xl text-lg leading-relaxed text-white/85">
+                AI handles product photos, copy, layouts, SEO, bundles, and channel requirements
+                so teams can ship 10× faster, sell better, and scale without hiring.
+              </p>
+            </FadeIn>
+
+            <FadeIn delay={0.15}>
+              <div className="mt-9 flex flex-wrap items-center gap-3">
+                <Button size="lg" className="rounded-full px-6" asChild>
+                  <Link href="/signup">
+                    Start free
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </Button>
+                <Button
+                  size="lg"
+                  variant="ghost"
+                  className="rounded-full px-6 text-white hover:bg-white/10 hover:text-white"
+                  asChild
+                >
+                  <Link href="#how-it-works">See how it works</Link>
+                </Button>
               </div>
-
-              <div className="p-5 sm:p-7">
-                <p className="text-sm font-medium">Artisan Ceramic Mug</p>
-                <p className="mt-0.5 text-xs text-muted-foreground">
-                  4 photos · 3 channels selected
-                </p>
-
-                <div className="mt-5 space-y-3.5">
-                  {channelScores.map((row) => (
-                    <div key={row.label}>
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="font-medium">{row.label}</span>
-                        <span className="text-muted-foreground">{row.pct}%</span>
-                      </div>
-                      <Progress value={row.pct} className="mt-1.5 h-1.5" />
-                    </div>
-                  ))}
-                </div>
-
-                <div className="mt-6 space-y-2.5 border-t border-border pt-5">
-                  {ruleChecks.map((rule) => (
-                    <div key={rule.label} className="flex items-center gap-2 text-xs">
-                      {rule.passed ? (
-                        <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-primary" />
-                      ) : (
-                        <XCircle className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-                      )}
-                      <span className={rule.passed ? "" : "text-muted-foreground"}>
-                        {rule.label}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
+              <p className="mt-4 text-sm text-white/70">No credit card required · Free to start</p>
+            </FadeIn>
           </div>
-        </FadeIn>
+        </div>
+      </div>
+
+      {/* 3-column feature strip, reusing the divided-stat-strip pattern from proof-section.tsx. */}
+      <div className="relative border-b border-border py-16 sm:py-20">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <StaggerContainer className="grid gap-10 divide-y divide-border border-t border-border sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+            {featureStrip.map((item) => (
+              <StaggerItem key={item.title} className="pt-8 sm:px-8 sm:pt-0 first:sm:pl-0">
+                <p className="text-lg font-bold tracking-tight sm:text-xl">{item.title}</p>
+                <p className="mt-2 max-w-[32ch] text-sm leading-relaxed text-muted-foreground">
+                  {item.description}
+                </p>
+              </StaggerItem>
+            ))}
+          </StaggerContainer>
+        </div>
       </div>
     </section>
   );
