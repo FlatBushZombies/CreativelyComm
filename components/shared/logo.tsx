@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { cn } from "@/lib/utils";
 
 interface LogoProps {
@@ -6,6 +7,8 @@ interface LogoProps {
   showText?: boolean;
   size?: "sm" | "md" | "lg";
 }
+
+const iconPixelSize = { sm: 28, md: 32, lg: 40 };
 
 export function Logo({ className, showText = true, size = "md" }: LogoProps) {
   const sizes = {
@@ -16,14 +19,15 @@ export function Logo({ className, showText = true, size = "md" }: LogoProps) {
 
   return (
     <Link href="/" className={cn("flex items-center gap-2.5", className)}>
-      <div
-        className={cn(
-          "flex items-center justify-center rounded-lg bg-primary text-primary-foreground font-bold",
-          sizes[size].icon,
-          size === "sm" ? "text-xs" : "text-sm"
-        )}
-      >
-        CC
+      <div className={cn("relative shrink-0", sizes[size].icon)}>
+        <Image
+          src="/logo.png"
+          alt="CreativelyComm"
+          fill
+          className="object-contain"
+          sizes={`${iconPixelSize[size]}px`}
+          priority
+        />
       </div>
       {showText && (
         <span className={cn("font-display font-medium tracking-tight", sizes[size].text)}>

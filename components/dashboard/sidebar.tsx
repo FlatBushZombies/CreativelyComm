@@ -64,11 +64,7 @@ export function DashboardSidebar() {
       >
         <div className="flex h-16 items-center justify-between border-b border-border px-4">
           {!collapsed && <Logo size="sm" />}
-          {collapsed && (
-            <div className="mx-auto flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground text-xs font-bold">
-              CC
-            </div>
-          )}
+          {collapsed && <Logo size="sm" showText={false} className="mx-auto" />}
           <button
             onClick={() => setCollapsed(!collapsed)}
             className="rounded-md p-1.5 text-muted-foreground hover:bg-accent hover:text-foreground"
