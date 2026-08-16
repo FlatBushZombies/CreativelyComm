@@ -1,6 +1,12 @@
 import type { MetadataRoute } from "next";
 import { getAllPublishedProductsForSitemap } from "@/lib/sitemap";
 
+// Computed per-request rather than baked in at build time: a sitemap
+// reflecting live published products would go stale between deploys
+// otherwise, and statically prerendering it makes every build depend on
+// Supabase being reachable during the build step itself.
+export const dynamic = "force-dynamic";
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const origin = process.env.BETTER_AUTH_URL || "http://localhost:3000";
   const entries = await getAllPublishedProductsForSitemap();
