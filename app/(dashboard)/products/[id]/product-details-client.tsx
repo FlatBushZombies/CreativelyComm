@@ -16,6 +16,7 @@ import { DashboardHeader } from "@/components/dashboard/sidebar";
 import { ImageGallery } from "@/components/products/image-gallery";
 import { AIOptimizationPanel } from "@/components/products/ai-optimization-panel";
 import { BeforeAfterPreview } from "@/components/products/before-after-preview";
+import { SocialFormatStudio } from "@/components/products/social-format-studio";
 import { TranslationsPanel } from "@/components/products/translations-panel";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -441,6 +442,13 @@ export function ProductDetailsClient({
             <AIOptimizationPanel />
           </FadeIn>
         </div>
+
+        <FadeIn delay={0.22} className="mt-8">
+          <SocialFormatStudio
+            images={product.optimizedImages.length > 0 ? product.optimizedImages : product.images}
+            productName={product.name}
+          />
+        </FadeIn>
 
         <div className="mt-8 grid gap-6 lg:grid-cols-2">
           <FadeIn delay={0.25}>

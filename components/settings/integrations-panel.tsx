@@ -2,7 +2,9 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Store, MessageCircle, FileText, Rss, Copy, Check, Loader2 } from "lucide-react";
+import { Copy, Check, Loader2 } from "lucide-react";
+import { SiShopify, SiQuickbooks, SiGoogle, SiFacebook } from "react-icons/si";
+import { FaSlack } from "react-icons/fa6";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -107,7 +109,7 @@ function ShopifyCard({ integration }: { integration?: IntegrationSummary }) {
       <CardHeader className="flex flex-row items-center justify-between">
         <div>
           <CardTitle className="text-base flex items-center gap-2">
-            <Store className="h-4 w-4 text-primary" />
+            <SiShopify className="h-4 w-4 text-primary" />
             Shopify
           </CardTitle>
           <CardDescription>
@@ -195,7 +197,7 @@ function SlackCard({ integration }: { integration?: IntegrationSummary }) {
       <CardHeader className="flex flex-row items-center justify-between">
         <div>
           <CardTitle className="text-base flex items-center gap-2">
-            <MessageCircle className="h-4 w-4 text-primary" />
+            <FaSlack className="h-4 w-4 text-primary" />
             Slack
           </CardTitle>
           <CardDescription>
@@ -249,7 +251,7 @@ function QuickBooksCard({ integration, configured }: { integration?: Integration
       <CardHeader className="flex flex-row items-center justify-between">
         <div>
           <CardTitle className="text-base flex items-center gap-2">
-            <FileText className="h-4 w-4 text-primary" />
+            <SiQuickbooks className="h-4 w-4 text-primary" />
             QuickBooks
           </CardTitle>
           <CardDescription>An invoice is created automatically whenever an order is marked paid.</CardDescription>
@@ -290,7 +292,10 @@ function FeedCard({ googleFeedUrl, facebookFeedUrl }: { googleFeedUrl: string; f
     <Card>
       <CardHeader>
         <CardTitle className="text-base flex items-center gap-2">
-          <Rss className="h-4 w-4 text-primary" />
+          <span className="flex items-center -space-x-1">
+            <SiGoogle className="h-4 w-4 text-primary" />
+            <SiFacebook className="h-4 w-4 text-primary" />
+          </span>
           Google Merchant &amp; Meta Catalog
         </CardTitle>
         <CardDescription>
@@ -300,13 +305,19 @@ function FeedCard({ googleFeedUrl, facebookFeedUrl }: { googleFeedUrl: string; f
       </CardHeader>
       <CardContent className="space-y-4">
         <div>
-          <Label>Google Merchant Center feed URL</Label>
+          <Label className="flex items-center gap-1.5">
+            <SiGoogle className="h-3.5 w-3.5" />
+            Google Merchant Center feed URL
+          </Label>
           <div className="mt-1.5">
             <CopyField value={googleFeedUrl} />
           </div>
         </div>
         <div>
-          <Label>Meta Catalog feed URL</Label>
+          <Label className="flex items-center gap-1.5">
+            <SiFacebook className="h-3.5 w-3.5" />
+            Meta Catalog feed URL
+          </Label>
           <div className="mt-1.5">
             <CopyField value={facebookFeedUrl} />
           </div>

@@ -7,6 +7,7 @@ import { ProblemSection } from "@/components/landing/problem-section";
 import { BeforeAfterSection } from "@/components/landing/before-after-section";
 import { FeatureStorySection } from "@/components/landing/features-section";
 import { WorkflowSection } from "@/components/landing/workflow-section";
+import { SocialFormatsSection } from "@/components/landing/social-formats-section";
 import { UseCasesSection } from "@/components/landing/use-cases-section";
 import { HardwareEcosystemSection } from "@/components/landing/hardware-ecosystem-section";
 import { ProofSection } from "@/components/landing/proof-section";
@@ -31,6 +32,7 @@ export default function HomePage() {
         <BeforeAfterSection />
         <FeatureStorySection />
         <WorkflowSection />
+        <SocialFormatsSection />
         <UseCasesSection />
         <HardwareEcosystemSection />
         <ProofSection />
