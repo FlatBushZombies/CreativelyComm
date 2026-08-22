@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import {
   Scissors,
   Sun,
@@ -11,6 +12,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { BackgroundComposer } from "@/components/products/background-composer";
 import { aiFeatures } from "@/lib/mock-data";
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -21,7 +23,23 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   square: Square,
 };
 
-export function AIOptimizationPanel() {
+// bg-removal is real (Remove.bg, wired to the button on the image gallery
+// above). lifestyle and white-bg are real too, via BackgroundComposer
+// (Puter.js AI generation + flat-white compositing). lighting and upscale
+// have no real backing implementation -- Puter.js's txt2img generates new
+// images, it doesn't enhance an existing photo -- so they stay "Coming
+// soon" rather than pretending they work.
+const composableIds = new Set(["lifestyle", "white-bg"]);
+
+interface AIOptimizationPanelProps {
+  productId: string;
+  productName: string;
+  cutoutImage?: string;
+}
+
+export function AIOptimizationPanel({ productId, productName, cutoutImage }: AIOptimizationPanelProps) {
+  const [composerMode, setComposerMode] = useState<"white" | "lifestyle" | null>(null);
+
   return (
     <Card>
       <CardHeader>
@@ -30,12 +48,12 @@ export function AIOptimizationPanel() {
             <Wand2 className="h-4 w-4 text-primary" />
             AI Optimization Tools
           </CardTitle>
-          <Badge variant="muted">Coming soon</Badge>
         </div>
       </CardHeader>
       <CardContent className="space-y-3">
         {aiFeatures.map((feature) => {
           const Icon = iconMap[feature.icon] || Wand2;
+          const composable = composableIds.has(feature.id);
           return (
             <div
               key={feature.id}
@@ -47,24 +65,47 @@ export function AIOptimizationPanel() {
                 </div>
                 <div>
                   <p className="text-sm font-medium">{feature.name}</p>
-                  <p className="text-xs text-muted-foreground">{feature.description}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {composable && !cutoutImage
+                      ? "Remove a background first to use this"
+                      : feature.description}
+                  </p>
                 </div>
               </div>
               {feature.id === "bg-removal" ? (
                 <span className="text-xs text-muted-foreground">Use the button on the image above</span>
-              ) : (
-                <Button variant="outline" size="sm" disabled>
-                  Apply
+              ) : composable ? (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={!cutoutImage}
+                  onClick={() => setComposerMode(feature.id === "lifestyle" ? "lifestyle" : "white")}
+                >
+                  Open
                 </Button>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <Badge variant="muted" className="text-[10px]">Coming soon</Badge>
+                  <Button variant="outline" size="sm" disabled>
+                    Apply
+                  </Button>
+                </div>
               )}
             </div>
           );
         })}
-        <Button className="w-full mt-2" disabled>
-          <Wand2 className="h-4 w-4" />
-          Optimize All Images
-        </Button>
       </CardContent>
+
+      {cutoutImage && composerMode && (
+        <BackgroundComposer
+          productId={productId}
+          productName={productName}
+          cutoutImage={cutoutImage}
+          mode={composerMode}
+          open={composerMode !== null}
+          onOpenChange={(open) => !open && setComposerMode(null)}
+        />
+      )}
     </Card>
   );
 }

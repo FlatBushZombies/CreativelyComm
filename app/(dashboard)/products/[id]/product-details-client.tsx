@@ -439,7 +439,11 @@ export function ProductDetailsClient({
             )}
           </FadeIn>
           <FadeIn delay={0.2}>
-            <AIOptimizationPanel />
+            <AIOptimizationPanel
+              productId={product.id}
+              productName={product.name}
+              cutoutImage={product.optimizedImages[0]}
+            />
           </FadeIn>
         </div>
 

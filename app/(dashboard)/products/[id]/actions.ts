@@ -46,6 +46,51 @@ export async function removeBackgroundAction(
   }
 }
 
+export interface SaveComposedImageResult {
+  error?: string;
+  optimizedImageUrl?: string;
+}
+
+/**
+ * Persists a client-composited image (Remove.bg cutout placed on a flat
+ * white background, or on a Puter.js-generated lifestyle scene) -- the
+ * compositing happens in the browser via Canvas; this just uploads the
+ * resulting blob and attaches it the same way removeBackgroundAction does.
+ */
+export async function saveComposedImageAction(formData: FormData): Promise<SaveComposedImageResult> {
+  const session = await getServerSession();
+  if (!session) {
+    redirect("/login");
+  }
+
+  const productId = String(formData.get("productId") ?? "");
+  const file = formData.get("image");
+  if (!productId || !(file instanceof File)) {
+    return { error: "Missing product or image." };
+  }
+
+  const workspace = await getOrCreateDefaultWorkspace(session.user.id, session.user.name);
+
+  try {
+    const buffer = Buffer.from(await file.arrayBuffer());
+    const optimizedUrl = await uploadOptimizedImage(workspace.id, buffer, file.type || "image/jpeg");
+    const product = await addOptimizedImage(productId, workspace.id, optimizedUrl);
+
+    const source = String(formData.get("source") ?? "background");
+    await logActivity(workspace.id, {
+      type: "optimize",
+      title: source === "lifestyle" ? "Lifestyle background generated" : "White background applied",
+      description: `An image for ${product.name} was composited with a new background.`,
+      productName: product.name,
+    });
+
+    revalidatePath(`/products/${productId}`);
+    return { optimizedImageUrl: optimizedUrl };
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "Failed to save this image." };
+  }
+}
+
 export interface TranslateProductResult {
   error?: string;
   translation?: ProductTranslation;

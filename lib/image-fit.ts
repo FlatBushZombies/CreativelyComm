@@ -134,6 +134,29 @@ export function canvasToDownload(canvas: HTMLCanvasElement, filename: string): P
   });
 }
 
+/**
+ * Draws `img` centered and scaled to fit within `maxFraction` of the target
+ * box (contain-fit, not cropped) -- used to place a Remove.bg product cutout
+ * onto a background (flat white, or an AI-generated scene) with breathing
+ * room around it, the way a real lifestyle product photo is composed.
+ */
+export function drawContainCentered(
+  ctx: CanvasRenderingContext2D,
+  img: HTMLImageElement,
+  targetW: number,
+  targetH: number,
+  maxFraction = 0.72
+) {
+  const maxW = targetW * maxFraction;
+  const maxH = targetH * maxFraction;
+  const scale = Math.min(maxW / img.naturalWidth, maxH / img.naturalHeight);
+  const w = img.naturalWidth * scale;
+  const h = img.naturalHeight * scale;
+  const x = (targetW - w) / 2;
+  const y = (targetH - h) / 2;
+  ctx.drawImage(img, x, y, w, h);
+}
+
 export function slugifyFilename(value: string): string {
   return value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") || "product";
 }

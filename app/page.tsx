@@ -18,7 +18,7 @@ import { FinalCtaSection } from "@/components/landing/cta-section";
 export const metadata: Metadata = {
   title: "CreativelyComm — Product Intelligence for Small Sellers",
   description:
-    "Turn raw product photos into marketplace wins. Clean photos, score listings against readiness rules, enable hardware capture systems, and export ready-to-list files to Shopify, Amazon, Etsy, and more.",
+    "Clean product photos, generate AI lifestyle backgrounds, score listings against readiness rules, and export ready-to-list files to Shopify, Amazon, Etsy, and more — all from $19/month.",
 };
 
 export default function HomePage() {
@@ -33,10 +33,10 @@ export default function HomePage() {
         <FeatureStorySection />
         <WorkflowSection />
         <SocialFormatsSection />
-        <UseCasesSection />
-        <HardwareEcosystemSection />
-        <ProofSection />
         <PricingSection />
+        <UseCasesSection />
+        <ProofSection />
+        <HardwareEcosystemSection />
         <FAQSection />
         <FinalCtaSection />
       </main>
