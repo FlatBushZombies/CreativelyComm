@@ -57,13 +57,21 @@ export function HeroSection() {
 
             <FadeIn delay={0.1}>
               <p className="mt-6 max-w-xl text-lg leading-relaxed text-white/85">
-                AI handles product photos, copy, layouts, SEO, bundles, and channel requirements
-                so teams can ship 10× faster, sell better, and scale without hiring.
+                AI cleans product photos and generates lifestyle backgrounds, scores every listing
+                against what each channel wants, and exports ready-to-list files — so teams ship
+                10× faster without hiring.
               </p>
             </FadeIn>
 
+            <FadeIn delay={0.13}>
+              <div className="mt-5 inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-4 py-2 text-sm font-medium text-white backdrop-blur-sm">
+                <span className="font-accent text-primary">$19</span>/month — everything included,
+                no tiers to upgrade into
+              </div>
+            </FadeIn>
+
             <FadeIn delay={0.15}>
-              <div className="mt-9 flex flex-wrap items-center gap-3">
+              <div className="mt-7 flex flex-wrap items-center gap-3">
                 <Button size="lg" className="rounded-full px-6" asChild>
                   <Link href="/signup">
                     Start free

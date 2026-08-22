@@ -5,6 +5,7 @@ import { HeroSection } from "@/components/landing/hero-section";
 import { TrustStrip } from "@/components/landing/trust-strip";
 import { ProblemSection } from "@/components/landing/problem-section";
 import { BeforeAfterSection } from "@/components/landing/before-after-section";
+import { AIPhotoToolsSection } from "@/components/landing/ai-photo-tools-section";
 import { FeatureStorySection } from "@/components/landing/features-section";
 import { WorkflowSection } from "@/components/landing/workflow-section";
 import { SocialFormatsSection } from "@/components/landing/social-formats-section";
@@ -30,6 +31,7 @@ export default function HomePage() {
         <TrustStrip />
         <ProblemSection />
         <BeforeAfterSection />
+        <AIPhotoToolsSection />
         <FeatureStorySection />
         <WorkflowSection />
         <SocialFormatsSection />
