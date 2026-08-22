@@ -7,9 +7,9 @@ import { ProblemSection } from "@/components/landing/problem-section";
 import { BeforeAfterSection } from "@/components/landing/before-after-section";
 import { AIPhotoToolsSection } from "@/components/landing/ai-photo-tools-section";
 import { FeatureStorySection } from "@/components/landing/features-section";
-import { WorkflowSection } from "@/components/landing/workflow-section";
+import { AICampaignSection } from "@/components/landing/ai-campaign-section";
+import { OperationsSection } from "@/components/landing/operations-section";
 import { SocialFormatsSection } from "@/components/landing/social-formats-section";
-import { UseCasesSection } from "@/components/landing/use-cases-section";
 import { HardwareEcosystemSection } from "@/components/landing/hardware-ecosystem-section";
 import { ProofSection } from "@/components/landing/proof-section";
 import { PricingSection } from "@/components/landing/pricing-section";
@@ -19,7 +19,7 @@ import { FinalCtaSection } from "@/components/landing/cta-section";
 export const metadata: Metadata = {
   title: "CreativelyComm — Product Intelligence for Small Sellers",
   description:
-    "Clean product photos, generate AI lifestyle backgrounds, score listings against readiness rules, and export ready-to-list files to Shopify, Amazon, Etsy, and more — all from $19/month.",
+    "Clean product photos, generate AI marketing campaigns, score listings against readiness rules, and export ready-to-list files to Shopify, Amazon, Etsy, and more — all from $19/month.",
 };
 
 export default function HomePage() {
@@ -31,12 +31,12 @@ export default function HomePage() {
         <TrustStrip />
         <ProblemSection />
         <BeforeAfterSection />
-        <AIPhotoToolsSection />
         <FeatureStorySection />
-        <WorkflowSection />
+        <AICampaignSection />
+        <OperationsSection />
+        <AIPhotoToolsSection />
         <SocialFormatsSection />
         <PricingSection />
-        <UseCasesSection />
         <ProofSection />
         <HardwareEcosystemSection />
         <FAQSection />

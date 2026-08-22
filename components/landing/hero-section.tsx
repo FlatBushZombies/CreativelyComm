@@ -11,7 +11,7 @@ const featureStrip = [
   },
   {
     title: "Higher-Converting Commerce",
-    description: "AI-powered pages, upsells, bundles, and optimized product content.",
+    description: "AI-generated marketing campaigns, social-ready formats, and optimized product content.",
   },
   {
     title: "One Product, Every Channel",
@@ -33,8 +33,7 @@ export function HeroSection() {
             className="object-cover"
             sizes="100vw"
           />
-          {/* Same dark linear-gradient overlay technique used in use-cases-section.tsx,
-              layered on two axes so left-aligned text stays legible across the full photo. */}
+          {/* Two-axis dark overlay so left-aligned text stays legible across the full photo. */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-black/30" />
           <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/20 to-transparent" />
         </div>
@@ -57,9 +56,9 @@ export function HeroSection() {
 
             <FadeIn delay={0.1}>
               <p className="mt-6 max-w-xl text-lg leading-relaxed text-white/85">
-                AI cleans product photos and generates lifestyle backgrounds, scores every listing
-                against what each channel wants, and exports ready-to-list files — so teams ship
-                10× faster without hiring.
+                AI cleans product photos, writes ready-to-post marketing campaigns, scores every
+                listing against what each channel wants, and exports ready-to-list files — so
+                teams ship 10× faster without hiring.
               </p>
             </FadeIn>
 

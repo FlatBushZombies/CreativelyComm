@@ -192,6 +192,7 @@ export const pricingPlans = [
       "Channel Readiness Engine (multi-marketplace scoring)",
       "One-click background removal (Remove.bg powered)",
       "AI lifestyle background generation",
+      "AI campaign generator (captions, hashtags, email & WhatsApp copy)",
       "Social format fitting (Instagram, Pinterest, Facebook)",
       "Multi-channel export (Shopify, Amazon, Etsy & 7+ more)",
       "Inventory management & low-stock alerts",

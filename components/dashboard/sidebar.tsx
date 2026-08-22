@@ -14,6 +14,7 @@ import {
   Search,
   ShoppingCart,
   Cpu,
+  Megaphone,
 } from "lucide-react";
 import { Logo } from "@/components/shared/logo";
 import { cn } from "@/lib/utils";
@@ -33,6 +34,10 @@ const navGroups = [
       { href: "/export", label: "Export Center", icon: Download },
       { href: "/storefront", label: "Storefront", icon: Store },
     ],
+  },
+  {
+    label: "Marketing",
+    items: [{ href: "/campaigns", label: "Campaigns", icon: Megaphone }],
   },
   {
     label: "Sell",

@@ -10,8 +10,11 @@ import {
   Check,
   Boxes,
   Search as SearchIcon,
+  Sparkles,
+  Loader2,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { DashboardHeader } from "@/components/dashboard/sidebar";
 import { ImageGallery } from "@/components/products/image-gallery";
 import { AIOptimizationPanel } from "@/components/products/ai-optimization-panel";
@@ -36,6 +39,7 @@ import type { SeoScore } from "@/lib/seo";
 import type { Vendor } from "@/lib/vendors";
 import { ChevronDown, History } from "lucide-react";
 import { adjustStockAction, updateSeoAction, assignVendorAction } from "./actions";
+import { createCampaignAction } from "@/app/(dashboard)/campaigns/actions";
 
 const exportFormats = [
   { name: "Shopify CSV", href: "/api/export/shopify" },
@@ -86,12 +90,27 @@ export function ProductDetailsClient({
   const [stockError, setStockError] = useState<string | undefined>();
   const [seoError, setSeoError] = useState<string | undefined>();
   const [vendorId, setVendorId] = useState(product.vendorId ?? "");
+  const [campaignError, setCampaignError] = useState<string | null>(null);
+  const [isCreatingCampaign, startCampaignTransition] = useTransition();
+  const router = useRouter();
 
   const handleCopy = () => {
     navigator.clipboard.writeText(productUrl);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
+
+  function handleCreateCampaign() {
+    setCampaignError(null);
+    startCampaignTransition(async () => {
+      const result = await createCampaignAction(product.id);
+      if (result.error || !result.campaignId) {
+        setCampaignError(result.error || "Couldn't start a campaign.");
+        return;
+      }
+      router.push(`/campaigns/${result.campaignId}`);
+    });
+  }
 
   return (
     <>
@@ -115,7 +134,12 @@ export function ProductDetailsClient({
               <Download className="h-4 w-4" />
               Export
             </Button>
+            <Button size="sm" onClick={handleCreateCampaign} disabled={isCreatingCampaign}>
+              {isCreatingCampaign ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+              Create AI Campaign
+            </Button>
           </div>
+          {campaignError && <p className="mt-2 text-right text-sm text-red-600">{campaignError}</p>}
         </FadeIn>
 
         <div className="grid gap-8 lg:grid-cols-2">
