@@ -12,6 +12,7 @@ import {
   Search as SearchIcon,
   Sparkles,
   Loader2,
+  Image as ImageIcon,
 } from "lucide-react";
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
@@ -133,6 +134,12 @@ export function ProductDetailsClient({
             <Button size="sm">
               <Download className="h-4 w-4" />
               Export
+            </Button>
+            <Button variant="outline" size="sm" asChild>
+              <Link href={`/products/${product.id}/content-pack`}>
+                <ImageIcon className="h-4 w-4" />
+                Generate Content Pack
+              </Link>
             </Button>
             <Button size="sm" onClick={handleCreateCampaign} disabled={isCreatingCampaign}>
               {isCreatingCampaign ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}

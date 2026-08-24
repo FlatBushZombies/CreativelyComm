@@ -74,6 +74,41 @@ export async function uploadOptimizedImage(
 }
 
 /**
+ * Uploads a generated content-pack asset (a client-composited crop/overlay
+ * result) under `workspaceId/content-packs/<packId>/<assetId>.<ext>` --
+ * same bucket/size/type constraints as the other upload helpers here.
+ */
+export async function uploadContentPackAsset(
+  workspaceId: string,
+  packId: string,
+  assetId: string,
+  blob: Blob
+): Promise<string> {
+  const supabase = getSupabaseServerClient();
+
+  if (!ALLOWED_TYPES.has(blob.type)) {
+    throw new Error(`Unsupported image type: ${blob.type || "unknown"}`);
+  }
+  if (blob.size > MAX_FILE_BYTES) {
+    throw new Error("Generated image is larger than 8MB");
+  }
+
+  const extension = blob.type.split("/")[1] || "jpg";
+  const path = `${workspaceId}/content-packs/${packId}/${assetId}.${extension}`;
+
+  const { error } = await supabase.storage
+    .from(BUCKET)
+    .upload(path, blob, { contentType: blob.type, upsert: true });
+
+  if (error) {
+    throw new Error(`Failed to upload generated image: ${error.message}`);
+  }
+
+  const { data } = supabase.storage.from(BUCKET).getPublicUrl(path);
+  return data.publicUrl;
+}
+
+/**
  * Uploads a photo captured through a hardware feature (Capture Dock
  * multi-angle session, QC Camera pack-verification shot) to the same public
  * bucket, under `workspaceId/hardware/<feature>/`. Same bucket/size/type
