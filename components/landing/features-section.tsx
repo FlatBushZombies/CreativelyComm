@@ -1,5 +1,4 @@
-import Image from "next/image";
-import { Scissors, Sparkles, CheckCircle2, XCircle, Settings2 } from "lucide-react";
+import { CheckCircle2, XCircle, Settings2 } from "lucide-react";
 import { SiShopify, SiEtsy, SiGoogle, SiFacebook, SiTiktok } from "react-icons/si";
 import { FaAmazon } from "react-icons/fa6";
 import { FadeIn } from "@/components/shared/fade-in";
@@ -22,7 +21,7 @@ function FeatureStory({ number, label, title, description, visual, layout }: Fea
         <span className="font-mono text-muted-foreground">{number}</span>
         {label}
       </p>
-      <h3 className="font-display mt-4 text-3xl font-medium leading-tight tracking-tight sm:text-4xl">
+      <h3 className="font-display mt-4 text-xl font-medium leading-tight tracking-tight">
         {title}
       </h3>
       <p className="mt-4 text-base leading-relaxed text-muted-foreground">{description}</p>
@@ -70,44 +69,10 @@ const exportChannels = [
 
 export function FeatureStorySection() {
   return (
-    <section id="features" className="py-20 sm:py-28">
-      <div className="mx-auto max-w-7xl space-y-24 px-4 sm:space-y-32 sm:px-6 lg:px-8">
+    <section id="features" className="py-14 sm:py-20">
+      <div className="mx-auto max-w-7xl space-y-16 px-4 sm:space-y-20 sm:px-6 lg:px-8">
         <FeatureStory
           number="01"
-          label="Clean"
-          layout="visual-right"
-          title="Clean product photos without a photo editor."
-          description="Select an image and remove the background instantly, powered by Remove.bg. Then drop the product onto a clean white background or generate a real AI lifestyle scene behind it — no round-trip to Photoshop, no waiting on a designer."
-          visual={
-            <div className="overflow-hidden rounded-2xl border border-border-strong bg-card card-shadow-lg">
-              <div className="relative aspect-square">
-                <Image
-                  src="https://images.unsplash.com/photo-1610701596007-11502861dcfa?w=700&q=80"
-                  alt="Product photo canvas with a background removal control"
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 1024px) 100vw, 500px"
-                />
-                <span className="absolute top-3 right-3 inline-flex items-center gap-1 rounded-full bg-primary px-2.5 py-1 text-xs font-medium text-primary-foreground">
-                  <Sparkles className="h-3 w-3" />
-                  Optimized
-                </span>
-              </div>
-              <div className="flex items-center border-t border-border p-1.5">
-                <span className="flex-1 rounded-lg px-3 py-2 text-center text-sm font-medium text-muted-foreground">
-                  Original
-                </span>
-                <span className="flex-1 rounded-lg bg-accent px-3 py-2 text-center text-sm font-medium text-accent-foreground">
-                  <Scissors className="mr-1.5 inline h-3.5 w-3.5" />
-                  Background removed
-                </span>
-              </div>
-            </div>
-          }
-        />
-
-        <FeatureStory
-          number="02"
           label="Standardize"
           layout="visual-left"
           title="Know exactly what's blocking a listing."
@@ -144,7 +109,7 @@ export function FeatureStorySection() {
         />
 
         <FeatureStory
-          number="03"
+          number="02"
           label="Publish"
           layout="visual-full"
           title="Export files every marketplace already expects."

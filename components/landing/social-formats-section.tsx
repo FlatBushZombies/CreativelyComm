@@ -61,25 +61,25 @@ const formats = [
 
 export function SocialFormatsSection() {
   return (
-    <section className="py-20 sm:py-28">
+    <section className="py-14 sm:py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <FadeIn className="mx-auto max-w-2xl text-center">
-          <p className="mb-3 text-sm font-semibold uppercase tracking-wide text-primary">
+          <p className="mb-2 text-sm font-semibold uppercase tracking-wide text-primary">
             Now built in
           </p>
-          <h2 className="text-3xl font-bold tracking-tight sm:text-5xl">
+          <h2 className="font-display text-2xl font-medium tracking-tight sm:text-4xl">
             One photo. Every platform&apos;s shape.
           </h2>
-          <p className="mt-4 text-lg text-muted-foreground">
+          <p className="mt-3 text-base text-muted-foreground">
             Instagram wants square. Pinterest wants vertical. Facebook wants a carousel. Fit your
             product photos to each, right from the product page — no design tool required.
           </p>
         </FadeIn>
 
-        <StaggerContainer className="mt-16 grid gap-6 sm:grid-cols-3">
+        <StaggerContainer className="mt-10 grid gap-6 sm:grid-cols-3">
           {formats.map((format) => (
             <StaggerItem key={format.title} className="flex flex-col">
-              <div className="relative aspect-[3/4] overflow-hidden rounded-3xl border border-border-strong">
+              <div className="relative aspect-[4/5] overflow-hidden rounded-3xl border border-border-strong">
                 <Image
                   src={format.photo}
                   alt={format.photoAlt}
@@ -98,8 +98,8 @@ export function SocialFormatsSection() {
                 </div>
               </div>
 
-              <h3 className="mt-5 text-xl font-bold tracking-tight">{format.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+              <h3 className="font-display mt-4 text-xl font-medium tracking-tight">{format.title}</h3>
+              <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
                 {format.description}
               </p>
             </StaggerItem>

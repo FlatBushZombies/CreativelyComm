@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 
 export function AIPhotoToolsSection() {
   return (
-    <section className="py-20 sm:py-28">
+    <section className="py-14 sm:py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <SectionHeading
           eyebrow="New: AI photo tools"
@@ -14,7 +14,7 @@ export function AIPhotoToolsSection() {
           description="Once a background is removed, generate a real AI-designed scene behind it — or drop it onto a clean white background instead. Both are included in the $19/month plan, no extra editing tool required."
         />
 
-        <FadeIn delay={0.1} className="mx-auto mt-14 max-w-4xl">
+        <FadeIn delay={0.1} className="mx-auto mt-10 max-w-4xl">
           <div className="overflow-hidden rounded-3xl border border-border-strong bg-card card-shadow-lg">
             <div className="grid items-center gap-0 sm:grid-cols-[1fr_auto_1fr]">
               <div className="relative aspect-square">

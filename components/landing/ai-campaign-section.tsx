@@ -81,7 +81,7 @@ const steps = [
 
 export function AICampaignSection() {
   return (
-    <section id="how-it-works" className="py-20 sm:py-28">
+    <section id="how-it-works" className="py-14 sm:py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <SectionHeading
           eyebrow="AI-powered marketing"
@@ -89,7 +89,7 @@ export function AICampaignSection() {
           description="Pick a product, choose a channel and objective, and get real headline copy, captions, hashtags, and an email or WhatsApp message — every field editable before you publish."
         />
 
-        <StaggerContainer className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <StaggerContainer className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {steps.map((step, i) => (
             <StaggerItem key={step.label} className="relative">
               <div className="h-full rounded-2xl border border-border-strong bg-card p-4 card-shadow">
@@ -106,7 +106,7 @@ export function AICampaignSection() {
           ))}
         </StaggerContainer>
 
-        <FadeIn delay={0.15} className="mt-6">
+        <FadeIn delay={0.15} className="mt-5">
           <p className="text-center text-xs text-muted-foreground">
             Real product, real AI generation, fully editable before it ever goes live — not a mockup.
           </p>

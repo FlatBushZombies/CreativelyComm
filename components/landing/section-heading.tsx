@@ -21,11 +21,11 @@ export function SectionHeading({ eyebrow, title, description, layout = "center",
       <FadeIn className={cn("grid gap-6 lg:grid-cols-[1.2fr_1fr] lg:items-end lg:gap-12", className)}>
         <div>
           {eyebrow && (
-            <p className="mb-3 text-sm font-semibold uppercase tracking-wide text-primary">{eyebrow}</p>
+            <p className="mb-2 text-sm font-semibold uppercase tracking-wide text-primary">{eyebrow}</p>
           )}
-          <h2 className="font-display text-3xl font-medium tracking-tight sm:text-5xl">{title}</h2>
+          <h2 className="font-display text-2xl font-medium tracking-tight sm:text-4xl">{title}</h2>
         </div>
-        {description && <p className="text-lg text-muted-foreground lg:text-right">{description}</p>}
+        {description && <p className="text-base text-muted-foreground lg:text-right">{description}</p>}
       </FadeIn>
     );
   }
@@ -33,10 +33,10 @@ export function SectionHeading({ eyebrow, title, description, layout = "center",
   return (
     <FadeIn className={cn("mx-auto max-w-2xl text-center", className)}>
       {eyebrow && (
-        <p className="mb-3 text-sm font-semibold uppercase tracking-wide text-primary">{eyebrow}</p>
+        <p className="mb-2 text-sm font-semibold uppercase tracking-wide text-primary">{eyebrow}</p>
       )}
-      <h2 className="font-display text-3xl font-medium tracking-tight sm:text-5xl">{title}</h2>
-      {description && <p className="mt-4 text-lg text-muted-foreground">{description}</p>}
+      <h2 className="font-display text-2xl font-medium tracking-tight sm:text-4xl">{title}</h2>
+      {description && <p className="mt-3 text-base text-muted-foreground">{description}</p>}
     </FadeIn>
   );
 }

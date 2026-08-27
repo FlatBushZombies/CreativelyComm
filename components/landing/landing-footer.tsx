@@ -12,8 +12,8 @@ const productLinks = [
 export function LandingFooter() {
   return (
     <footer className="border-t border-border bg-background">
-      <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-        <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-3">
+      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+        <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-3">
           <div className="lg:col-span-2">
             <Logo />
             <p className="mt-4 max-w-sm text-sm leading-relaxed text-muted-foreground">
@@ -48,7 +48,7 @@ export function LandingFooter() {
           </div>
         </div>
 
-        <div className="mt-12 flex flex-col items-center justify-between gap-6 border-t border-border pt-8 sm:flex-row">
+        <div className="mt-8 flex flex-col items-center justify-between gap-6 border-t border-border pt-6 sm:flex-row">
           <p className="text-sm text-muted-foreground">
             &copy; 2026 CreativelyComm. All rights reserved.
           </p>

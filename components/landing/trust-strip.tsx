@@ -12,15 +12,21 @@ const channels = [
   { name: "TikTok Shop", icon: SiTiktok },
 ];
 
+const stats = [
+  { value: "7+", label: "Marketplaces supported, from Shopify to TikTok Shop" },
+  { value: "1", label: "Plan with everything included — no feature paywalls" },
+  { value: "4", label: "Team roles, so owners, editors, and vendors work from one library" },
+];
+
 export function TrustStrip() {
   return (
-    <section className="border-y border-border py-12 sm:py-14">
+    <section className="border-b border-border py-10 sm:py-14">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <FadeIn className="flex flex-col items-center gap-8">
+        <FadeIn className="flex flex-col items-center gap-6">
           <p className="text-sm text-muted-foreground">
             Built for teams that sell everywhere
           </p>
-          <ul className="flex flex-wrap items-center justify-center gap-x-10 gap-y-5 sm:gap-x-14">
+          <ul className="flex flex-wrap items-center justify-center gap-x-10 gap-y-4 sm:gap-x-14">
             {channels.map(({ name, icon: Icon }) => (
               <li
                 key={name}
@@ -32,6 +38,19 @@ export function TrustStrip() {
             ))}
           </ul>
         </FadeIn>
+
+        <div className="mt-10 grid gap-8 divide-y divide-border border-t border-border pt-10 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+          {stats.map((stat, i) => (
+            <FadeIn key={stat.label} delay={i * 0.08} className="pt-6 sm:px-8 sm:pt-0 first:sm:pl-0">
+              <p className="font-display text-4xl font-medium tracking-tight text-primary sm:text-5xl">
+                {stat.value}
+              </p>
+              <p className="mt-2 max-w-[26ch] text-sm leading-relaxed text-muted-foreground">
+                {stat.label}
+              </p>
+            </FadeIn>
+          ))}
+        </div>
       </div>
     </section>
   );

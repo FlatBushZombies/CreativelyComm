@@ -43,15 +43,15 @@ export function BeforeAfterSection() {
   }
 
   return (
-    <section className="py-20 sm:py-28">
+    <section className="py-14 sm:py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <SectionHeading
           eyebrow="See it work"
-          title="Drag to see the cleanup."
-          description="One-click background removal, powered by Remove.bg — no photo editor required."
+          title="Clean product photos without a photo editor."
+          description="Select an image and drag to compare — one-click background removal, powered by Remove.bg. Then drop the product onto a clean white background or a real AI lifestyle scene. No round-trip to Photoshop, no waiting on a designer."
         />
 
-        <FadeIn delay={0.15} className="mx-auto mt-12 max-w-3xl">
+        <FadeIn delay={0.15} className="mx-auto mt-8 max-w-2xl">
           <div
             ref={containerRef}
             className="relative aspect-[4/3] w-full touch-none select-none overflow-hidden rounded-2xl border border-border-strong bg-white card-shadow-lg"

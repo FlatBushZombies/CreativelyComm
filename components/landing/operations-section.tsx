@@ -25,7 +25,7 @@ const supportingFeatures = [
 
 export function OperationsSection() {
   return (
-    <section className="bg-muted/40 py-20 sm:py-28">
+    <section className="bg-muted/40 py-14 sm:py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <SectionHeading
           eyebrow="Ecommerce operations"
@@ -33,7 +33,7 @@ export function OperationsSection() {
           description="A barcode-first checkout for in-person sales, automatic stock tracking, and the connections that keep everything else in sync."
         />
 
-        <div className="mt-14 grid gap-6 lg:grid-cols-[1.1fr_1fr]">
+        <div className="mt-10 grid gap-6 lg:grid-cols-[1.1fr_1fr]">
           <FadeIn>
             <Card className="h-full overflow-hidden">
               <CardContent className="flex h-full flex-col justify-between gap-6 p-6 sm:p-8">
@@ -41,7 +41,7 @@ export function OperationsSection() {
                   <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
                     <ScanLine className="h-5 w-5 text-primary" />
                   </div>
-                  <h3 className="mt-4 text-xl font-bold tracking-tight">Quick Sale, barcode-first</h3>
+                  <h3 className="font-display mt-4 text-xl font-medium tracking-tight">Quick Sale, barcode-first</h3>
                   <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
                     Scan an item to add it to an order — works with any USB or Bluetooth barcode
                     scanner. Stock deducts automatically, and the sale lands in the same order
@@ -75,7 +75,7 @@ export function OperationsSection() {
           </StaggerContainer>
         </div>
 
-        <FadeIn delay={0.1} className="mt-6 flex flex-wrap items-center justify-center gap-2">
+        <FadeIn delay={0.1} className="mt-5 flex flex-wrap items-center justify-center gap-2">
           <span className="text-xs text-muted-foreground">Also connects with:</span>
           <span className="inline-flex items-center gap-1 rounded-full border border-border bg-card px-2.5 py-1 text-xs">
             <FaSlack className="h-3 w-3" /> Slack

@@ -26,7 +26,7 @@ export default function SignupPage() {
     await authClient.signUp.email(
       { name, email, password },
       {
-        onSuccess: () => router.push("/dashboard"),
+        onSuccess: () => router.push("/onboarding"),
         onError: (ctx) => setError(ctx.error.message ?? "Failed to create account."),
       }
     );

@@ -32,9 +32,9 @@ const messyPhotos = [
 
 export function ProblemSection() {
   return (
-    <section className="py-20 sm:py-28">
+    <section className="py-14 sm:py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="grid gap-12 lg:grid-cols-2 lg:gap-16">
+        <div className="grid gap-10 lg:grid-cols-2 lg:gap-16">
           <SectionHeading
             eyebrow="The problem"
             title={
@@ -47,7 +47,7 @@ export function ProblemSection() {
             description="Messy raw photos, mismatched crops, cluttered backgrounds — these are the #1 reasons listings get flagged by marketplaces or ignored by buyers. And every marketplace checks for something different. The real bottleneck isn't editing; it's capturing clean photos at the source."
           />
 
-          <FadeIn className="relative mx-auto h-[26rem] w-full max-w-md lg:mx-0" aria-hidden="true">
+          <FadeIn className="relative mx-auto h-[20rem] w-full max-w-md lg:mx-0" aria-hidden="true">
             {messyPhotos.map((photo, i) => (
               <div
                 key={photo.src}

@@ -7,7 +7,7 @@ import { FadeIn } from "@/components/shared/fade-in";
 // that hardware was overshadowing the software product.
 export function HardwareEcosystemSection() {
   return (
-    <section className="py-10 sm:py-14">
+    <section className="py-8 sm:py-10">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <FadeIn>
           <div className="flex flex-col items-center gap-4 rounded-2xl border border-border bg-muted/30 px-6 py-6 text-center sm:flex-row sm:justify-between sm:text-left">

@@ -11,7 +11,6 @@ import { AICampaignSection } from "@/components/landing/ai-campaign-section";
 import { OperationsSection } from "@/components/landing/operations-section";
 import { SocialFormatsSection } from "@/components/landing/social-formats-section";
 import { HardwareEcosystemSection } from "@/components/landing/hardware-ecosystem-section";
-import { ProofSection } from "@/components/landing/proof-section";
 import { PricingSection } from "@/components/landing/pricing-section";
 import { FAQSection } from "@/components/landing/faq-section";
 import { FinalCtaSection } from "@/components/landing/cta-section";
@@ -37,7 +36,6 @@ export default function HomePage() {
         <AIPhotoToolsSection />
         <SocialFormatsSection />
         <PricingSection />
-        <ProofSection />
         <HardwareEcosystemSection />
         <FAQSection />
         <FinalCtaSection />
