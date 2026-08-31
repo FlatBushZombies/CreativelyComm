@@ -18,7 +18,7 @@ import { FinalCtaSection } from "@/components/landing/cta-section";
 export const metadata: Metadata = {
   title: "CreativelyComm — Product Intelligence for Small Sellers",
   description:
-    "Clean product photos, generate AI marketing campaigns, score listings against readiness rules, and export ready-to-list files to Shopify, Amazon, Etsy, and more — all from $19/month.",
+    "Clean product photos, generate AI marketing campaigns, score listings against readiness rules, and export ready-to-list files to Shopify, Amazon, Etsy, and more. Start free — no credit card required.",
 };
 
 export default function HomePage() {

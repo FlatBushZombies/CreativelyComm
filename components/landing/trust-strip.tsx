@@ -14,7 +14,7 @@ const channels = [
 
 const stats = [
   { value: "7+", label: "Marketplaces supported, from Shopify to TikTok Shop" },
-  { value: "1", label: "Plan with everything included — no feature paywalls" },
+  { value: "3", label: "Plans, from a free 14-day trial to enterprise" },
   { value: "4", label: "Team roles, so owners, editors, and vendors work from one library" },
 ];
 
