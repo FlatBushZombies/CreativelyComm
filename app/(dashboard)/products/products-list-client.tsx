@@ -1,9 +1,11 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { Search, SlidersHorizontal, LayoutGrid, Table2 } from "lucide-react";
+import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { ArrowLeft, FolderKanban, LayoutGrid, Search, SlidersHorizontal, Table2, X } from "lucide-react";
 import { DashboardHeader } from "@/components/dashboard/sidebar";
 import { ProductCard } from "@/components/products/product-card";
+import { FolderCard } from "@/components/products/folder-card";
 import { AddProductDialog } from "@/components/products/add-product-dialog";
 import { ImportProductsDialog } from "@/components/products/import-products-dialog";
 import { BulkEditTable } from "@/components/products/bulk-edit-table";
@@ -11,6 +13,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { FadeIn, StaggerContainer, StaggerItem } from "@/components/shared/fade-in";
+import { bulkUpdateProductsAction } from "@/app/(dashboard)/products/actions";
+import { groupProductsIntoFolders, UNCATEGORIZED_KEY } from "@/lib/folder-utils";
 import type { Product } from "@/lib/products";
 import { cn } from "@/lib/utils";
 
@@ -21,9 +25,18 @@ interface ProductsListClientProps {
 }
 
 export function ProductsListClient({ products }: ProductsListClientProps) {
+  const router = useRouter();
   const [search, setSearch] = useState("");
   const [activeFilter, setActiveFilter] = useState("All");
-  const [view, setView] = useState<"grid" | "table">("grid");
+  const [view, setView] = useState<"folders" | "grid" | "table">(products.length > 0 ? "folders" : "grid");
+  const [activeFolder, setActiveFolder] = useState<string | null>(null);
+
+  const folders = useMemo(() => groupProductsIntoFolders(products), [products]);
+  const filteredFolders = useMemo(() => {
+    if (!search) return folders;
+    const q = search.toLowerCase();
+    return folders.filter((f) => f.name.toLowerCase().includes(q) || f.tags.some((t) => t.toLowerCase().includes(q)));
+  }, [folders, search]);
 
   const filteredProducts = useMemo(() => {
     return products.filter((product) => {
@@ -36,9 +49,34 @@ export function ProductsListClient({ products }: ProductsListClientProps) {
         activeFilter === "All" ||
         product.status === activeFilter.toLowerCase();
 
-      return matchesSearch && matchesFilter;
+      const matchesFolder =
+        !activeFolder || (product.category.trim() || UNCATEGORIZED_KEY) === activeFolder;
+
+      return matchesSearch && matchesFilter && matchesFolder;
     });
-  }, [products, search, activeFilter]);
+  }, [products, search, activeFilter, activeFolder]);
+
+  function openFolder(key: string) {
+    setActiveFolder(key);
+    setView("grid");
+  }
+
+  function backToFolders() {
+    setActiveFolder(null);
+    setView("folders");
+  }
+
+  async function renameFolder(oldKey: string, nextName: string) {
+    const affected = products.filter((p) => (p.category.trim() || UNCATEGORIZED_KEY) === oldKey);
+    if (affected.length === 0) return;
+
+    await bulkUpdateProductsAction(
+      affected.map((p) => ({ id: p.id, name: p.name, price: p.price, category: nextName, status: p.status }))
+    );
+
+    if (activeFolder === oldKey) setActiveFolder(nextName);
+    router.refresh();
+  }
 
   return (
     <>
@@ -61,6 +99,16 @@ export function ProductsListClient({ products }: ProductsListClientProps) {
             </div>
             <div className="flex gap-2">
               <div className="flex rounded-lg border border-border p-0.5">
+                <button
+                  onClick={backToFolders}
+                  className={cn(
+                    "rounded-md p-1.5 transition-colors",
+                    view === "folders" ? "bg-accent text-accent-foreground" : "text-muted-foreground"
+                  )}
+                  aria-label="Folder view"
+                >
+                  <FolderKanban className="h-4 w-4" />
+                </button>
                 <button
                   onClick={() => setView("grid")}
                   className={cn(
@@ -91,25 +139,55 @@ export function ProductsListClient({ products }: ProductsListClientProps) {
             </div>
           </div>
 
-          <div className="mt-4 flex gap-2 overflow-x-auto pb-1">
-            {filters.map((filter) => (
-              <button
-                key={filter}
-                onClick={() => setActiveFilter(filter)}
-                className={cn(
-                  "shrink-0 rounded-full px-3 py-1.5 text-sm font-medium transition-colors",
-                  activeFilter === filter
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted text-muted-foreground hover:bg-accent"
-                )}
-              >
-                {filter}
-              </button>
-            ))}
-          </div>
+          {view !== "folders" && (
+            <div className="mt-4 flex flex-wrap items-center gap-2 overflow-x-auto pb-1">
+              {activeFolder && (
+                <button
+                  onClick={backToFolders}
+                  className="flex shrink-0 items-center gap-1.5 rounded-full border border-border-strong bg-card px-3 py-1.5 text-sm font-medium text-foreground transition-colors hover:bg-accent"
+                >
+                  <ArrowLeft className="h-3.5 w-3.5" />
+                  {activeFolder}
+                  <X className="h-3.5 w-3.5 text-muted-foreground" />
+                </button>
+              )}
+              {filters.map((filter) => (
+                <button
+                  key={filter}
+                  onClick={() => setActiveFilter(filter)}
+                  className={cn(
+                    "shrink-0 rounded-full px-3 py-1.5 text-sm font-medium transition-colors",
+                    activeFilter === filter
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-muted text-muted-foreground hover:bg-accent"
+                  )}
+                >
+                  {filter}
+                </button>
+              ))}
+            </div>
+          )}
         </FadeIn>
 
-        {filteredProducts.length === 0 ? (
+        {view === "folders" ? (
+          products.length === 0 ? (
+            <FadeIn className="mt-12 text-center">
+              <p className="text-muted-foreground">No products yet. Add your first product to get started.</p>
+            </FadeIn>
+          ) : (
+            <StaggerContainer className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {filteredFolders.map((folder) => (
+                <StaggerItem key={folder.key}>
+                  <FolderCard
+                    folder={folder}
+                    onOpen={() => openFolder(folder.key)}
+                    onRename={(nextName) => renameFolder(folder.key, nextName)}
+                  />
+                </StaggerItem>
+              ))}
+            </StaggerContainer>
+          )
+        ) : filteredProducts.length === 0 ? (
           <FadeIn className="mt-12 text-center">
             <p className="text-muted-foreground">
               {products.length === 0
@@ -132,7 +210,11 @@ export function ProductsListClient({ products }: ProductsListClientProps) {
         )}
 
         <div className="mt-6 flex items-center justify-between text-sm text-muted-foreground">
-          <span>Showing {filteredProducts.length} of {products.length} products</span>
+          <span>
+            {view === "folders"
+              ? `${filteredFolders.length} folder${filteredFolders.length === 1 ? "" : "s"}`
+              : `Showing ${filteredProducts.length} of ${products.length} products`}
+          </span>
           <Badge variant="secondary">{products.filter((p) => p.status === "optimized").length} optimized</Badge>
         </div>
       </div>
