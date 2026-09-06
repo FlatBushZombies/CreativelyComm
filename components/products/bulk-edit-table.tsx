@@ -5,12 +5,25 @@ import { useRouter } from "next/navigation";
 import { Loader2, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import type { Product, ProductStatus, BulkProductUpdate } from "@/lib/products";
 import { bulkUpdateProductsAction } from "@/app/(dashboard)/products/actions";
 
 const statusOptions: ProductStatus[] = ["draft", "pending", "optimized", "published"];
 
-type Row = BulkProductUpdate;
+// Local editing shape: tags are edited as a raw comma-separated string so
+// typing a trailing comma doesn't get reformatted mid-keystroke -- only
+// parsed into an array (matching BulkProductUpdate.tags) at save time.
+interface Row {
+  id: string;
+  name: string;
+  price: number;
+  category: string;
+  status: ProductStatus;
+  sku: string;
+  description: string;
+  tagsText: string;
+}
 
 function toRow(product: Product): Row {
   return {
@@ -19,6 +32,25 @@ function toRow(product: Product): Row {
     price: product.price,
     category: product.category,
     status: product.status,
+    sku: product.sku,
+    description: product.description,
+    tagsText: product.tags.join(", "),
+  };
+}
+
+function toBulkUpdate(row: Row): BulkProductUpdate {
+  return {
+    id: row.id,
+    name: row.name,
+    price: row.price,
+    category: row.category,
+    status: row.status,
+    sku: row.sku,
+    description: row.description,
+    tags: row.tagsText
+      .split(",")
+      .map((tag) => tag.trim())
+      .filter(Boolean),
   };
 }
 
@@ -43,7 +75,10 @@ export function BulkEditTable({ products }: { products: Product[] }) {
       (row.name !== original.name ||
         row.price !== original.price ||
         row.category !== original.category ||
-        row.status !== original.status)
+        row.status !== original.status ||
+        row.sku !== original.sku ||
+        row.description !== original.description ||
+        row.tagsText !== original.tagsText)
     );
   });
 
@@ -55,7 +90,7 @@ export function BulkEditTable({ products }: { products: Product[] }) {
   function handleSave() {
     setError(undefined);
     startTransition(async () => {
-      const result = await bulkUpdateProductsAction(dirtyRows);
+      const result = await bulkUpdateProductsAction(dirtyRows.map(toBulkUpdate));
       if (result.error) {
         setError(result.error);
         return;
@@ -88,8 +123,11 @@ export function BulkEditTable({ products }: { products: Product[] }) {
           <thead>
             <tr className="border-b border-border bg-muted/50 text-left text-xs text-muted-foreground">
               <th className="p-3 font-medium">Name</th>
+              <th className="p-3 font-medium">SKU</th>
               <th className="p-3 font-medium">Price</th>
               <th className="p-3 font-medium">Category</th>
+              <th className="p-3 font-medium">Description</th>
+              <th className="p-3 font-medium">Tags</th>
               <th className="p-3 font-medium">Status</th>
             </tr>
           </thead>
@@ -102,7 +140,15 @@ export function BulkEditTable({ products }: { products: Product[] }) {
                     <Input
                       value={row.name}
                       onChange={(e) => updateRow(product.id, { name: e.target.value })}
-                      className="h-9"
+                      className="h-9 min-w-36"
+                    />
+                  </td>
+                  <td className="p-2">
+                    <Input
+                      value={row.sku}
+                      onChange={(e) => updateRow(product.id, { sku: e.target.value })}
+                      className="h-9 w-28"
+                      placeholder="SKU"
                     />
                   </td>
                   <td className="p-2">
@@ -119,7 +165,24 @@ export function BulkEditTable({ products }: { products: Product[] }) {
                     <Input
                       value={row.category}
                       onChange={(e) => updateRow(product.id, { category: e.target.value })}
-                      className="h-9"
+                      className="h-9 min-w-32"
+                    />
+                  </td>
+                  <td className="p-2">
+                    <Textarea
+                      value={row.description}
+                      onChange={(e) => updateRow(product.id, { description: e.target.value })}
+                      className="min-h-9 w-56 resize-y py-1.5 text-sm"
+                      rows={1}
+                      placeholder="Description"
+                    />
+                  </td>
+                  <td className="p-2">
+                    <Input
+                      value={row.tagsText}
+                      onChange={(e) => updateRow(product.id, { tagsText: e.target.value })}
+                      className="h-9 min-w-40"
+                      placeholder="tag-one, tag-two"
                     />
                   </td>
                   <td className="p-2">

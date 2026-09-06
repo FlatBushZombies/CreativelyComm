@@ -20,16 +20,34 @@ import { cn } from "@/lib/utils";
 
 const filters = ["All", "Optimized", "Pending", "Draft", "Published"];
 
+type ViewMode = "folders" | "grid" | "table";
+
 interface ProductsListClientProps {
   products: Product[];
+  /** Seeds the view mode from a `?view=` deep link (e.g. a "Fix now" blocker link). */
+  initialView?: ViewMode;
+  /** Seeds the active folder from a `?folder=` deep link. */
+  initialFolder?: string;
+  /** Seeds an explicit product-id filter from a `?ids=` deep link (small affected sets only). */
+  initialProductIds?: string[];
 }
 
-export function ProductsListClient({ products }: ProductsListClientProps) {
+export function ProductsListClient({
+  products,
+  initialView,
+  initialFolder,
+  initialProductIds,
+}: ProductsListClientProps) {
   const router = useRouter();
   const [search, setSearch] = useState("");
   const [activeFilter, setActiveFilter] = useState("All");
-  const [view, setView] = useState<"folders" | "grid" | "table">(products.length > 0 ? "folders" : "grid");
-  const [activeFolder, setActiveFolder] = useState<string | null>(null);
+  const [view, setView] = useState<ViewMode>(
+    initialView ?? (initialFolder || initialProductIds ? "grid" : products.length > 0 ? "folders" : "grid")
+  );
+  const [activeFolder, setActiveFolder] = useState<string | null>(initialFolder ?? null);
+  const [productIdFilter, setProductIdFilter] = useState<Set<string> | null>(
+    initialProductIds && initialProductIds.length > 0 ? new Set(initialProductIds) : null
+  );
 
   const folders = useMemo(() => groupProductsIntoFolders(products), [products]);
   const filteredFolders = useMemo(() => {
@@ -52,9 +70,11 @@ export function ProductsListClient({ products }: ProductsListClientProps) {
       const matchesFolder =
         !activeFolder || (product.category.trim() || UNCATEGORIZED_KEY) === activeFolder;
 
-      return matchesSearch && matchesFilter && matchesFolder;
+      const matchesIdFilter = !productIdFilter || productIdFilter.has(product.id);
+
+      return matchesSearch && matchesFilter && matchesFolder && matchesIdFilter;
     });
-  }, [products, search, activeFilter, activeFolder]);
+  }, [products, search, activeFilter, activeFolder, productIdFilter]);
 
   function openFolder(key: string) {
     setActiveFolder(key);
@@ -63,6 +83,7 @@ export function ProductsListClient({ products }: ProductsListClientProps) {
 
   function backToFolders() {
     setActiveFolder(null);
+    setProductIdFilter(null);
     setView("folders");
   }
 
@@ -71,7 +92,16 @@ export function ProductsListClient({ products }: ProductsListClientProps) {
     if (affected.length === 0) return;
 
     await bulkUpdateProductsAction(
-      affected.map((p) => ({ id: p.id, name: p.name, price: p.price, category: nextName, status: p.status }))
+      affected.map((p) => ({
+        id: p.id,
+        name: p.name,
+        price: p.price,
+        category: nextName,
+        status: p.status,
+        sku: p.sku,
+        description: p.description,
+        tags: p.tags,
+      }))
     );
 
     if (activeFolder === oldKey) setActiveFolder(nextName);
@@ -148,6 +178,15 @@ export function ProductsListClient({ products }: ProductsListClientProps) {
                 >
                   <ArrowLeft className="h-3.5 w-3.5" />
                   {activeFolder}
+                  <X className="h-3.5 w-3.5 text-muted-foreground" />
+                </button>
+              )}
+              {productIdFilter && (
+                <button
+                  onClick={() => setProductIdFilter(null)}
+                  className="flex shrink-0 items-center gap-1.5 rounded-full border border-border-strong bg-card px-3 py-1.5 text-sm font-medium text-foreground transition-colors hover:bg-accent"
+                >
+                  {productIdFilter.size} linked product{productIdFilter.size === 1 ? "" : "s"}
                   <X className="h-3.5 w-3.5 text-muted-foreground" />
                 </button>
               )}

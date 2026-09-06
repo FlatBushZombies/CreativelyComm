@@ -1,6 +1,7 @@
 import "server-only";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import type { Product } from "@/lib/products";
+import { UNCATEGORIZED_KEY } from "@/lib/folder-utils";
 
 // Deterministic, rule-based listing-quality checks. These are practical
 // common-sense heuristics (has a SKU, enough images, a real description),
@@ -140,6 +141,18 @@ function evaluateRule(product: Product, rule: ChannelRule): boolean {
   }
 }
 
+/**
+ * Shared score->badge-variant mapping used everywhere a readiness score is
+ * shown (readiness page, dashboard catalog health card, conversion gap
+ * classification) so the "ready" / "needs work" / "at risk" thresholds
+ * stay in exactly one place.
+ */
+export function scoreVariant(score: number): "success" | "warning" | "destructive" {
+  if (score >= 80) return "success";
+  if (score >= 50) return "warning";
+  return "destructive";
+}
+
 export function computeReadiness(product: Product, rules: ChannelRule[]) {
   const results: RuleResult[] = rules.map((rule) => ({
     ...rule,
@@ -175,16 +188,34 @@ export interface ProductReadinessSummary {
   averageScore: number;
 }
 
+/** A single rule failing across many products for one channel -- the catalog-wide "why". */
+export interface CatalogBlocker {
+  channel: Channel;
+  ruleKey: string;
+  ruleLabel: string;
+  weight: number;
+  failCount: number;
+  /** failCount / total products in the catalog. */
+  failRate: number;
+  productIds: string[];
+}
+
 export interface ReadinessOverview {
   channelAverages: { channel: Channel; averageScore: number }[];
   products: ProductReadinessSummary[];
+  /** Top ~8 rule failures by how many products they block, heaviest-weight first on ties. */
+  topBlockers: CatalogBlocker[];
 }
+
+const TOP_BLOCKERS_LIMIT = 8;
 
 /**
  * Catalog-wide readiness summary: per-channel average score across all
- * products, and a per-product overall average, worst-first. Fetches
- * channels+rules once and reuses them for every product, rather than the
- * N+1 pattern getChannelsWithReadiness would produce if called in a loop.
+ * products, a per-product overall average (worst-first), and the top
+ * catalog-wide "blockers" -- the specific rules failing across the most
+ * products, not just an aggregate score. Fetches channels+rules once and
+ * reuses them for every product, rather than the N+1 pattern
+ * getChannelsWithReadiness would produce if called in a loop.
  */
 export async function getReadinessOverview(
   products: Product[],
@@ -196,17 +227,41 @@ export async function getReadinessOverview(
     return {
       channelAverages: channelsWithRules.map(({ channel }) => ({ channel, averageScore: 0 })),
       products: [],
+      topBlockers: [],
     };
   }
 
   // scoresByChannel[channelId] = list of scores across products
   const scoresByChannel = new Map<string, number[]>();
+  // blockersByKey["channelId:ruleKey"] = accumulated failure info for that rule
+  const blockersByKey = new Map<string, CatalogBlocker>();
+
   const productSummaries: ProductReadinessSummary[] = products.map((product) => {
     const scores = channelsWithRules.map(({ channel, rules }) => {
-      const { score } = computeReadiness(product, rules);
+      const { score, failed } = computeReadiness(product, rules);
       const existing = scoresByChannel.get(channel.id) ?? [];
       existing.push(score);
       scoresByChannel.set(channel.id, existing);
+
+      for (const rule of failed) {
+        const blockerKey = `${channel.id}:${rule.key}`;
+        const blocker = blockersByKey.get(blockerKey);
+        if (blocker) {
+          blocker.failCount += 1;
+          blocker.productIds.push(product.id);
+        } else {
+          blockersByKey.set(blockerKey, {
+            channel,
+            ruleKey: rule.key,
+            ruleLabel: rule.label,
+            weight: rule.weight,
+            failCount: 1,
+            failRate: 0, // filled in below, once the total product count is known
+            productIds: [product.id],
+          });
+        }
+      }
+
       return score;
     });
     const averageScore = Math.round(scores.reduce((sum, s) => sum + s, 0) / scores.length);
@@ -223,7 +278,42 @@ export async function getReadinessOverview(
 
   productSummaries.sort((a, b) => a.averageScore - b.averageScore);
 
-  return { channelAverages, products: productSummaries };
+  const topBlockers = Array.from(blockersByKey.values())
+    .map((blocker) => ({ ...blocker, failRate: blocker.failCount / products.length }))
+    .sort((a, b) => b.failCount - a.failCount || b.weight - a.weight)
+    .slice(0, TOP_BLOCKERS_LIMIT);
+
+  return { channelAverages, products: productSummaries, topBlockers };
+}
+
+/**
+ * Groups per-product readiness summaries by the product's folder (its
+ * category, or "Uncategorized"), averaging the score within each group.
+ * Pure/no query -- ties the readiness engine directly to the Folders
+ * feature so each folder card can show "N% ready".
+ */
+export function rollupReadinessByFolder(
+  productSummaries: ProductReadinessSummary[]
+): { folderKey: string; averageScore: number; productCount: number }[] {
+  const groups = new Map<string, number[]>();
+
+  for (const { product, averageScore } of productSummaries) {
+    const key = product.category.trim() || UNCATEGORIZED_KEY;
+    const existing = groups.get(key);
+    if (existing) {
+      existing.push(averageScore);
+    } else {
+      groups.set(key, [averageScore]);
+    }
+  }
+
+  return Array.from(groups.entries())
+    .map(([folderKey, scores]) => ({
+      folderKey,
+      averageScore: Math.round(scores.reduce((sum, s) => sum + s, 0) / scores.length),
+      productCount: scores.length,
+    }))
+    .sort((a, b) => b.productCount - a.productCount);
 }
 
 // -- Self-serve custom rules -------------------------------------------

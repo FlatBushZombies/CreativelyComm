@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { ShieldCheck } from "lucide-react";
+import { FolderKanban, ShieldAlert, ShieldCheck } from "lucide-react";
 import { DashboardHeader } from "@/components/dashboard/sidebar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -8,15 +8,9 @@ import { Badge } from "@/components/ui/badge";
 import { FadeIn, StaggerContainer, StaggerItem } from "@/components/shared/fade-in";
 import { getServerSession } from "@/lib/auth/session";
 import { getOrCreateDefaultWorkspace } from "@/lib/workspace";
-import { getProducts } from "@/lib/products";
-import { getReadinessOverview, getAllChannels, getCustomRulesByChannel } from "@/lib/readiness";
+import { getAllChannels, getCustomRulesByChannel, scoreVariant } from "@/lib/readiness";
+import { getIntelligenceOverview, buildBlockerFixHref, buildFolderFixHref } from "@/lib/intelligence";
 import { ManageRules } from "@/components/readiness/manage-rules";
-
-function scoreVariant(score: number): "success" | "warning" | "destructive" {
-  if (score >= 80) return "success";
-  if (score >= 50) return "warning";
-  return "destructive";
-}
 
 export default async function ReadinessOverviewPage() {
   const session = await getServerSession();
@@ -25,12 +19,12 @@ export default async function ReadinessOverviewPage() {
   }
 
   const workspace = await getOrCreateDefaultWorkspace(session.user.id, session.user.name);
-  const products = await getProducts(workspace.id);
-  const [overview, channels, customRules] = await Promise.all([
-    getReadinessOverview(products, workspace.id),
+  const [intelligence, channels, customRules] = await Promise.all([
+    getIntelligenceOverview(workspace.id),
     getAllChannels(),
     getCustomRulesByChannel(workspace.id),
   ]);
+  const { readiness, folderRollup } = intelligence;
 
   return (
     <>
@@ -53,7 +47,7 @@ export default async function ReadinessOverviewPage() {
               </p>
             </CardHeader>
             <CardContent className="space-y-4">
-              {overview.channelAverages.map(({ channel, averageScore }) => (
+              {readiness.channelAverages.map(({ channel, averageScore }) => (
                 <div key={channel.id} className="flex items-center gap-4">
                   <span className="w-36 shrink-0 text-sm font-medium">{channel.name}</span>
                   <Progress value={averageScore} className="h-2 flex-1" />
@@ -66,19 +60,105 @@ export default async function ReadinessOverviewPage() {
           </Card>
         </FadeIn>
 
-        <FadeIn delay={0.1} className="mt-6">
+        <FadeIn delay={0.08} className="mt-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base flex items-center gap-2">
+                <ShieldAlert className="h-4 w-4 text-primary" />
+                Top blockers
+              </CardTitle>
+              <p className="text-sm text-muted-foreground">
+                The specific listing-quality rules failing across the most products, worst first.
+              </p>
+            </CardHeader>
+            <CardContent>
+              {readiness.topBlockers.length === 0 ? (
+                <p className="py-6 text-center text-sm text-muted-foreground">
+                  No catalog-wide blockers found right now.
+                </p>
+              ) : (
+                <div className="space-y-2">
+                  {readiness.topBlockers.map((blocker) => (
+                    <div
+                      key={`${blocker.channel.id}:${blocker.ruleKey}`}
+                      className="flex items-center justify-between gap-4 rounded-lg border border-border p-3"
+                    >
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium truncate">
+                          {blocker.ruleLabel} <span className="text-muted-foreground">· {blocker.channel.name}</span>
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {blocker.failCount} product{blocker.failCount === 1 ? "" : "s"} ({Math.round(blocker.failRate * 100)}% of catalog)
+                        </p>
+                      </div>
+                      <Link
+                        href={buildBlockerFixHref(blocker.productIds)}
+                        className="shrink-0 text-sm font-medium text-primary hover:underline"
+                      >
+                        Fix these products
+                      </Link>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </FadeIn>
+
+        <FadeIn delay={0.11} className="mt-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base flex items-center gap-2">
+                <FolderKanban className="h-4 w-4 text-primary" />
+                Readiness by folder
+              </CardTitle>
+              <p className="text-sm text-muted-foreground">
+                Average readiness score per product folder (category).
+              </p>
+            </CardHeader>
+            <CardContent>
+              {folderRollup.length === 0 ? (
+                <p className="py-6 text-center text-sm text-muted-foreground">
+                  Add products to see readiness broken down by folder here.
+                </p>
+              ) : (
+                <div className="space-y-2">
+                  {folderRollup.map((folder) => (
+                    <Link
+                      key={folder.folderKey}
+                      href={buildFolderFixHref(folder.folderKey)}
+                      className="flex items-center justify-between gap-4 rounded-lg border border-border p-3 transition-colors hover:bg-accent/50"
+                    >
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium truncate">{folder.folderKey}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {folder.productCount} product{folder.productCount === 1 ? "" : "s"}
+                        </p>
+                      </div>
+                      <Badge variant={scoreVariant(folder.averageScore)} className="shrink-0">
+                        {folder.averageScore}% ready
+                      </Badge>
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </FadeIn>
+
+        <FadeIn delay={0.14} className="mt-6">
           <Card>
             <CardHeader>
               <CardTitle className="text-base">Products that need the most work</CardTitle>
             </CardHeader>
             <CardContent>
-              {overview.products.length === 0 ? (
+              {readiness.products.length === 0 ? (
                 <p className="py-6 text-center text-sm text-muted-foreground">
                   Add products to see their readiness scores here.
                 </p>
               ) : (
                 <StaggerContainer className="space-y-3">
-                  {overview.products.map(({ product, averageScore }) => (
+                  {readiness.products.map(({ product, averageScore }) => (
                     <StaggerItem key={product.id}>
                       <Link
                         href={`/products/${product.id}`}
@@ -98,7 +178,7 @@ export default async function ReadinessOverviewPage() {
           </Card>
         </FadeIn>
 
-        <FadeIn delay={0.15} className="mt-6">
+        <FadeIn delay={0.17} className="mt-6">
           <ManageRules channels={channels} customRules={customRules} />
         </FadeIn>
       </div>

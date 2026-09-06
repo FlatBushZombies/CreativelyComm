@@ -390,6 +390,9 @@ export interface BulkProductUpdate {
   price: number;
   category: string;
   status: ProductStatus;
+  sku: string;
+  description: string;
+  tags: string[];
 }
 
 /**
@@ -430,6 +433,9 @@ export async function bulkUpdateProducts(
         price: u.price,
         category: u.category,
         status: u.status,
+        sku: u.sku || null,
+        description: u.description,
+        tags: u.tags,
         updated_at: new Date().toISOString(),
       }))
     )
