@@ -1,6 +1,4 @@
 import { CheckCircle2, XCircle, Settings2 } from "lucide-react";
-import { SiShopify, SiEtsy, SiGoogle, SiFacebook, SiTiktok } from "react-icons/si";
-import { FaAmazon } from "react-icons/fa6";
 import { FadeIn } from "@/components/shared/fade-in";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -53,24 +51,15 @@ function FeatureStory({ number, label, title, description, visual, layout }: Fea
 }
 
 const ruleChecks = [
-  { label: "Has care instructions", channel: "Etsy", weight: 10, passed: true },
-  { label: "SKU present", channel: "Amazon", weight: 15, passed: true },
-  { label: "4+ product images", channel: "Shopify", weight: 12, passed: false },
-];
-
-const exportChannels = [
-  { name: "Shopify", icon: SiShopify, status: "Exported" },
-  { name: "Amazon", icon: FaAmazon, status: "Exported" },
-  { name: "Etsy", icon: SiEtsy, status: "Ready" },
-  { name: "Google", icon: SiGoogle, status: "Ready" },
-  { name: "Meta", icon: SiFacebook, status: "Pending" },
-  { name: "TikTok", icon: SiTiktok, status: "Ready" },
+  { label: "Has search tags", channel: "Etsy", weight: 35, passed: false },
+  { label: "SKU present", channel: "Amazon", weight: 25, passed: true },
+  { label: "3+ product images", channel: "Amazon", weight: 30, passed: false },
 ];
 
 export function FeatureStorySection() {
   return (
     <section id="features" className="py-14 sm:py-20">
-      <div className="mx-auto max-w-7xl space-y-16 px-4 sm:space-y-20 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <FeatureStory
           number="01"
           label="Standardize"
@@ -104,28 +93,6 @@ export function FeatureStorySection() {
                   </div>
                 ))}
               </div>
-            </div>
-          }
-        />
-
-        <FeatureStory
-          number="02"
-          label="Publish"
-          layout="visual-full"
-          title="Export files every marketplace already expects."
-          description="Generate Shopify CSVs, Amazon Seller Central flat files, Etsy listings, and Google or Meta feeds — all from one product library, all in the format each channel actually wants."
-          visual={
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-              {exportChannels.map(({ name, icon: Icon, status }) => (
-                <div
-                  key={name}
-                  className="flex flex-col items-center gap-3 rounded-2xl border border-border-strong bg-card p-6 text-center card-shadow"
-                >
-                  <Icon className="h-6 w-6 text-foreground/80" />
-                  <span className="text-sm font-medium">{name}</span>
-                  <Badge variant={status === "Pending" ? "muted" : "success"}>{status}</Badge>
-                </div>
-              ))}
             </div>
           }
         />

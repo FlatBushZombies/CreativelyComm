@@ -13,7 +13,7 @@ const channels = [
 ];
 
 const stats = [
-  { value: "7+", label: "Marketplaces supported, from Shopify to TikTok Shop" },
+  { value: "7+", label: "Marketplaces with real readiness rules built in" },
   { value: "3", label: "Plans, from a free 14-day trial to enterprise" },
   { value: "4", label: "Team roles, so owners, editors, and vendors work from one library" },
 ];
@@ -24,19 +24,21 @@ export function TrustStrip() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <FadeIn className="flex flex-col items-center gap-6">
           <p className="text-sm text-muted-foreground">
-            Built for teams that sell everywhere
+            Built for teams that need to know what&apos;s actually wrong with a listing
           </p>
-          <ul className="flex flex-wrap items-center justify-center gap-x-10 gap-y-4 sm:gap-x-14">
-            {channels.map(({ name, icon: Icon }) => (
-              <li
-                key={name}
-                className="flex items-center gap-2 text-muted-foreground/70 transition-colors hover:text-foreground"
-              >
-                <Icon className="h-5 w-5 shrink-0" aria-hidden="true" />
-                <span className="text-sm font-medium">{name}</span>
-              </li>
-            ))}
-          </ul>
+          <div className="w-full overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_10%,black_90%,transparent)]">
+            <ul className="animate-marquee flex w-max items-center gap-x-14">
+              {[...channels, ...channels].map(({ name, icon: Icon }, i) => (
+                <li
+                  key={`${name}-${i}`}
+                  className="flex shrink-0 items-center gap-2 text-muted-foreground/70 transition-colors hover:text-foreground"
+                >
+                  <Icon className="h-5 w-5 shrink-0" aria-hidden="true" />
+                  <span className="whitespace-nowrap text-sm font-medium">{name}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
         </FadeIn>
 
         <div className="mt-10 grid gap-8 divide-y divide-border border-t border-border pt-10 sm:grid-cols-3 sm:divide-x sm:divide-y-0">

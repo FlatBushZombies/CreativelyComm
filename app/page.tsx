@@ -5,11 +5,9 @@ import { HeroSection } from "@/components/landing/hero-section";
 import { TrustStrip } from "@/components/landing/trust-strip";
 import { ProblemSection } from "@/components/landing/problem-section";
 import { BeforeAfterSection } from "@/components/landing/before-after-section";
-import { AIPhotoToolsSection } from "@/components/landing/ai-photo-tools-section";
 import { FeatureStorySection } from "@/components/landing/features-section";
-import { AICampaignSection } from "@/components/landing/ai-campaign-section";
+import { AlsoIncludedSection } from "@/components/landing/also-included-section";
 import { OperationsSection } from "@/components/landing/operations-section";
-import { SocialFormatsSection } from "@/components/landing/social-formats-section";
 import { HardwareEcosystemSection } from "@/components/landing/hardware-ecosystem-section";
 import { PricingSection } from "@/components/landing/pricing-section";
 import { FAQSection } from "@/components/landing/faq-section";
@@ -18,7 +16,7 @@ import { FinalCtaSection } from "@/components/landing/cta-section";
 export const metadata: Metadata = {
   title: "CreativelyComm — Product Intelligence for Small Sellers",
   description:
-    "Clean product photos, generate AI marketing campaigns, score listings against readiness rules, and export ready-to-list files to Shopify, Amazon, Etsy, and more. Start free — no credit card required.",
+    "Know exactly why a listing isn't ready — the Channel Readiness Engine scores every product against real marketplace rules, so you catch what's missing before it costs a sale. Start free — no credit card required.",
 };
 
 export default function HomePage() {
@@ -29,12 +27,10 @@ export default function HomePage() {
         <HeroSection />
         <TrustStrip />
         <ProblemSection />
-        <BeforeAfterSection />
         <FeatureStorySection />
-        <AICampaignSection />
+        <BeforeAfterSection />
+        <AlsoIncludedSection />
         <OperationsSection />
-        <AIPhotoToolsSection />
-        <SocialFormatsSection />
         <PricingSection />
         <HardwareEcosystemSection />
         <FAQSection />

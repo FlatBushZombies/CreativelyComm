@@ -1,4 +1,4 @@
-import { ScanLine, Bell, Zap } from "lucide-react";
+import { ScanLine, Bell, Zap, FileOutput } from "lucide-react";
 import { SiQuickbooks, SiShopify } from "react-icons/si";
 import { FaSlack } from "react-icons/fa6";
 import { FadeIn, StaggerContainer, StaggerItem } from "@/components/shared/fade-in";
@@ -6,6 +6,11 @@ import { SectionHeading } from "@/components/landing/section-heading";
 import { Card, CardContent } from "@/components/ui/card";
 
 const supportingFeatures = [
+  {
+    icon: FileOutput,
+    title: "Export-ready files",
+    description: "Generate Shopify CSVs, Amazon flat files, Etsy listings, and Google or Meta feeds — all from one product library.",
+  },
   {
     icon: Bell,
     title: "Automatic alerts",
@@ -28,9 +33,9 @@ export function OperationsSection() {
     <section className="bg-muted/40 py-14 sm:py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <SectionHeading
-          eyebrow="Ecommerce operations"
-          title="Take orders and keep inventory honest, without extra tools."
-          description="A barcode-first checkout for in-person sales, automatic stock tracking, and the connections that keep everything else in sync."
+          eyebrow="Also handles the operational side"
+          title="Inventory, orders, and exports — handled, not just scored."
+          description="Once a listing passes, the same workspace takes orders, tracks stock, and gets it into the format every marketplace expects."
         />
 
         <div className="mt-10 grid gap-6 lg:grid-cols-[1.1fr_1fr]">
@@ -58,7 +63,7 @@ export function OperationsSection() {
             </Card>
           </FadeIn>
 
-          <StaggerContainer className="grid gap-4 sm:grid-cols-3 lg:grid-cols-1">
+          <StaggerContainer className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
             {supportingFeatures.map((feature) => (
               <StaggerItem key={feature.title}>
                 <div className="flex h-full gap-3 rounded-xl border border-border bg-card p-4">
