@@ -22,6 +22,7 @@ import { AIOptimizationPanel } from "@/components/products/ai-optimization-panel
 import { BeforeAfterPreview } from "@/components/products/before-after-preview";
 import { SocialFormatStudio } from "@/components/products/social-format-studio";
 import { TranslationsPanel } from "@/components/products/translations-panel";
+import { MarketTrendsPanel } from "@/components/products/market-trends-panel";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -35,6 +36,7 @@ import type { Product } from "@/lib/products";
 import type { ChannelReadiness } from "@/lib/readiness";
 import type { ProductVersion } from "@/lib/versions";
 import type { ProductTranslation } from "@/lib/translations";
+import type { ProductTrendSnapshot } from "@/lib/trends";
 import type { StockAdjustment, StockAdjustmentReason } from "@/lib/inventory";
 import type { SeoScore } from "@/lib/seo";
 import type { Vendor } from "@/lib/vendors";
@@ -70,6 +72,8 @@ interface ProductDetailsClientProps {
   stockHistory: StockAdjustment[];
   seoScore: SeoScore;
   vendors: Vendor[];
+  trendsConfigured: boolean;
+  trendSnapshot: ProductTrendSnapshot | null;
 }
 
 const stockReasons: StockAdjustmentReason[] = ["restock", "correction", "damaged"];
@@ -83,6 +87,8 @@ export function ProductDetailsClient({
   stockHistory,
   seoScore,
   vendors,
+  trendsConfigured,
+  trendSnapshot,
 }: ProductDetailsClientProps) {
   const [copied, setCopied] = useState(false);
   const [expandedChannel, setExpandedChannel] = useState<string | null>(null);
@@ -451,6 +457,14 @@ export function ProductDetailsClient({
 
         <FadeIn delay={0.14} className="mt-8">
           <TranslationsPanel productId={product.id} translations={translations} />
+        </FadeIn>
+
+        <FadeIn delay={0.145} className="mt-8">
+          <MarketTrendsPanel
+            productId={product.id}
+            configured={trendsConfigured}
+            snapshot={trendSnapshot}
+          />
         </FadeIn>
 
         <div className="mt-8 grid gap-6 lg:grid-cols-2">

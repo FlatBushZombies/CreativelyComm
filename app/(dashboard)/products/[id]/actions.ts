@@ -10,6 +10,7 @@ import { removeBackground } from "@/lib/remove-bg";
 import { logActivity } from "@/lib/activity";
 import { translateProduct, deleteTranslation, type ProductTranslation } from "@/lib/translations";
 import { adjustStock, type StockAdjustmentReason } from "@/lib/inventory";
+import { fetchProductTrends, saveTrendSnapshot, type ProductTrendSnapshot } from "@/lib/trends";
 
 export interface RemoveBackgroundResult {
   error?: string;
@@ -123,6 +124,46 @@ export async function translateProductAction(
     return { translation };
   } catch (err) {
     return { error: err instanceof Error ? err.message : "Failed to translate product." };
+  }
+}
+
+export interface FetchProductTrendsResult {
+  error?: string;
+  notConfigured?: boolean;
+  snapshot?: ProductTrendSnapshot;
+}
+
+export async function fetchProductTrendsAction(productId: string): Promise<FetchProductTrendsResult> {
+  const session = await getServerSession();
+  if (!session) {
+    redirect("/login");
+  }
+
+  const workspace = await getOrCreateDefaultWorkspace(session.user.id, session.user.name);
+  const product = await getProductById(productId, workspace.id);
+  if (!product) {
+    return { error: "Product not found." };
+  }
+
+  const searchTerm = product.category ? `${product.name} ${product.category}` : product.name;
+
+  try {
+    const trends = await fetchProductTrends(searchTerm);
+    const snapshot = await saveTrendSnapshot(product.id, workspace.id, searchTerm, trends);
+    await logActivity(workspace.id, {
+      type: "publish",
+      title: "Market trends checked",
+      description: `Google Trends interest was fetched for ${product.name}`,
+      productName: product.name,
+    });
+    revalidatePath(`/products/${productId}`);
+    return { snapshot };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Failed to fetch market trends.";
+    if (message.startsWith("GOOGLE_TRENDS_NOT_CONFIGURED")) {
+      return { notConfigured: true, error: "Google Trends access is not configured yet." };
+    }
+    return { error: message };
   }
 }
 
