@@ -1,32 +1,39 @@
 import { Sparkles, Wand2, Crop, FileOutput } from "lucide-react";
 import { StaggerContainer, StaggerItem } from "@/components/shared/fade-in";
 import { SectionHeading } from "@/components/landing/section-heading";
-import { colorForFolder } from "@/lib/folder-utils";
 
+// Explicit, hand-picked gradients (same on-brand palette as
+// lib/folder-utils.ts) rather than the hash-based colorForFolder() —
+// with only 4 fixed tiles, hashing risked collisions (two tiles landing on
+// the same color), so each is assigned directly for maximum contrast.
 const included = [
   {
     icon: Sparkles,
     title: "AI campaign generator",
     description:
       "Turn a product into a ready-to-post campaign — headline, captions, hashtags, and an email or WhatsApp message, fully editable before it goes live.",
+    gradient: { from: "#386641", to: "#5b8a66" }, // forest green
   },
   {
     icon: Wand2,
     title: "AI lifestyle photos",
     description:
       "Generate a lifestyle scene behind a product photo, or drop it onto a clean white background instead — no design software needed.",
+    gradient: { from: "#2f6b66", to: "#4f9c92" }, // deep teal
   },
   {
     icon: Crop,
     title: "Social format fitting",
     description:
       "Auto-fit a photo to Instagram's square, Pinterest's vertical pin, or a Facebook carousel, right from the product page.",
+    gradient: { from: "#a85a34", to: "#d68a56" }, // clay / terracotta
   },
   {
     icon: FileOutput,
     title: "Export-ready files",
     description:
       "Generate Shopify CSVs, Amazon flat files, Etsy listings, and Google or Meta feeds — all from one product library.",
+    gradient: { from: "#6b4a63", to: "#9a6f8f" }, // plum
   },
 ];
 
@@ -41,23 +48,20 @@ export function AlsoIncludedSection() {
         />
 
         <StaggerContainer className="mt-10 grid gap-4 sm:grid-cols-2">
-          {included.map((item) => {
-            const gradient = colorForFolder(item.title);
-            return (
-              <StaggerItem key={item.title}>
-                <div
-                  className="relative flex h-full flex-col overflow-hidden rounded-3xl p-6 sm:p-8"
-                  style={{ background: `linear-gradient(135deg, ${gradient.from}, ${gradient.to})` }}
-                >
-                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/15">
-                    <item.icon className="h-6 w-6 text-white" />
-                  </div>
-                  <p className="mt-6 text-lg font-semibold text-white">{item.title}</p>
-                  <p className="mt-2 max-w-sm text-sm leading-relaxed text-white/80">{item.description}</p>
+          {included.map((item) => (
+            <StaggerItem key={item.title}>
+              <div
+                className="relative flex h-full flex-col overflow-hidden rounded-3xl p-6 sm:p-8"
+                style={{ background: `linear-gradient(135deg, ${item.gradient.from}, ${item.gradient.to})` }}
+              >
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/15">
+                  <item.icon className="h-6 w-6 text-white" />
                 </div>
-              </StaggerItem>
-            );
-          })}
+                <p className="mt-6 text-lg font-semibold text-white">{item.title}</p>
+                <p className="mt-2 max-w-sm text-sm leading-relaxed text-white/80">{item.description}</p>
+              </div>
+            </StaggerItem>
+          ))}
         </StaggerContainer>
       </div>
     </section>
