@@ -1,31 +1,35 @@
 import type { Metadata } from "next";
-import { Inter, Geist_Mono, Fraunces, Instrument_Serif } from "next/font/google";
+import { Geist_Mono } from "next/font/google";
+import localFont from "next/font/local";
 import Script from "next/script";
 import "./globals.css";
-
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-});
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
 });
 
-const fraunces = Fraunces({
+const rza = localFont({
+  src: "../public/fonts/Rza-Light.otf",
   variable: "--font-display",
-  subsets: ["latin"],
-  axes: ["opsz", "SOFT", "WONK"],
+  weight: "300",
 });
 
-// Used only for the single accent-word pattern in the new hero headline —
-// never for full headings or body copy.
-const instrumentSerif = Instrument_Serif({
-  variable: "--font-accent",
-  subsets: ["latin"],
-  weight: "400",
-  style: "italic",
+// One family covers both body copy and the single-accent-word italic
+// treatment (e.g. "Before" in the hero) — see the .font-accent rule in
+// globals.css, which points at this same variable with font-style: italic.
+const neueMontreal = localFont({
+  variable: "--font-body",
+  src: [
+    { path: "../public/fonts/neue-montreal-font-family/neuemontreal-light.otf", weight: "300", style: "normal" },
+    { path: "../public/fonts/neue-montreal-font-family/neuemontreal-lightitalic.otf", weight: "300", style: "italic" },
+    { path: "../public/fonts/neue-montreal-font-family/neuemontreal-regular.otf", weight: "400", style: "normal" },
+    { path: "../public/fonts/neue-montreal-font-family/neuemontreal-italic.otf", weight: "400", style: "italic" },
+    { path: "../public/fonts/neue-montreal-font-family/neuemontreal-medium.otf", weight: "500", style: "normal" },
+    { path: "../public/fonts/neue-montreal-font-family/neuemontreal-mediumitalic.otf", weight: "500", style: "italic" },
+    { path: "../public/fonts/neue-montreal-font-family/neuemontreal-bold.otf", weight: "700", style: "normal" },
+    { path: "../public/fonts/neue-montreal-font-family/neuemontreal-bolditalic.otf", weight: "700", style: "italic" },
+  ],
 });
 
 export const metadata: Metadata = {
@@ -45,7 +49,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${geistMono.variable} ${fraunces.variable} ${instrumentSerif.variable} h-full antialiased`}
+      className={`${neueMontreal.variable} ${geistMono.variable} ${rza.variable} h-full antialiased`}
     >
       <body className="min-h-full">
         {children}

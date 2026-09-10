@@ -1,6 +1,7 @@
-import { Sparkles, Wand2, Crop } from "lucide-react";
+import { Sparkles, Wand2, Crop, FileOutput } from "lucide-react";
 import { StaggerContainer, StaggerItem } from "@/components/shared/fade-in";
 import { SectionHeading } from "@/components/landing/section-heading";
+import { colorForFolder } from "@/lib/folder-utils";
 
 const included = [
   {
@@ -21,6 +22,12 @@ const included = [
     description:
       "Auto-fit a photo to Instagram's square, Pinterest's vertical pin, or a Facebook carousel, right from the product page.",
   },
+  {
+    icon: FileOutput,
+    title: "Export-ready files",
+    description:
+      "Generate Shopify CSVs, Amazon flat files, Etsy listings, and Google or Meta feeds — all from one product library.",
+  },
 ];
 
 export function AlsoIncludedSection() {
@@ -33,18 +40,24 @@ export function AlsoIncludedSection() {
           description="The readiness score is the starting point — these are the tools that get a product from 'ready' to 'live' without leaving the workspace."
         />
 
-        <StaggerContainer className="mt-10 grid gap-4 sm:grid-cols-3">
-          {included.map((item) => (
-            <StaggerItem key={item.title}>
-              <div className="flex h-full flex-col gap-3 rounded-2xl border border-border-strong bg-card p-5 card-shadow">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                  <item.icon className="h-5 w-5 text-primary" />
+        <StaggerContainer className="mt-10 grid gap-4 sm:grid-cols-2">
+          {included.map((item) => {
+            const gradient = colorForFolder(item.title);
+            return (
+              <StaggerItem key={item.title}>
+                <div
+                  className="relative flex h-full flex-col overflow-hidden rounded-3xl p-6 sm:p-8"
+                  style={{ background: `linear-gradient(135deg, ${gradient.from}, ${gradient.to})` }}
+                >
+                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/15">
+                    <item.icon className="h-6 w-6 text-white" />
+                  </div>
+                  <p className="mt-6 text-lg font-semibold text-white">{item.title}</p>
+                  <p className="mt-2 max-w-sm text-sm leading-relaxed text-white/80">{item.description}</p>
                 </div>
-                <p className="text-sm font-semibold">{item.title}</p>
-                <p className="text-sm leading-relaxed text-muted-foreground">{item.description}</p>
-              </div>
-            </StaggerItem>
-          ))}
+              </StaggerItem>
+            );
+          })}
         </StaggerContainer>
       </div>
     </section>

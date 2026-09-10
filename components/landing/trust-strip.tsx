@@ -24,7 +24,7 @@ export function TrustStrip() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <FadeIn className="flex flex-col items-center gap-6">
           <p className="text-sm text-muted-foreground">
-            Built for teams that need to know what&apos;s actually wrong with a listing
+            Works with every marketplace you already sell on
           </p>
           <div className="w-full overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_10%,black_90%,transparent)]">
             <ul className="animate-marquee flex w-max items-center gap-x-14">

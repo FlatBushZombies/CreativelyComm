@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { LandingNav } from "@/components/landing/landing-nav";
 import { LandingFooter } from "@/components/landing/landing-footer";
 import { HeroSection } from "@/components/landing/hero-section";
+import { TrustBar } from "@/components/landing/trust-bar";
 import { TrustStrip } from "@/components/landing/trust-strip";
 import { ProblemSection } from "@/components/landing/problem-section";
 import { BeforeAfterSection } from "@/components/landing/before-after-section";
@@ -25,16 +26,17 @@ export default function HomePage() {
       <LandingNav />
       <main>
         <HeroSection />
-        <TrustStrip />
+        <TrustBar />
         <ProblemSection />
-        <FeatureStorySection />
         <BeforeAfterSection />
         <AlsoIncludedSection />
+        <FinalCtaSection />
+        <FeatureStorySection />
         <OperationsSection />
+        <TrustStrip />
         <PricingSection />
         <HardwareEcosystemSection />
         <FAQSection />
-        <FinalCtaSection />
       </main>
       <LandingFooter />
     </div>

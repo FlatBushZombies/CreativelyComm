@@ -6,11 +6,13 @@ interface LogoProps {
   className?: string;
   showText?: boolean;
   size?: "sm" | "md" | "lg";
+  /** Use on dark/photo backgrounds (e.g. the footer's photo band) — white wordmark, lighter accent. */
+  light?: boolean;
 }
 
 const iconPixelSize = { sm: 28, md: 32, lg: 40 };
 
-export function Logo({ className, showText = true, size = "md" }: LogoProps) {
+export function Logo({ className, showText = true, size = "md", light = false }: LogoProps) {
   const sizes = {
     sm: { icon: "h-7 w-7", text: "text-base" },
     md: { icon: "h-8 w-8", text: "text-lg" },
@@ -30,8 +32,14 @@ export function Logo({ className, showText = true, size = "md" }: LogoProps) {
         />
       </div>
       {showText && (
-        <span className={cn("font-display font-medium tracking-tight", sizes[size].text)}>
-          Creatively<span className="text-primary">Comm</span>
+        <span
+          className={cn(
+            "font-display font-medium tracking-tight",
+            light ? "text-white" : "text-foreground",
+            sizes[size].text
+          )}
+        >
+          Creatively<span className={light ? "text-accent" : "text-primary"}>Comm</span>
         </span>
       )}
     </Link>

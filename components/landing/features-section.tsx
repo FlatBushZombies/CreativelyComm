@@ -1,54 +1,6 @@
-import { CheckCircle2, XCircle, Settings2 } from "lucide-react";
-import { FadeIn } from "@/components/shared/fade-in";
+import { CheckCircle2, XCircle, Settings2, Gauge, Globe2, Layers } from "lucide-react";
+import { FadeIn, StaggerContainer, StaggerItem } from "@/components/shared/fade-in";
 import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
-
-interface FeatureStoryProps {
-  number: string;
-  label: string;
-  title: React.ReactNode;
-  description: string;
-  visual: React.ReactNode;
-  layout: "visual-right" | "visual-left" | "visual-full";
-}
-
-function FeatureStory({ number, label, title, description, visual, layout }: FeatureStoryProps) {
-  const text = (
-    <FadeIn direction={layout === "visual-left" ? "right" : "left"} className="max-w-md">
-      <p className="flex items-baseline gap-2 text-xs font-semibold uppercase tracking-[0.12em] text-primary">
-        <span className="font-mono text-muted-foreground">{number}</span>
-        {label}
-      </p>
-      <h3 className="font-display mt-4 text-xl font-medium leading-tight tracking-tight">
-        {title}
-      </h3>
-      <p className="mt-4 text-base leading-relaxed text-muted-foreground">{description}</p>
-    </FadeIn>
-  );
-
-  if (layout === "visual-full") {
-    return (
-      <div>
-        <FadeIn>{visual}</FadeIn>
-        <div className="mt-8 max-w-2xl">{text}</div>
-      </div>
-    );
-  }
-
-  return (
-    <div
-      className={cn(
-        "grid items-center gap-10 lg:grid-cols-2 lg:gap-16",
-        layout === "visual-left" && "lg:[&>*:first-child]:order-2"
-      )}
-    >
-      {text}
-      <FadeIn direction={layout === "visual-left" ? "left" : "right"} delay={0.1}>
-        {visual}
-      </FadeIn>
-    </div>
-  );
-}
 
 const ruleChecks = [
   { label: "Has search tags", channel: "Etsy", weight: 35, passed: false },
@@ -56,17 +8,30 @@ const ruleChecks = [
   { label: "3+ product images", channel: "Amazon", weight: 30, passed: false },
 ];
 
+const bullets = [
+  {
+    icon: Gauge,
+    title: "Real-time readiness scoring",
+    description: "A live percentage score for every product, per marketplace, updated the moment something changes.",
+  },
+  {
+    icon: Globe2,
+    title: "Works across every channel",
+    description: "Shopify, Amazon, Etsy, Google, Meta, TikTok — each with its own rule set, not a generic checklist.",
+  },
+  {
+    icon: Layers,
+    title: "Bulk-fix in one place",
+    description: "Catch what's missing across your whole catalog and fix it in bulk, not product by product.",
+  },
+];
+
 export function FeatureStorySection() {
   return (
     <section id="features" className="py-14 sm:py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <FeatureStory
-          number="01"
-          label="Standardize"
-          layout="visual-left"
-          title="Know exactly what's blocking a listing."
-          description="The Channel Readiness Engine checks every product against rules you control — per marketplace, weighted, and customizable. No more guessing why a listing got rejected."
-          visual={
+        <div className="grid gap-10 lg:grid-cols-2 lg:items-center lg:gap-16">
+          <FadeIn direction="right" className="rounded-3xl bg-accent p-6 sm:p-10">
             <div className="rounded-2xl border border-border-strong bg-card p-6 card-shadow-lg sm:p-7">
               <div className="flex items-center gap-2">
                 <Settings2 className="h-4 w-4 text-primary" />
@@ -94,8 +59,33 @@ export function FeatureStorySection() {
                 ))}
               </div>
             </div>
-          }
-        />
+          </FadeIn>
+
+          <FadeIn direction="left" delay={0.1}>
+            <p className="text-sm font-semibold uppercase tracking-wide text-primary">Standardize</p>
+            <h2 className="font-display mt-3 text-2xl font-medium tracking-tight sm:text-4xl">
+              Know exactly what&apos;s blocking a listing.
+            </h2>
+            <p className="mt-4 text-base leading-relaxed text-muted-foreground">
+              The Channel Readiness Engine checks every product against rules you control — per
+              marketplace, weighted, and customizable. No more guessing why a listing got rejected.
+            </p>
+
+            <StaggerContainer className="mt-8 space-y-5">
+              {bullets.map((bullet) => (
+                <StaggerItem key={bullet.title} className="flex gap-3">
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+                    <bullet.icon className="h-4 w-4 text-primary" />
+                  </span>
+                  <div>
+                    <p className="text-sm font-semibold">{bullet.title}</p>
+                    <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{bullet.description}</p>
+                  </div>
+                </StaggerItem>
+              ))}
+            </StaggerContainer>
+          </FadeIn>
+        </div>
       </div>
     </section>
   );
