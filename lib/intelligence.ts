@@ -16,7 +16,7 @@ import {
  * conversion-gap signal. "cancelled" is excluded -- stock was restored, so
  * counting it as a sale would be dishonest about what actually sold.
  */
-const SOLD_STATUSES = new Set<OrderStatus>(["open", "paid", "fulfilled", "refunded"]);
+export const SOLD_STATUSES = new Set<OrderStatus>(["open", "paid", "fulfilled", "refunded"]);
 
 // Self-relative "high traffic" threshold (confirmed decision, not an
 // invented absolute benchmark): a product counts as high-traffic if its

@@ -15,6 +15,7 @@ import {
   ShoppingCart,
   Cpu,
   Megaphone,
+  Radar,
 } from "lucide-react";
 import { Logo } from "@/components/shared/logo";
 import { cn } from "@/lib/utils";
@@ -29,6 +30,7 @@ const navGroups = [
     label: "Workflow",
     items: [
       { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+      { href: "/diagnostics", label: "What Changed", icon: Radar },
       { href: "/products", label: "Products", icon: Package },
       { href: "/readiness", label: "Readiness", icon: ShieldCheck },
       { href: "/export", label: "Export Center", icon: Download },

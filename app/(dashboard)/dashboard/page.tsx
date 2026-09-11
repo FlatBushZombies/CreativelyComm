@@ -24,6 +24,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { FadeIn, StaggerContainer, StaggerItem } from "@/components/shared/fade-in";
 import { CatalogHealthCard } from "@/components/dashboard/catalog-health-card";
+import { WhatsChangedCard } from "@/components/dashboard/whats-changed-card";
 import { getServerSession } from "@/lib/auth/session";
 import { getOrCreateDefaultWorkspace } from "@/lib/workspace";
 import { getDashboardStats } from "@/lib/stats";
@@ -31,6 +32,7 @@ import { getRecentActivity } from "@/lib/activity";
 import { getLowStockProducts } from "@/lib/inventory";
 import { getProducts } from "@/lib/products";
 import { getIntelligenceOverview, buildBlockerFixHref, type ConversionGapSignal } from "@/lib/intelligence";
+import { ensureTodaySnapshot, getWeekOverWeekComparison, getProductMovers } from "@/lib/diagnostics";
 
 // Same source photo as the landing page hero, for visual consistency between
 // the marketing site and the dashboard.
@@ -71,13 +73,21 @@ export default async function DashboardPage() {
   }
 
   const workspace = await getOrCreateDefaultWorkspace(session.user.id, session.user.name);
-  const [dashboardStats, activities, lowStockProducts, products, intelligence] = await Promise.all([
-    getDashboardStats(workspace.id),
-    getRecentActivity(workspace.id),
-    getLowStockProducts(workspace.id),
-    getProducts(workspace.id),
-    getIntelligenceOverview(workspace.id),
-  ]);
+
+  // Opportunistic write -- no cron exists in this app. Idempotent via
+  // unique(workspace_id, snapshot_date) + upsert, safe on every dashboard visit.
+  await ensureTodaySnapshot(workspace.id);
+
+  const [dashboardStats, activities, lowStockProducts, products, intelligence, weekComparison, productMovers] =
+    await Promise.all([
+      getDashboardStats(workspace.id),
+      getRecentActivity(workspace.id),
+      getLowStockProducts(workspace.id),
+      getProducts(workspace.id),
+      getIntelligenceOverview(workspace.id),
+      getWeekOverWeekComparison(workspace.id),
+      getProductMovers(workspace.id),
+    ]);
   const firstName = session.user.name.split(" ")[0];
 
   const overallReadinessScore = intelligence.readiness.products.length
@@ -260,8 +270,8 @@ export default async function DashboardPage() {
           </FadeIn>
         </div>
 
-        {/* Insights: most-viewed products + catalog health */}
-        <div className="mt-6 grid gap-6 lg:grid-cols-2">
+        {/* Insights: most-viewed products + what changed + catalog health */}
+        <div className="mt-6 grid gap-6 lg:grid-cols-3">
           <FadeIn delay={0.05}>
             <Card>
               <CardHeader>
@@ -301,6 +311,10 @@ export default async function DashboardPage() {
           </FadeIn>
 
           <FadeIn delay={0.1}>
+            <WhatsChangedCard comparison={weekComparison} topMovers={productMovers} />
+          </FadeIn>
+
+          <FadeIn delay={0.15}>
             <CatalogHealthCard
               overallScore={overallReadinessScore}
               productCount={products.length}
