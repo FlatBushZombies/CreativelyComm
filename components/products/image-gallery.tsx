@@ -3,10 +3,11 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { ChevronLeft, ChevronRight, Sparkles, Scissors, Loader2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Sparkles, Scissors, Loader2, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { removeBackgroundAction } from "@/app/(dashboard)/products/[id]/actions";
+import { downloadProductImagesZip } from "@/lib/zip-export";
 
 interface ImageGalleryProps {
   productId: string;
@@ -20,9 +21,23 @@ export function ImageGallery({ productId, images, optimizedImages, productName }
   const [showOptimized, setShowOptimized] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const [isZipping, setIsZipping] = useState(false);
   const router = useRouter();
 
   const displayImages = showOptimized ? optimizedImages : images;
+  const allImages = [...images, ...optimizedImages];
+
+  async function handleDownloadZip() {
+    setError(null);
+    setIsZipping(true);
+    try {
+      await downloadProductImagesZip(allImages, productName);
+    } catch {
+      setError("Failed to build the zip file. Please try again.");
+    } finally {
+      setIsZipping(false);
+    }
+  }
 
   function handleRemoveBackground() {
     const sourceUrl = images[selectedIndex];
@@ -144,6 +159,19 @@ export function ImageGallery({ productId, images, optimizedImages, productName }
           AI Optimized
         </button>
       </div>
+
+      {allImages.length > 0 && (
+        <Button
+          variant="outline"
+          size="sm"
+          className="w-full"
+          disabled={isZipping}
+          onClick={handleDownloadZip}
+        >
+          {isZipping ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />}
+          {isZipping ? "Building zip..." : `Download all images as .zip (${allImages.length})`}
+        </Button>
+      )}
     </div>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { Upload, Palette, Globe, Bell, CreditCard, Users, Copy, Check, Trash2, Store } from "lucide-react";
 import { DashboardHeader } from "@/components/dashboard/sidebar";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -507,21 +508,29 @@ export function SettingsClient({
                     <CreditCard className="h-4 w-4 text-primary" />
                     Current Plan
                   </CardTitle>
+                  <CardDescription>Every workspace runs on the free plan for now — no usage caps.</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="rounded-lg border border-primary/20 bg-accent/50 p-6">
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
                       <div>
-                        <p className="text-lg font-semibold">Growth Plan</p>
-                        <p className="text-sm text-muted-foreground">$79/month · Renews April 1, 2026</p>
+                        <div className="flex items-center gap-2">
+                          <p className="text-lg font-semibold">Free</p>
+                          <Badge variant="secondary">Current plan</Badge>
+                        </div>
+                        <p className="mt-1 text-sm text-muted-foreground">
+                          Everything included — products, AI optimizations, and storefronts, with no usage caps.
+                        </p>
                       </div>
-                      <Button variant="outline">Change Plan</Button>
+                      <Button asChild>
+                        <Link href="/#pricing">Upgrade</Link>
+                      </Button>
                     </div>
                     <Separator className="my-4" />
                     <div className="grid gap-4 sm:grid-cols-3 text-sm">
                       <div>
                         <p className="text-muted-foreground">Products</p>
-                        <p className="font-medium">24 / 500</p>
+                        <p className="font-medium">Unlimited</p>
                       </div>
                       <div>
                         <p className="text-muted-foreground">AI Optimizations</p>
@@ -529,7 +538,7 @@ export function SettingsClient({
                       </div>
                       <div>
                         <p className="text-muted-foreground">Storefronts</p>
-                        <p className="font-medium">1 / 3</p>
+                        <p className="font-medium">1</p>
                       </div>
                     </div>
                   </div>

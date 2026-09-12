@@ -1,8 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, FolderKanban, LayoutGrid, Search, SlidersHorizontal, Table2, X } from "lucide-react";
+import { ArrowLeft, FolderKanban, LayoutGrid, Search, SlidersHorizontal, Sparkles, Table2, X } from "lucide-react";
 import { DashboardHeader } from "@/components/dashboard/sidebar";
 import { ProductCard } from "@/components/products/product-card";
 import { FolderCard } from "@/components/products/folder-card";
@@ -13,8 +13,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { FadeIn, StaggerContainer, StaggerItem } from "@/components/shared/fade-in";
-import { bulkUpdateProductsAction } from "@/app/(dashboard)/products/actions";
-import { groupProductsIntoFolders, UNCATEGORIZED_KEY } from "@/lib/folder-utils";
+import { bulkUpdateProductsAction, autoOrganizeProductsAction } from "@/app/(dashboard)/products/actions";
+import { groupProductsIntoFolders, suggestCategoriesForUncategorized, UNCATEGORIZED_KEY } from "@/lib/folder-utils";
 import type { Product } from "@/lib/products";
 import { cn } from "@/lib/utils";
 
@@ -48,8 +48,29 @@ export function ProductsListClient({
   const [productIdFilter, setProductIdFilter] = useState<Set<string> | null>(
     initialProductIds && initialProductIds.length > 0 ? new Set(initialProductIds) : null
   );
+  const [isOrganizing, startOrganizing] = useTransition();
+  const [organizeMessage, setOrganizeMessage] = useState<string | null>(null);
 
   const folders = useMemo(() => groupProductsIntoFolders(products), [products]);
+  const organizableCount = useMemo(() => suggestCategoriesForUncategorized(products).length, [products]);
+
+  function handleAutoOrganize() {
+    setOrganizeMessage(null);
+    startOrganizing(async () => {
+      const result = await autoOrganizeProductsAction();
+      if (result.error) {
+        setOrganizeMessage(result.error);
+        return;
+      }
+      const count = result.organized ?? 0;
+      setOrganizeMessage(
+        count === 0
+          ? "No uncategorized products share enough tags with an existing folder yet."
+          : `Moved ${count} product${count === 1 ? "" : "s"} into folders based on shared tags.`
+      );
+      router.refresh();
+    });
+  }
   const filteredFolders = useMemo(() => {
     if (!search) return folders;
     const q = search.toLowerCase();
@@ -164,10 +185,20 @@ export function ProductsListClient({
                 <SlidersHorizontal className="h-4 w-4" />
                 Filters
               </Button>
+              {view === "folders" && organizableCount > 0 && (
+                <Button variant="outline" size="sm" onClick={handleAutoOrganize} disabled={isOrganizing}>
+                  <Sparkles className="h-4 w-4" />
+                  {isOrganizing ? "Organizing…" : `Auto-organize (${organizableCount})`}
+                </Button>
+              )}
               <ImportProductsDialog />
               <AddProductDialog />
             </div>
           </div>
+
+          {view === "folders" && organizeMessage && (
+            <p className="mt-3 text-sm text-muted-foreground">{organizeMessage}</p>
+          )}
 
           {view !== "folders" && (
             <div className="mt-4 flex flex-wrap items-center gap-2 overflow-x-auto pb-1">

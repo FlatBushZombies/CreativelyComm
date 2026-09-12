@@ -13,6 +13,9 @@ import {
   Sparkles,
   Loader2,
   Image as ImageIcon,
+  TrendingUp,
+  TrendingDown,
+  Minus,
 } from "lucide-react";
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
@@ -37,6 +40,7 @@ import type { ChannelReadiness } from "@/lib/readiness";
 import type { ProductVersion } from "@/lib/versions";
 import type { ProductTranslation } from "@/lib/translations";
 import type { ProductTrendSnapshot } from "@/lib/trends";
+import type { ProductPerformance } from "@/lib/diagnostics";
 import type { StockAdjustment, StockAdjustmentReason } from "@/lib/inventory";
 import type { SeoScore } from "@/lib/seo";
 import type { Vendor } from "@/lib/vendors";
@@ -74,6 +78,7 @@ interface ProductDetailsClientProps {
   vendors: Vendor[];
   trendsConfigured: boolean;
   trendSnapshot: ProductTrendSnapshot | null;
+  performance: ProductPerformance;
 }
 
 const stockReasons: StockAdjustmentReason[] = ["restock", "correction", "damaged"];
@@ -89,6 +94,7 @@ export function ProductDetailsClient({
   vendors,
   trendsConfigured,
   trendSnapshot,
+  performance,
 }: ProductDetailsClientProps) {
   const [copied, setCopied] = useState(false);
   const [expandedChannel, setExpandedChannel] = useState<string | null>(null);
@@ -280,6 +286,70 @@ export function ProductDetailsClient({
                   </div>
                 );
               })}
+            </CardContent>
+          </Card>
+        </FadeIn>
+
+        <FadeIn delay={0.122} className="mt-8">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base flex items-center gap-2">
+                <TrendingUp className="h-4 w-4 text-primary" />
+                Listing Performance
+              </CardTitle>
+              <p className="text-sm text-muted-foreground">
+                How this specific listing is doing, from your own order history — not an estimate.
+              </p>
+            </CardHeader>
+            <CardContent>
+              {performance.orderCount === 0 && performance.totalUnitsSold === 0 ? (
+                <p className="text-sm text-muted-foreground">
+                  No orders for this listing yet. Performance data will show up here once it sells.
+                </p>
+              ) : (
+                <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+                  <div>
+                    <div className="flex items-center gap-1.5">
+                      <p className="text-2xl font-bold">${performance.revenueLast7Days.toFixed(2)}</p>
+                      {performance.revenueChange !== 0 &&
+                        (performance.revenueChange > 0 ? (
+                          <TrendingUp className="h-4 w-4 text-emerald-600" />
+                        ) : (
+                          <TrendingDown className="h-4 w-4 text-red-600" />
+                        ))}
+                      {performance.revenueChange === 0 && <Minus className="h-4 w-4 text-muted-foreground" />}
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Revenue (7d)
+                      {performance.revenueChangePercent !== null && (
+                        <span className={performance.revenueChange >= 0 ? "text-emerald-600" : "text-red-600"}>
+                          {" "}
+                          {performance.revenueChange >= 0 ? "+" : ""}
+                          {performance.revenueChangePercent}%
+                        </span>
+                      )}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold">{performance.unitsLast7Days}</p>
+                    <p className="text-xs text-muted-foreground">Units sold (7d)</p>
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold">${performance.totalRevenue.toFixed(2)}</p>
+                    <p className="text-xs text-muted-foreground">Lifetime revenue</p>
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold">
+                      {product.views > 0
+                        ? `${Math.round((performance.totalUnitsSold / product.views) * 100)}%`
+                        : "—"}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {product.views > 0 ? "Views → sales" : "No views yet"}
+                    </p>
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
         </FadeIn>

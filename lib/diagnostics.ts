@@ -251,3 +251,69 @@ export async function getProductMovers(workspaceId: string, limit = 10): Promise
     })
   );
 }
+
+export interface ProductPerformance {
+  revenueLast7Days: number;
+  revenuePrior7Days: number;
+  revenueChange: number;
+  revenueChangePercent: number | null;
+  unitsLast7Days: number;
+  totalRevenue: number;
+  totalUnitsSold: number;
+  orderCount: number;
+}
+
+/**
+ * The single-product version of getProductMovers -- real order history
+ * scoped to one listing, same 7-day-swing math, for the product detail
+ * page's "how is this listing actually performing" panel.
+ */
+export async function getProductPerformance(productId: string, workspaceId: string): Promise<ProductPerformance> {
+  const orders = await getOrders(workspaceId);
+
+  const now = Date.now();
+  const sevenDaysMs = 7 * 24 * 60 * 60 * 1000;
+  const last7Start = now - sevenDaysMs;
+  const prior7Start = now - sevenDaysMs * 2;
+
+  let revenueLast7Days = 0;
+  let revenuePrior7Days = 0;
+  let unitsLast7Days = 0;
+  let totalRevenue = 0;
+  let totalUnitsSold = 0;
+  let orderCount = 0;
+
+  for (const order of orders) {
+    if (!SOLD_STATUSES.has(order.status)) continue;
+    const createdAt = new Date(order.createdAt).getTime();
+    let touchedThisOrder = false;
+
+    for (const item of order.items) {
+      if (item.productId !== productId) continue;
+      touchedThisOrder = true;
+      totalRevenue += item.lineTotal;
+      totalUnitsSold += item.quantity;
+      if (createdAt >= last7Start) {
+        revenueLast7Days += item.lineTotal;
+        unitsLast7Days += item.quantity;
+      } else if (createdAt >= prior7Start) {
+        revenuePrior7Days += item.lineTotal;
+      }
+    }
+
+    if (touchedThisOrder) orderCount++;
+  }
+
+  const revenueChange = revenueLast7Days - revenuePrior7Days;
+
+  return {
+    revenueLast7Days,
+    revenuePrior7Days,
+    revenueChange,
+    revenueChangePercent: revenuePrior7Days > 0 ? Math.round((revenueChange / revenuePrior7Days) * 100) : null,
+    unitsLast7Days,
+    totalRevenue,
+    totalUnitsSold,
+    orderCount,
+  };
+}

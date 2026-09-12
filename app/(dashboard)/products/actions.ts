@@ -8,12 +8,14 @@ import {
   createProduct,
   createProducts,
   bulkUpdateProducts,
+  getProducts,
   type CreateProductInput,
   type BulkProductUpdate,
 } from "@/lib/products";
 import { uploadProductImages } from "@/lib/storage";
 import { logActivity } from "@/lib/activity";
 import { parseProductsCsv } from "@/lib/import/parse";
+import { suggestCategoriesForUncategorized } from "@/lib/folder-utils";
 
 export interface CreateProductState {
   error?: string;
@@ -161,4 +163,62 @@ export async function bulkUpdateProductsAction(
 
   revalidatePath("/products");
   return { updated: updatedCount };
+}
+
+export interface AutoOrganizeState {
+  error?: string;
+  organized?: number;
+}
+
+/**
+ * Moves uncategorized products into an existing folder when their tags
+ * strongly overlap with an already-categorized folder's products
+ * (lib/folder-utils.ts suggestCategoriesForUncategorized). Products with no
+ * tag overlap are left Uncategorized rather than forced into a guess.
+ */
+export async function autoOrganizeProductsAction(): Promise<AutoOrganizeState> {
+  const session = await getServerSession();
+  if (!session) {
+    redirect("/login");
+  }
+
+  const workspace = await getOrCreateDefaultWorkspace(session.user.id, session.user.name);
+  const products = await getProducts(workspace.id);
+  const suggestions = suggestCategoriesForUncategorized(products);
+
+  if (suggestions.length === 0) {
+    return { organized: 0 };
+  }
+
+  const productsById = new Map(products.map((p) => [p.id, p]));
+  const updates: BulkProductUpdate[] = suggestions.map((suggestion) => {
+    const product = productsById.get(suggestion.productId)!;
+    return {
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      category: suggestion.suggestedCategory,
+      status: product.status,
+      sku: product.sku,
+      description: product.description,
+      tags: product.tags,
+    };
+  });
+
+  let organizedCount = 0;
+  try {
+    const result = await bulkUpdateProducts(workspace.id, updates);
+    organizedCount = result.length;
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "Failed to auto-organize products." };
+  }
+
+  await logActivity(workspace.id, {
+    type: "upload",
+    title: "Products auto-organized",
+    description: `${organizedCount} uncategorized product${organizedCount === 1 ? "" : "s"} moved into folders based on shared tags`,
+  });
+
+  revalidatePath("/products");
+  return { organized: organizedCount };
 }

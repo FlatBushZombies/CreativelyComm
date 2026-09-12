@@ -66,6 +66,13 @@ const statTileThemes = [
 ];
 const statIcons = [Package, ImageIcon, Eye, Download];
 
+function getGreeting(): string {
+  const hour = new Date().getHours();
+  if (hour < 12) return "Good morning";
+  if (hour < 18) return "Good afternoon";
+  return "Good evening";
+}
+
 export default async function DashboardPage() {
   const session = await getServerSession();
   if (!session) {
@@ -134,7 +141,7 @@ export default async function DashboardPage() {
               <div className="absolute inset-0 bg-gradient-to-r from-foreground/85 via-foreground/55 to-foreground/20" />
 
               <div className="relative max-w-md">
-                <p className="text-sm text-white/80">Good morning, {firstName} 👋</p>
+                <p className="text-sm text-white/80">{getGreeting()}, {firstName} 👋</p>
                 <h1 className="font-display mt-2 text-2xl font-medium tracking-tight text-white sm:text-3xl">
                   Your catalog, at a glance.
                 </h1>

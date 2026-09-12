@@ -4,6 +4,7 @@ import { Eye, Download, MoreHorizontal } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { colorForFolder, FOLDER_ICON_COMPONENTS, folderIconKey, UNCATEGORIZED_KEY } from "@/lib/folder-utils";
 import type { Product, ProductStatus } from "@/lib/products";
 
 const statusConfig: Record<ProductStatus, { label: string; variant: "success" | "warning" | "muted" | "default" }> = {
@@ -19,6 +20,10 @@ interface ProductCardProps {
 
 export function ProductCard({ product }: ProductCardProps) {
   const status = statusConfig[product.status];
+  const folderKey = product.category.trim() || UNCATEGORIZED_KEY;
+  const folderColor = colorForFolder(folderKey);
+  const iconKey = folderIconKey(folderKey);
+  const FolderIcon = FOLDER_ICON_COMPONENTS[iconKey];
 
   return (
     <Card className="group overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:card-shadow-glow hover:border-primary/25">
@@ -49,7 +54,13 @@ export function ProductCard({ product }: ProductCardProps) {
                 {product.name}
               </h3>
             </Link>
-            <p className="text-sm text-muted-foreground">{product.category}</p>
+            <span
+              className="mt-1.5 inline-flex max-w-full items-center gap-1 truncate rounded-full px-2 py-0.5 text-xs font-medium"
+              style={{ backgroundColor: `${folderColor.from}1a`, color: folderColor.from }}
+            >
+              <FolderIcon className="h-3 w-3 shrink-0" />
+              <span className="truncate">{folderKey}</span>
+            </span>
           </div>
           <Button variant="ghost" size="icon" className="shrink-0 h-8 w-8">
             <MoreHorizontal className="h-4 w-4" />

@@ -243,7 +243,12 @@ export async function updateProduct(
 
   // Loop guard: only push outbound when this change didn't originate FROM
   // Shopify itself, otherwise an inbound webhook would echo straight back out.
-  const touchedSyncableField = input.name !== undefined || input.description !== undefined || input.price !== undefined;
+  const touchedSyncableField =
+    input.name !== undefined ||
+    input.description !== undefined ||
+    input.price !== undefined ||
+    input.category !== undefined ||
+    input.sku !== undefined;
   if (touchedSyncableField && input.source !== "shopify") {
     await syncProductToShopify(workspaceId, {
       id: product.id,
@@ -445,7 +450,26 @@ export async function bulkUpdateProducts(
     throw new Error(`Failed to bulk update products: ${error?.message}`);
   }
 
-  return (data as ProductRow[]).map(mapRow);
+  const products = (data as ProductRow[]).map(mapRow);
+
+  // Bulk edits (including folder rename/auto-organize, which only touch
+  // category) need the same outbound push as a single-product edit gets --
+  // previously this path silently never synced to Shopify at all.
+  await Promise.all(
+    products.map((product) =>
+      syncProductToShopify(workspaceId, {
+        id: product.id,
+        name: product.name,
+        description: product.description,
+        price: product.price,
+        sku: product.sku,
+        category: product.category,
+        imageUrl: product.optimizedImages[0] || product.images[0] || null,
+      })
+    )
+  );
+
+  return products;
 }
 
 /**

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { ArrowRight, File, Folder, Loader2, MoreVertical, Pencil } from "lucide-react";
+import { ArrowRight, File, Loader2, MoreVertical, Pencil } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -30,6 +30,7 @@ export function FolderCard({ folder, onOpen, onRename }: FolderCardProps) {
   const [saving, setSaving] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const isUncategorized = folder.key === UNCATEGORIZED_KEY;
+  const FolderIcon = folder.icon;
 
   useEffect(() => {
     if (renaming) {
@@ -71,7 +72,7 @@ export function FolderCard({ folder, onOpen, onRename }: FolderCardProps) {
           </div>
         ))}
         {folder.thumbnails.length === 0 && (
-          <Folder className="absolute inset-0 m-auto h-10 w-10 text-white/40" strokeWidth={1.5} />
+          <FolderIcon className="absolute inset-0 m-auto h-10 w-10 text-white/40" strokeWidth={1.5} />
         )}
       </div>
 
@@ -80,7 +81,7 @@ export function FolderCard({ folder, onOpen, onRename }: FolderCardProps) {
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0">
             <div className="flex items-center gap-2">
-              <Folder className="h-4 w-4 shrink-0" style={{ color: folder.gradient.to }} />
+              <FolderIcon className="h-4 w-4 shrink-0" style={{ color: folder.gradient.to }} />
               {renaming ? (
                 <input
                   ref={inputRef}

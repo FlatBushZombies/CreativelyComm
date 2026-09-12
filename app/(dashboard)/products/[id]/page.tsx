@@ -9,6 +9,7 @@ import { getStockHistory } from "@/lib/inventory";
 import { computeSeoScore } from "@/lib/seo";
 import { getVendors } from "@/lib/vendors";
 import { isTrendsConfigured, getStoredTrendSnapshot } from "@/lib/trends";
+import { getProductPerformance } from "@/lib/diagnostics";
 import { ProductDetailsClient } from "./product-details-client";
 
 interface ProductDetailsPageProps {
@@ -29,14 +30,16 @@ export default async function ProductDetailsPage({ params }: ProductDetailsPageP
     notFound();
   }
 
-  const [channelReadiness, versions, translations, stockHistory, vendors, trendSnapshot] = await Promise.all([
-    getChannelsWithReadiness(product, workspace.id),
-    getProductVersions(product.id, workspace.id),
-    getProductTranslations(product.id, workspace.id),
-    getStockHistory(product.id, workspace.id),
-    getVendors(workspace.id),
-    getStoredTrendSnapshot(product.id, workspace.id),
-  ]);
+  const [channelReadiness, versions, translations, stockHistory, vendors, trendSnapshot, performance] =
+    await Promise.all([
+      getChannelsWithReadiness(product, workspace.id),
+      getProductVersions(product.id, workspace.id),
+      getProductTranslations(product.id, workspace.id),
+      getStockHistory(product.id, workspace.id),
+      getVendors(workspace.id),
+      getStoredTrendSnapshot(product.id, workspace.id),
+      getProductPerformance(product.id, workspace.id),
+    ]);
   const seoScore = computeSeoScore(product);
   const trendsConfigured = isTrendsConfigured();
 
@@ -55,6 +58,7 @@ export default async function ProductDetailsPage({ params }: ProductDetailsPageP
       vendors={vendors}
       trendsConfigured={trendsConfigured}
       trendSnapshot={trendSnapshot}
+      performance={performance}
     />
   );
 }
