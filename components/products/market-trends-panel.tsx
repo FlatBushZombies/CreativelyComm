@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { TrendingUp, Loader2, Globe2, Clock } from "lucide-react";
+import posthog from "posthog-js";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -102,6 +103,7 @@ export function MarketTrendsPanel({
         return;
       }
       if (result.snapshot) {
+        posthog.capture("market_trends_checked", { product_id: productId });
         setCurrent(result.snapshot);
         router.refresh();
       }

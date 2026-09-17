@@ -4,6 +4,7 @@ import { useMemo, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Search, Copy, Trash2, Play, Pause } from "lucide-react";
+import posthog from "posthog-js";
 import { DashboardHeader } from "@/components/dashboard/sidebar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -63,6 +64,7 @@ export function CampaignsListClient({ campaigns }: CampaignsListClientProps) {
     formData.set("campaignId", id);
     startTransition(async () => {
       await duplicateCampaignAction(formData);
+      posthog.capture("campaign_duplicated");
       router.refresh();
     });
   }
@@ -72,16 +74,19 @@ export function CampaignsListClient({ campaigns }: CampaignsListClientProps) {
     formData.set("campaignId", id);
     startTransition(async () => {
       await deleteCampaignAction(formData);
+      posthog.capture("campaign_deleted");
       router.refresh();
     });
   }
 
   function handleToggleStatus(id: string, current: CampaignStatus) {
+    const nextStatus = current === "active" ? "paused" : "active";
     const formData = new FormData();
     formData.set("campaignId", id);
-    formData.set("status", current === "active" ? "paused" : "active");
+    formData.set("status", nextStatus);
     startTransition(async () => {
       await setCampaignStatusAction(formData);
+      posthog.capture("campaign_status_changed", { status: nextStatus });
       router.refresh();
     });
   }

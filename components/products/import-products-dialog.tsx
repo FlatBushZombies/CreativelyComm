@@ -14,6 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { importProductsAction, type ImportProductsState } from "@/app/(dashboard)/products/actions";
 import { generateTemplateCsv } from "@/lib/import/template";
+import posthog from "posthog-js";
 
 export function ImportProductsDialog() {
   const [open, setOpen] = useState(false);
@@ -50,6 +51,7 @@ export function ImportProductsDialog() {
       const res = await importProductsAction(formData);
       setResult(res);
       if (!res.error) {
+        posthog.capture("products_imported", { imported_count: res.imported ?? 0 });
         formRef.current?.reset();
         setFileName(null);
         router.refresh();

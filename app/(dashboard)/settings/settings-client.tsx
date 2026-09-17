@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Upload, Palette, Globe, Bell, CreditCard, Users, Copy, Check, Trash2, Store } from "lucide-react";
+import posthog from "posthog-js";
 import { DashboardHeader } from "@/components/dashboard/sidebar";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -132,7 +133,11 @@ export function SettingsClient({
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <form action={inviteTeamMember} className="flex flex-col gap-3 sm:flex-row">
+                    <form
+                      action={inviteTeamMember}
+                      onSubmit={() => posthog.capture("team_member_invited")}
+                      className="flex flex-col gap-3 sm:flex-row"
+                    >
                       <Input
                         name="email"
                         type="email"
@@ -188,7 +193,7 @@ export function SettingsClient({
                           <CopyInviteLink token={member.inviteToken} />
                         )}
                         {canManageTeam && member.role !== "owner" && member.userId !== currentUserId && (
-                          <form action={removeTeamMember}>
+                          <form action={removeTeamMember} onSubmit={() => posthog.capture("team_member_removed")}>
                             <input type="hidden" name="memberId" value={member.id} />
                             <Button variant="ghost" size="icon" type="submit" className="h-8 w-8">
                               <Trash2 className="h-4 w-4 text-red-500" />
@@ -216,7 +221,11 @@ export function SettingsClient({
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <form action={createVendorAction} className="grid gap-3 sm:grid-cols-3">
+                    <form
+                      action={createVendorAction}
+                      onSubmit={() => posthog.capture("vendor_created")}
+                      className="grid gap-3 sm:grid-cols-3"
+                    >
                       <Input name="name" placeholder="Vendor name" required />
                       <Input name="contactEmail" type="email" placeholder="Contact email (optional)" />
                       <Input name="inviteEmail" type="email" placeholder="Invite a user (optional)" />
@@ -253,7 +262,7 @@ export function SettingsClient({
                         <div className="flex items-center gap-2">
                           <Badge variant={vendor.status === "active" ? "success" : "muted"}>{vendor.status}</Badge>
                           {canManageVendors && vendor.status === "active" && (
-                            <form action={archiveVendorAction}>
+                            <form action={archiveVendorAction} onSubmit={() => posthog.capture("vendor_archived")}>
                               <input type="hidden" name="vendorId" value={vendor.id} />
                               <Button variant="ghost" size="icon" type="submit" className="h-8 w-8">
                                 <Trash2 className="h-4 w-4 text-red-500" />
@@ -289,7 +298,11 @@ export function SettingsClient({
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <form action={saveBrandingAction} className="space-y-6">
+                  <form
+                    action={saveBrandingAction}
+                    onSubmit={() => posthog.capture("branding_saved")}
+                    className="space-y-6"
+                  >
                     <input type="hidden" name="brandColor" value={brandColor} />
                     <div className="flex flex-col sm:flex-row gap-6">
                       <div className="flex flex-col items-center gap-3">

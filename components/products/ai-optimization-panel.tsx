@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { BackgroundComposer } from "@/components/products/background-composer";
 import { aiFeatures } from "@/lib/mock-data";
+import posthog from "posthog-js";
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   scissors: Scissors,
@@ -79,7 +80,11 @@ export function AIOptimizationPanel({ productId, productName, cutoutImage }: AIO
                   variant="outline"
                   size="sm"
                   disabled={!cutoutImage}
-                  onClick={() => setComposerMode(feature.id === "lifestyle" ? "lifestyle" : "white")}
+                  onClick={() => {
+                    const mode = feature.id === "lifestyle" ? "lifestyle" : "white";
+                    posthog.capture("ai_image_composer_opened", { mode });
+                    setComposerMode(mode);
+                  }}
                 >
                   Open
                 </Button>

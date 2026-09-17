@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { FadeIn } from "@/components/shared/fade-in";
 import type { Product } from "@/lib/products";
 import { createOrderAction } from "../actions";
+import posthog from "posthog-js";
 
 interface NewOrderClientProps {
   products: Product[];
@@ -109,6 +110,12 @@ export function NewOrderClient({ products, source = "manual" }: NewOrderClientPr
       return;
     }
 
+    posthog.capture("order_created", {
+      source,
+      payment_method: paymentMethod || "unpaid",
+      item_count: lineItems.reduce((count, item) => count + item.quantity, 0),
+      order_total: total,
+    });
     router.push(`/orders/${result.orderId}`);
   }
 

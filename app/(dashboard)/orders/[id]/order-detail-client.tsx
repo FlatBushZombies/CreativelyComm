@@ -1,6 +1,7 @@
 "use client";
 
 import { Printer } from "lucide-react";
+import posthog from "posthog-js";
 import { DashboardHeader } from "@/components/dashboard/sidebar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -52,7 +53,11 @@ export function OrderDetailClient({ order, storeName }: { order: Order; storeNam
                 Print receipt
               </Button>
               {actions.map((action) => (
-                <form key={action.status} action={updateOrderStatusAction}>
+                <form
+                  key={action.status}
+                  action={updateOrderStatusAction}
+                  onSubmit={() => posthog.capture("order_status_changed", { status: action.status })}
+                >
                   <input type="hidden" name="orderId" value={order.id} />
                   <input type="hidden" name="status" value={action.status} />
                   <Button type="submit" variant={action.status === "cancelled" ? "outline" : "default"}>

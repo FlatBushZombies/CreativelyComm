@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CameraCapture } from "@/components/hardware/camera-capture";
 import { Camera, Check, Loader2 } from "lucide-react";
+import posthog from "posthog-js";
 import {
   setHardwareEnabledAction,
   saveHardwareConfigAction,
@@ -44,6 +45,7 @@ export function CaptureDockConfig({ enabled: initialEnabled, config, products }:
     setEnabled(next);
     startTransition(async () => {
       await setHardwareEnabledAction("capture-dock", next);
+      posthog.capture("hardware_feature_toggled", { feature: "capture-dock", enabled: next });
     });
   }
 
@@ -87,6 +89,7 @@ export function CaptureDockConfig({ enabled: initialEnabled, config, products }:
         setError(result.error);
         return;
       }
+      posthog.capture("capture_shots_attached", { shot_count: shots.length });
       setAttached(true);
     });
   }

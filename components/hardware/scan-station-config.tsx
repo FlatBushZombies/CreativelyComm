@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { BarcodeScannerInput } from "@/components/hardware/barcode-scanner-input";
 import { Barcode, Printer, CheckCircle2, XCircle } from "lucide-react";
+import posthog from "posthog-js";
 import { setHardwareEnabledAction, logScanEventAction } from "@/app/(dashboard)/hardware/actions";
 import type { ScanAction, ScanEvent } from "@/lib/hardware";
 
@@ -57,12 +58,14 @@ export function ScanStationConfig({ enabled: initialEnabled, recentScans }: Scan
     setEnabled(next);
     startTransition(async () => {
       await setHardwareEnabledAction("scan-station", next);
+      posthog.capture("hardware_feature_toggled", { feature: "scan-station", enabled: next });
     });
   }
 
   function handleScan(barcode: string) {
     startTransition(async () => {
       const result = await logScanEventAction(barcode, scanAction);
+      posthog.capture("barcode_scanned", { scan_action: scanAction, matched: result.matched });
       setLastResult({
         matched: result.matched,
         stockUpdated: result.stockUpdated,

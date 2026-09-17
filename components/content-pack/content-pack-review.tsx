@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, Download, RefreshCw, Check, Archive, ImageOff } from "lucide-react";
+import posthog from "posthog-js";
 import { loadImage, drawCover, drawContainCentered, drawTextBanner, slugifyFilename } from "@/lib/image-fit";
 import { computeProductBounds, computeSmartOffset } from "@/lib/smart-crop";
 import { generateLifestyleBackground } from "@/lib/puter";
@@ -177,6 +178,7 @@ export function ContentPackReview({
     try {
       const completed = assets.filter((a): a is ContentPackAsset & { imageUrl: string } => a.status === "completed" && !!a.imageUrl);
       await downloadContentPackZip(completed, product.name);
+      posthog.capture("content_pack_zip_downloaded", { product_id: product.id, asset_count: completed.length });
     } catch {
       setZipError("Couldn't build the zip file. Try downloading assets individually.");
     } finally {

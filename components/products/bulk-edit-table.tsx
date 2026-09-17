@@ -3,6 +3,7 @@
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2, Save } from "lucide-react";
+import posthog from "posthog-js";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -95,6 +96,7 @@ export function BulkEditTable({ products }: { products: Product[] }) {
         setError(result.error);
         return;
       }
+      posthog.capture("products_bulk_edited", { updated_count: result.updated ?? 0 });
       setSavedCount(result.updated);
       router.refresh();
     });

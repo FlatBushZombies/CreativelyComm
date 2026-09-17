@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { CreditCard, ArrowRight } from "lucide-react";
+import posthog from "posthog-js";
 import { setHardwareEnabledAction } from "@/app/(dashboard)/hardware/actions";
 import type { Order } from "@/lib/orders";
 
@@ -32,6 +33,7 @@ export function QuickSale({ enabled: initialEnabled, recentSales }: QuickSalePro
     setEnabled(next);
     startTransition(async () => {
       await setHardwareEnabledAction("quick-sale", next);
+      posthog.capture("hardware_feature_toggled", { feature: "quick-sale", enabled: next });
     });
   }
 

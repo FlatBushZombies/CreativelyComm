@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Plus, Trash2, Settings2 } from "lucide-react";
+import posthog from "posthog-js";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -39,6 +40,7 @@ export function ManageRules({
       setError(result.error);
       return;
     }
+    posthog.capture("custom_readiness_rule_created", { check_type: checkType });
     setShowForm(false);
   }
 
@@ -169,7 +171,7 @@ export function ManageRules({
                       Checks &quot;{String(rule.config.field)}&quot; · weight {rule.weight}
                     </p>
                   </div>
-                  <form action={deleteCustomRuleAction}>
+                  <form action={deleteCustomRuleAction} onSubmit={() => posthog.capture("custom_readiness_rule_deleted")}>
                     <input type="hidden" name="ruleId" value={rule.id} />
                     <input type="hidden" name="channelName" value={channel?.name ?? ""} />
                     <Button type="submit" variant="ghost" size="icon" className="h-8 w-8 shrink-0">

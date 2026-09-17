@@ -16,6 +16,7 @@ import {
 } from "@/app/(dashboard)/campaigns/actions";
 import type { Product } from "@/lib/products";
 import type { Campaign } from "@/lib/campaigns";
+import posthog from "posthog-js";
 
 interface CampaignWorkspaceProps {
   campaign: Campaign;
@@ -52,10 +53,16 @@ export function CampaignWorkspace({ campaign, product, brandName }: CampaignWork
     try {
       const generated = await generateProductCampaign(product, nextSettings);
       setContent(generated);
-      await Promise.all([
+      const [contentResult, settingsResult] = await Promise.all([
         saveGeneratedCampaignContentAction(campaign.id, generated),
         updateCampaignSettingsAction(campaign.id, nextSettings),
       ]);
+      if (!contentResult.error && !settingsResult.error) {
+        posthog.capture("campaign_generated", {
+          channel: nextSettings.channel,
+          objective: nextSettings.objective,
+        });
+      }
       setTab("edit");
       router.refresh();
     } catch (err) {
@@ -69,7 +76,10 @@ export function CampaignWorkspace({ campaign, product, brandName }: CampaignWork
     setSaving(true);
     setSaved(false);
     try {
-      await updateCampaignContentAction(campaign.id, content);
+      const result = await updateCampaignContentAction(campaign.id, content);
+      if (!result.error) {
+        posthog.capture("campaign_content_saved", { channel: settings.channel });
+      }
       router.refresh();
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);

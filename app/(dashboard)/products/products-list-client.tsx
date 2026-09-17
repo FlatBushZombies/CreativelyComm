@@ -3,6 +3,7 @@
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, FolderKanban, LayoutGrid, Search, SlidersHorizontal, Sparkles, Table2, X } from "lucide-react";
+import posthog from "posthog-js";
 import { DashboardHeader } from "@/components/dashboard/sidebar";
 import { ProductCard } from "@/components/products/product-card";
 import { FolderCard } from "@/components/products/folder-card";
@@ -63,6 +64,7 @@ export function ProductsListClient({
         return;
       }
       const count = result.organized ?? 0;
+      posthog.capture("products_auto_organized", { organized_count: count });
       setOrganizeMessage(
         count === 0
           ? "No uncategorized products share enough tags with an existing folder yet."
@@ -125,6 +127,7 @@ export function ProductsListClient({
       }))
     );
 
+    posthog.capture("folder_renamed", { product_count: affected.length });
     if (activeFolder === oldKey) setActiveFolder(nextName);
     router.refresh();
   }

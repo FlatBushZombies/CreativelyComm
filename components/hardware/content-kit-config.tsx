@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Package } from "lucide-react";
+import posthog from "posthog-js";
 import { requestContentKitAction } from "@/app/(dashboard)/hardware/actions";
 import type { ContentKitRequest } from "@/lib/hardware";
 
@@ -41,6 +42,7 @@ export function ContentKitConfig({ requests }: ContentKitConfigProps) {
         setError(result.error);
         return;
       }
+      posthog.capture("content_kit_requested");
       setShippingAddress("");
       setSubmitted(true);
     });

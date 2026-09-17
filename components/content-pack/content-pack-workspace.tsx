@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import posthog from "posthog-js";
 import { ContentPackSetup, type ContentPackGenerationRequest, type TextOverlayInput } from "@/components/content-pack/content-pack-setup";
 import { ContentPackReview } from "@/components/content-pack/content-pack-review";
 import { createContentPackAction, saveVisionInsightAction } from "@/app/(dashboard)/products/[id]/content-pack/actions";
@@ -34,6 +35,11 @@ export function ContentPackWorkspace({ product, existingPack, existingAssets }: 
       if (request.visionInsight) {
         await saveVisionInsightAction(result.contentPackId, request.visionInsight);
       }
+      posthog.capture("content_pack_generated", {
+        product_id: product.id,
+        platform_count: request.platformIds.length,
+        creative_type_count: request.creativeTypeIds.length,
+      });
       setSourceImageUrl(request.sourceImageUrl);
       setTextOverlay(request.textOverlay);
       setJustCreated(true);

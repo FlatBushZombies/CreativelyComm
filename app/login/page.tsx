@@ -3,6 +3,7 @@
 import { Suspense, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
+import posthog from "posthog-js";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -35,7 +36,10 @@ function LoginForm() {
     await authClient.signIn.email(
       { email, password },
       {
-        onSuccess: () => router.push(redirectTo),
+        onSuccess: () => {
+          posthog.capture("user_logged_in");
+          router.push(redirectTo);
+        },
         onError: (ctx) => setError(ctx.error.message ?? "Failed to sign in."),
       }
     );

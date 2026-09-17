@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Languages, Loader2, Trash2 } from "lucide-react";
+import posthog from "posthog-js";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import type { ProductTranslation } from "@/lib/translations";
@@ -38,6 +39,7 @@ export function TranslationsPanel({
         setError(result.error);
         return;
       }
+      posthog.capture("product_translated", { product_id: productId, locale });
       router.refresh();
     });
   }

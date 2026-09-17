@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect } from "react";
 import { AlertTriangle, RotateCw } from "lucide-react";
+import posthog from "posthog-js";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/shared/logo";
 
@@ -14,6 +15,7 @@ export default function GlobalErrorBoundary({
   reset: () => void;
 }) {
   useEffect(() => {
+    posthog.captureException(error);
     console.error(error);
   }, [error]);
 

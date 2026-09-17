@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Key, Plus, Trash2, Copy, Check, Loader2, AlertTriangle } from "lucide-react";
+import posthog from "posthog-js";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,6 +26,7 @@ export function ApiKeysPanel({ apiKeys }: { apiKeys: ApiKey[] }) {
         setError(result.error);
         return;
       }
+      posthog.capture("api_key_created");
       setNewKey(result.plaintext ?? null);
       setName("");
       router.refresh();
@@ -108,7 +110,7 @@ export function ApiKeysPanel({ apiKeys }: { apiKeys: ApiKey[] }) {
                         : "Never used"}
                     </p>
                   </div>
-                  <form action={revokeApiKeyAction}>
+                  <form action={revokeApiKeyAction} onSubmit={() => posthog.capture("api_key_revoked")}>
                     <input type="hidden" name="keyId" value={key.id} />
                     <Button type="submit" variant="ghost" size="icon" className="h-8 w-8 shrink-0">
                       <Trash2 className="h-4 w-4 text-red-500" />

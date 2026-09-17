@@ -17,6 +17,7 @@ import {
   TrendingDown,
   Minus,
 } from "lucide-react";
+import posthog from "posthog-js";
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { DashboardHeader } from "@/components/dashboard/sidebar";
@@ -121,6 +122,7 @@ export function ProductDetailsClient({
         setCampaignError(result.error || "Couldn't start a campaign.");
         return;
       }
+      posthog.capture("campaign_started_from_product", { product_id: product.id });
       router.push(`/campaigns/${result.campaignId}`);
     });
   }
@@ -186,6 +188,7 @@ export function ProductDetailsClient({
                         const formData = new FormData();
                         formData.set("productId", product.id);
                         formData.set("vendorId", next);
+                        posthog.capture("product_vendor_assigned", { assigned: Boolean(next) });
                         assignVendorAction(formData);
                       }}
                     >
@@ -380,8 +383,12 @@ export function ProductDetailsClient({
                       action={async (formData) => {
                         setStockError(undefined);
                         const result = await adjustStockAction(formData);
-                        if (result.error) setStockError(result.error);
-                        else setStockDelta("");
+                        if (result.error) {
+                          setStockError(result.error);
+                        } else {
+                          posthog.capture("stock_adjusted", { reason: stockReason, delta: Number(stockDelta) });
+                          setStockDelta("");
+                        }
                       }}
                       className="flex flex-wrap gap-2"
                     >
@@ -453,6 +460,7 @@ export function ProductDetailsClient({
                     setSeoError(undefined);
                     const result = await updateSeoAction(formData);
                     if (result.error) setSeoError(result.error);
+                    else posthog.capture("seo_updated", { product_id: product.id });
                   }}
                   className="space-y-3"
                 >

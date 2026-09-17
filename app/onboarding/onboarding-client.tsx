@@ -12,6 +12,7 @@ import { Progress } from "@/components/ui/progress";
 import { Logo } from "@/components/shared/logo";
 import { cn } from "@/lib/utils";
 import { saveStoreNameAction } from "./actions";
+import posthog from "posthog-js";
 
 const channels = [
   { id: "shopify", label: "Shopify", icon: SiShopify },
@@ -51,6 +52,7 @@ export function OnboardingClient({
   function goToStep1() {
     startTransition(async () => {
       await saveStoreNameAction(storeName);
+      posthog.capture("onboarding_store_name_saved");
       setStep(2);
     });
   }
@@ -177,13 +179,21 @@ export function OnboardingClient({
 
               <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
                 <Button size="lg" className="w-full rounded-full sm:w-auto" asChild>
-                  <Link href="/products">
+                  <Link
+                    href="/products"
+                    onClick={() => posthog.capture("onboarding_completed", { destination: "products", selected_channel_count: selectedChannels.size })}
+                  >
                     Add your first product
                     <ArrowRight className="h-4 w-4" />
                   </Link>
                 </Button>
                 <Button size="lg" variant="ghost" className="w-full rounded-full sm:w-auto" asChild>
-                  <Link href="/dashboard">Go to dashboard</Link>
+                  <Link
+                    href="/dashboard"
+                    onClick={() => posthog.capture("onboarding_completed", { destination: "dashboard", selected_channel_count: selectedChannels.size })}
+                  >
+                    Go to dashboard
+                  </Link>
                 </Button>
               </div>
             </div>

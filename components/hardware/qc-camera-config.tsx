@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CameraCapture } from "@/components/hardware/camera-capture";
 import { Eye, Check } from "lucide-react";
+import posthog from "posthog-js";
 import { setHardwareEnabledAction, uploadQCPhotoAction } from "@/app/(dashboard)/hardware/actions";
 import type { QCPhoto } from "@/lib/hardware";
 
@@ -29,6 +30,7 @@ export function QCCameraConfig({ enabled: initialEnabled, openOrders, recentPhot
     setEnabled(next);
     startTransition(async () => {
       await setHardwareEnabledAction("qc-camera", next);
+      posthog.capture("hardware_feature_toggled", { feature: "qc-camera", enabled: next });
     });
   }
 
@@ -47,6 +49,7 @@ export function QCCameraConfig({ enabled: initialEnabled, openOrders, recentPhot
         setError(result.error);
         return;
       }
+      posthog.capture("qc_photo_captured");
       setError(null);
       setSavedForOrder(selectedOrderId);
     });

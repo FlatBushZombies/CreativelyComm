@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { ChevronLeft, ChevronRight, Sparkles, Scissors, Loader2, Download } from "lucide-react";
+import posthog from "posthog-js";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { removeBackgroundAction } from "@/app/(dashboard)/products/[id]/actions";
@@ -32,6 +33,7 @@ export function ImageGallery({ productId, images, optimizedImages, productName }
     setIsZipping(true);
     try {
       await downloadProductImagesZip(allImages, productName);
+      posthog.capture("product_images_zip_downloaded", { image_count: allImages.length });
     } catch {
       setError("Failed to build the zip file. Please try again.");
     } finally {
@@ -49,6 +51,7 @@ export function ImageGallery({ productId, images, optimizedImages, productName }
         setError(result.error);
         return;
       }
+      posthog.capture("background_removed", { product_id: productId });
       setShowOptimized(true);
       setSelectedIndex(0);
       router.refresh();

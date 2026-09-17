@@ -17,6 +17,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { createProductAction } from "@/app/(dashboard)/products/actions";
+import posthog from "posthog-js";
 
 export function AddProductDialog() {
   const [open, setOpen] = useState(false);
@@ -70,6 +71,11 @@ export function AddProductDialog() {
         setError(result.error);
         return;
       }
+      posthog.capture("product_created", {
+        has_category: Boolean(formData.get("category")),
+        has_price: Boolean(formData.get("price")),
+        image_count: previews.length,
+      });
       handleOpenChange(false);
       formRef.current?.reset();
       router.refresh();

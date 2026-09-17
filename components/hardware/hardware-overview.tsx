@@ -5,6 +5,7 @@ import { CardContent, CardDescription, CardHeader, CardTitle } from "@/component
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Camera, Barcode, Eye, CreditCard, Package, CheckCircle2 } from "lucide-react";
+import posthog from "posthog-js";
 import { HARDWARE_FEATURES, type HardwareFeature, type HardwareSetting } from "@/lib/hardware-catalog";
 import { setHardwareEnabledAction } from "@/app/(dashboard)/hardware/actions";
 import { cn } from "@/lib/utils";
@@ -40,6 +41,7 @@ export function HardwareOverview({ settings, onSelectTab }: HardwareOverviewProp
   function handleEnable(featureId: HardwareFeature) {
     startTransition(async () => {
       await setHardwareEnabledAction(featureId, true);
+      posthog.capture("hardware_feature_toggled", { feature: featureId, enabled: true });
       router.refresh();
     });
   }

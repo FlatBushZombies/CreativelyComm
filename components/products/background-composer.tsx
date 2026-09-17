@@ -12,6 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2, Sparkles, Square as SquareIcon, Check } from "lucide-react";
+import posthog from "posthog-js";
 import { loadImage, drawCover, drawContainCentered, canvasToDownload } from "@/lib/image-fit";
 import { generateLifestyleBackground } from "@/lib/puter";
 import { saveComposedImageAction } from "@/app/(dashboard)/products/[id]/actions";
@@ -139,6 +140,7 @@ export function BackgroundComposer({
             setError(result.error);
             return;
           }
+          posthog.capture("composed_image_saved", { mode });
           setSaved(true);
         });
       },

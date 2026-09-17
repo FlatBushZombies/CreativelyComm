@@ -3,11 +3,13 @@
 import { useState } from "react";
 import { Download, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import posthog from "posthog-js";
 
 export function ExportAllButton({ channels }: { channels: string[] }) {
   const [isExporting, setIsExporting] = useState(false);
 
   async function handleExportAll() {
+    posthog.capture("platform_exports_started", { channel_count: channels.length });
     setIsExporting(true);
     for (const channel of channels) {
       const a = document.createElement("a");

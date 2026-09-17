@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import posthog from "posthog-js";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,7 +27,10 @@ export default function SignupPage() {
     await authClient.signUp.email(
       { name, email, password },
       {
-        onSuccess: () => router.push("/onboarding"),
+        onSuccess: () => {
+          posthog.capture("user_signed_up");
+          router.push("/onboarding");
+        },
         onError: (ctx) => setError(ctx.error.message ?? "Failed to create account."),
       }
     );

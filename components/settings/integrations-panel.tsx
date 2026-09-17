@@ -18,6 +18,7 @@ import {
   disconnectIntegrationAction,
   regenerateFeedTokenAction,
 } from "@/app/(dashboard)/settings/actions";
+import posthog from "posthog-js";
 
 function statusBadge(status: IntegrationSummary["status"]) {
   if (status === "connected") return <Badge variant="success">Connected</Badge>;
@@ -97,6 +98,7 @@ function ShopifyCard({ integration }: { integration?: IntegrationSummary }) {
         setError(result.error);
         return;
       }
+      posthog.capture("integration_connected", { provider: "shopify" });
       setShopDomain("");
       setAccessToken("");
       setApiSecret("");
@@ -179,6 +181,7 @@ function SlackCard({ integration }: { integration?: IntegrationSummary }) {
         setError(result.error);
         return;
       }
+      posthog.capture("integration_connected", { provider: "slack" });
       setWebhookUrl("");
       router.refresh();
     });
@@ -187,6 +190,7 @@ function SlackCard({ integration }: { integration?: IntegrationSummary }) {
   function handleTest() {
     startTransition(async () => {
       await testSlackNotificationAction();
+      posthog.capture("slack_test_message_sent");
       setTestSent(true);
       setTimeout(() => setTestSent(false), 2500);
     });
@@ -326,6 +330,7 @@ function FeedCard({ googleFeedUrl, facebookFeedUrl }: { googleFeedUrl: string; f
           action={() =>
             startTransition(async () => {
               await regenerateFeedTokenAction();
+              posthog.capture("feed_token_regenerated");
               router.refresh();
             })
           }
