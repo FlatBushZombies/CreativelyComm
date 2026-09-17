@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard,
   Package,
@@ -16,14 +16,25 @@ import {
   Cpu,
   Megaphone,
   Radar,
+  LogOut,
 } from "lucide-react";
+import posthog from "posthog-js";
 import { Logo } from "@/components/shared/logo";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useCurrentUser, getInitials } from "@/components/dashboard/session-provider";
 import { NotificationsDropdown } from "@/components/dashboard/notifications-dropdown";
+import { authClient } from "@/lib/auth/auth-client";
 
 const navGroups = [
   {
@@ -149,8 +160,23 @@ export function DashboardSidebar() {
   );
 }
 
+function handleLogout(router: ReturnType<typeof useRouter>) {
+  posthog.capture("user_logged_out");
+  authClient.signOut({
+    fetchOptions: {
+      onSuccess: () => {
+        // Unlinks future events from this identified user -- important if
+        // this device/browser is ever shared, per PostHog's own guidance.
+        posthog.reset();
+        router.push("/login");
+      },
+    },
+  });
+}
+
 export function DashboardHeader({ title, description }: { title: string; description?: string }) {
   const user = useCurrentUser();
+  const router = useRouter();
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/80 backdrop-blur-xl">
@@ -171,11 +197,35 @@ export function DashboardHeader({ title, description }: { title: string; descrip
             <Input placeholder="Search products..." className="pl-9" />
           </div>
           <NotificationsDropdown />
-          <Avatar className="h-8 w-8">
-            <AvatarFallback className="bg-primary text-primary-foreground text-xs">
-              {getInitials(user.name)}
-            </AvatarFallback>
-          </Avatar>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button type="button" aria-label="Account menu" className="rounded-full outline-none focus-visible:ring-2 focus-visible:ring-ring">
+                <Avatar className="h-8 w-8">
+                  <AvatarFallback className="bg-primary text-primary-foreground text-xs">
+                    {getInitials(user.name)}
+                  </AvatarFallback>
+                </Avatar>
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="min-w-[14rem]">
+              <DropdownMenuLabel className="truncate">
+                <p className="truncate text-sm font-medium text-foreground">{user.name}</p>
+                <p className="truncate text-xs font-normal text-muted-foreground">{user.email}</p>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild>
+                <Link href="/settings">
+                  <Settings className="h-3.5 w-3.5" />
+                  Settings
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onSelect={() => handleLogout(router)} className="text-red-600 focus:text-red-600">
+                <LogOut className="h-3.5 w-3.5" />
+                Log out
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
 
