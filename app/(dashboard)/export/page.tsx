@@ -1,11 +1,11 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import {
   Download,
   RefreshCw,
   CheckCircle2,
   Clock,
-  AlertCircle,
-  ExternalLink,
+  Info,
 } from "lucide-react";
 import {
   SiShopify,
@@ -26,6 +26,7 @@ import { exportFormats } from "@/lib/mock-data";
 import { getServerSession } from "@/lib/auth/session";
 import { getOrCreateDefaultWorkspace } from "@/lib/workspace";
 import { getProducts } from "@/lib/products";
+import { listIntegrations } from "@/lib/integrations/store";
 
 const platformColors: Record<string, string> = {
   shopify: "bg-[#96bf48]",
@@ -60,7 +61,8 @@ export default async function ExportCenterPage() {
   }
 
   const workspace = await getOrCreateDefaultWorkspace(session.user.id, session.user.name);
-  const products = await getProducts(workspace.id);
+  const [products, integrations] = await Promise.all([getProducts(workspace.id), listIntegrations(workspace.id)]);
+  const shopifyConnected = integrations.some((i) => i.provider === "shopify" && i.status === "connected");
   const totalExports = products.reduce((sum, p) => sum + p.exports, 0);
 
   const readyChannels = exportFormats.filter((f) => f.status !== "pending").map((f) => f.id);
@@ -159,10 +161,18 @@ export default async function ExportCenterPage() {
                       )}
                     </div>
                     <div className="mt-4 flex gap-2">
-                      <Button variant="outline" size="sm" className="flex-1" disabled>
-                        <RefreshCw className="h-3 w-3" />
-                        Sync
-                      </Button>
+                      {format.id === "shopify" ? (
+                        <Button variant="outline" size="sm" className="flex-1" asChild>
+                          <Link href="/settings?tab=integrations">
+                            <RefreshCw className="h-3 w-3" />
+                            {shopifyConnected ? "Sync now" : "Connect to sync"}
+                          </Link>
+                        </Button>
+                      ) : (
+                        <span className="flex flex-1 items-center justify-center rounded-lg border border-dashed border-border px-2 text-xs text-muted-foreground">
+                          File export only
+                        </span>
+                      )}
                       <Button size="sm" className="flex-1" disabled={isPending} asChild={!isPending}>
                         {isPending ? (
                           <>
@@ -185,20 +195,16 @@ export default async function ExportCenterPage() {
         </StaggerContainer>
 
         <FadeIn delay={0.3} className="mt-8">
-          <Card className="border-amber-200 bg-amber-50/50">
+          <Card className="border-border bg-muted/30">
             <CardContent className="flex items-start gap-3 p-4">
-              <AlertCircle className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
+              <Info className="h-5 w-5 text-muted-foreground shrink-0 mt-0.5" />
               <div>
-                <p className="text-sm font-medium text-amber-800">
-                  Facebook Catalog requires setup
+                <p className="text-sm font-medium">Only Shopify syncs live today</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Shopify pushes products straight to your store (Settings &gt; Integrations). WooCommerce, Etsy,
+                  Amazon, Google Merchant, Facebook and TikTok export a feed file you upload to that platform
+                  yourself — live sync for each needs that platform&apos;s own API access.
                 </p>
-                <p className="text-xs text-amber-700 mt-1">
-                  Connect your Meta Business account to enable Facebook Catalog exports.
-                </p>
-                <Button variant="outline" size="sm" className="mt-2" disabled>
-                  <ExternalLink className="h-3 w-3" />
-                  Connect Account
-                </Button>
               </div>
             </CardContent>
           </Card>
