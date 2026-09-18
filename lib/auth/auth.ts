@@ -1,14 +1,27 @@
 import "server-only";
 import { betterAuth } from "better-auth";
 import { Pool } from "pg";
+import { shopifySignIn } from "@/lib/auth/shopify-sign-in";
+import { isShopifyOAuthConfigured } from "@/lib/integrations/shopify";
 
-/** True once real Google OAuth credentials exist -- checked here and by the login/signup pages before showing the button. */
+/** True once real Google OAuth credentials exist -- checked here and by the login/signup pages before enabling the button. */
 export function isGoogleAuthConfigured(): boolean {
   return Boolean(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET);
 }
 
+/** True once a real Shopify Partner app exists -- "Continue with Shopify" uses the same app credentials as the store integration. */
+export function isShopifyAuthConfigured(): boolean {
+  return isShopifyOAuthConfigured();
+}
+
 export const auth = betterAuth({
   database: new Pool({ connectionString: process.env.DATABASE_URL }),
+  // Inert (redirects to /login with an error) until SHOPIFY_APP_CLIENT_ID/SECRET exist.
+  plugins: [shopifySignIn()],
+  // OAuth failures (Google, Shopify, account-not-linked, ...) redirect to the
+  // login page as ?error=<code>, which shows a readable message, instead of
+  // Better Auth's bare built-in error page.
+  onAPIError: { errorURL: "/login" },
   emailAndPassword: {
     enabled: true,
   },

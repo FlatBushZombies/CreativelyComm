@@ -4,20 +4,20 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import posthog from "posthog-js";
-import { SiGoogle } from "react-icons/si";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
+import { SocialSignIn } from "@/components/auth/social-sign-in";
 import { Logo } from "@/components/shared/logo";
 import { authClient } from "@/lib/auth/auth-client";
 
 interface SignupClientProps {
   googleConfigured: boolean;
+  shopifyConfigured: boolean;
 }
 
-export function SignupClient({ googleConfigured }: SignupClientProps) {
+export function SignupClient({ googleConfigured, shopifyConfigured }: SignupClientProps) {
   const router = useRouter();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -44,11 +44,6 @@ export function SignupClient({ googleConfigured }: SignupClientProps) {
     setPending(false);
   }
 
-  function handleGoogleSignUp() {
-    posthog.capture("google_auth_started", { intent: "signup" });
-    authClient.signIn.social({ provider: "google", callbackURL: "/onboarding" });
-  }
-
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <Card className="w-full max-w-sm card-shadow-lg">
@@ -58,19 +53,11 @@ export function SignupClient({ googleConfigured }: SignupClientProps) {
           <CardDescription>No credit card required · 14-day free trial</CardDescription>
         </CardHeader>
         <CardContent>
-          {googleConfigured && (
-            <>
-              <Button type="button" variant="outline" className="w-full" onClick={handleGoogleSignUp}>
-                <SiGoogle className="h-4 w-4" />
-                Continue with Google
-              </Button>
-              <div className="my-4 flex items-center gap-3">
-                <Separator className="flex-1" />
-                <span className="text-xs text-muted-foreground">or</span>
-                <Separator className="flex-1" />
-              </div>
-            </>
-          )}
+          <SocialSignIn
+            googleConfigured={googleConfigured}
+            shopifyConfigured={shopifyConfigured}
+            destination="/onboarding"
+          />
           <form className="space-y-4" onSubmit={handleSubmit}>
             <div className="space-y-2">
               <Label htmlFor="name">Name</Label>

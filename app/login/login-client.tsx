@@ -4,34 +4,51 @@ import { Suspense, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import posthog from "posthog-js";
-import { SiGoogle } from "react-icons/si";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
+import { SocialSignIn } from "@/components/auth/social-sign-in";
 import { Logo } from "@/components/shared/logo";
 import { authClient } from "@/lib/auth/auth-client";
 
 interface LoginClientProps {
   googleConfigured: boolean;
+  shopifyConfigured: boolean;
 }
 
-export function LoginClient({ googleConfigured }: LoginClientProps) {
+// Every OAuth failure (Google, Shopify, Better Auth's own) lands here as ?error=<code>.
+const ERROR_MESSAGES: Record<string, string> = {
+  shopify_not_configured: "Shopify sign-in isn't set up yet.",
+  shopify_invalid_shop: "Enter a valid store domain like my-store.myshopify.com.",
+  shopify_failed: "Shopify sign-in didn't complete. Please try again.",
+  shopify_email_unverified:
+    "Shopify didn't return a verified email for your staff account, so we can't sign you in with it.",
+  account_not_linked:
+    "An account with this email already exists. Sign in with the method you originally used (for example your password).",
+  signup_disabled: "Sign-ups are disabled.",
+};
+
+function describeError(code: string | null): string | null {
+  if (!code) return null;
+  return ERROR_MESSAGES[code] ?? "Sign-in didn't complete. Please try again.";
+}
+
+export function LoginClient(props: LoginClientProps) {
   return (
     <Suspense fallback={null}>
-      <LoginForm googleConfigured={googleConfigured} />
+      <LoginForm {...props} />
     </Suspense>
   );
 }
 
-function LoginForm({ googleConfigured }: LoginClientProps) {
+function LoginForm({ googleConfigured, shopifyConfigured }: LoginClientProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get("redirect") || "/dashboard";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(describeError(searchParams.get("error")));
   const [pending, setPending] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -53,11 +70,6 @@ function LoginForm({ googleConfigured }: LoginClientProps) {
     setPending(false);
   }
 
-  function handleGoogleSignIn() {
-    posthog.capture("google_auth_started", { intent: "login" });
-    authClient.signIn.social({ provider: "google", callbackURL: redirectTo });
-  }
-
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <Card className="w-full max-w-sm card-shadow-lg">
@@ -67,19 +79,12 @@ function LoginForm({ googleConfigured }: LoginClientProps) {
           <CardDescription>Sign in to your CreativelyComm workspace</CardDescription>
         </CardHeader>
         <CardContent>
-          {googleConfigured && (
-            <>
-              <Button type="button" variant="outline" className="w-full" onClick={handleGoogleSignIn}>
-                <SiGoogle className="h-4 w-4" />
-                Continue with Google
-              </Button>
-              <div className="my-4 flex items-center gap-3">
-                <Separator className="flex-1" />
-                <span className="text-xs text-muted-foreground">or</span>
-                <Separator className="flex-1" />
-              </div>
-            </>
-          )}
+          <SocialSignIn
+            googleConfigured={googleConfigured}
+            shopifyConfigured={shopifyConfigured}
+            destination="/dashboard"
+            googleCallbackURL={redirectTo}
+          />
           <form className="space-y-4" onSubmit={handleSubmit}>
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
