@@ -5,6 +5,7 @@ import { getWorkspaceMembers, getMemberRole } from "@/lib/team";
 import { listApiKeys } from "@/lib/api-keys";
 import { getVendors } from "@/lib/vendors";
 import { listIntegrations } from "@/lib/integrations/store";
+import { isShopifyOAuthConfigured } from "@/lib/integrations/shopify";
 import { SettingsClient } from "./settings-client";
 
 export default async function SettingsPage() {
@@ -35,6 +36,7 @@ export default async function SettingsPage() {
       canManageVendors={role === "owner" || role === "admin"}
       integrations={integrations}
       quickbooksConfigured={Boolean(process.env.QUICKBOOKS_CLIENT_ID)}
+      shopifyOAuthConfigured={isShopifyOAuthConfigured()}
       googleFeedUrl={`${origin}/api/feed/${workspace.id}/${workspace.feedToken}/google.xml`}
       facebookFeedUrl={`${origin}/api/feed/${workspace.id}/${workspace.feedToken}/facebook.csv`}
     />

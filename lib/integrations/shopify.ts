@@ -5,6 +5,11 @@ import { getIntegration, upsertIntegration, disconnectIntegration, markIntegrati
 
 const API_VERSION = "2026-07";
 
+// Scopes the app actually uses: shop.json/locations.json (read_locations),
+// products.json (read/write_products), inventory_levels (read/write_inventory) --
+// see connectShopify, syncProductToShopify, syncInventoryToShopify below.
+const OAUTH_SCOPES = "read_products,write_products,read_inventory,write_inventory,read_locations";
+
 function normalizeShopDomain(input: string): string {
   const trimmed = input.trim().toLowerCase().replace(/^https?:\/\//, "").replace(/\/$/, "");
   return trimmed.endsWith(".myshopify.com") ? trimmed : `${trimmed}.myshopify.com`;
@@ -12,6 +17,76 @@ function normalizeShopDomain(input: string): string {
 
 function adminUrl(shopDomain: string, path: string): string {
   return `https://${shopDomain}/admin/api/${API_VERSION}/${path}`;
+}
+
+/** True once a real Shopify Partner app (Client ID/secret) exists -- checked by the settings page before showing the OAuth "Connect" button. */
+export function isShopifyOAuthConfigured(): boolean {
+  return Boolean(process.env.SHOPIFY_APP_CLIENT_ID && process.env.SHOPIFY_APP_CLIENT_SECRET);
+}
+
+/** Builds the URL to redirect a merchant to for the app-install OAuth handshake. */
+export function buildShopifyAuthorizeUrl(shopDomainInput: string, state: string): string {
+  const shopDomain = normalizeShopDomain(shopDomainInput);
+  const clientId = process.env.SHOPIFY_APP_CLIENT_ID as string;
+  const origin = process.env.BETTER_AUTH_URL || "http://localhost:3000";
+  const redirectUri = `${origin}/api/integrations/shopify/oauth/callback`;
+
+  const params = new URLSearchParams({
+    client_id: clientId,
+    scope: OAUTH_SCOPES,
+    redirect_uri: redirectUri,
+    state,
+  });
+  return `https://${shopDomain}/admin/oauth/authorize?${params.toString()}`;
+}
+
+/**
+ * Verifies Shopify's OAuth callback query string against the app's own
+ * Client Secret, per Shopify's documented scheme: every param except `hmac`,
+ * sorted by key, joined as `key=value&...`, HMAC-SHA256'd. Same timing-safe
+ * comparison as verifyShopifyWebhookHmac below, just a different string to sign.
+ */
+export function verifyShopifyOAuthCallback(searchParams: URLSearchParams): boolean {
+  const clientSecret = process.env.SHOPIFY_APP_CLIENT_SECRET;
+  const hmac = searchParams.get("hmac");
+  if (!clientSecret || !hmac) return false;
+
+  const pairs: string[] = [];
+  for (const [key, value] of searchParams.entries()) {
+    if (key === "hmac") continue;
+    pairs.push(`${key}=${value}`);
+  }
+  pairs.sort();
+  const message = pairs.join("&");
+
+  const computed = createHmac("sha256", clientSecret).update(message, "utf8").digest("hex");
+  const a = Buffer.from(computed);
+  const b = Buffer.from(hmac);
+  return a.length === b.length && timingSafeEqual(a, b);
+}
+
+/** Exchanges an OAuth authorization code for a real Admin API access token. */
+export async function exchangeShopifyOAuthCode(shopDomainInput: string, code: string): Promise<string> {
+  const shopDomain = normalizeShopDomain(shopDomainInput);
+  const res = await fetch(`https://${shopDomain}/admin/oauth/access_token`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      client_id: process.env.SHOPIFY_APP_CLIENT_ID,
+      client_secret: process.env.SHOPIFY_APP_CLIENT_SECRET,
+      code,
+    }),
+  });
+
+  if (!res.ok) {
+    throw new Error(`Shopify rejected the OAuth code exchange (${res.status}).`);
+  }
+
+  const { access_token: accessToken } = (await res.json()) as { access_token?: string };
+  if (!accessToken) {
+    throw new Error("Shopify's OAuth response didn't include an access token.");
+  }
+  return accessToken;
 }
 
 export interface ConnectShopifyInput {

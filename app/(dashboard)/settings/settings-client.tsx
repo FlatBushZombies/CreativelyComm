@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { Upload, Palette, Globe, Bell, CreditCard, Users, Copy, Check, Trash2, Store } from "lucide-react";
 import posthog from "posthog-js";
 import { DashboardHeader } from "@/components/dashboard/sidebar";
@@ -74,11 +75,20 @@ interface SettingsClientProps {
   canManageVendors: boolean;
   integrations: IntegrationSummary[];
   quickbooksConfigured: boolean;
+  shopifyOAuthConfigured: boolean;
   googleFeedUrl: string;
   facebookFeedUrl: string;
 }
 
-export function SettingsClient({
+export function SettingsClient(props: SettingsClientProps) {
+  return (
+    <Suspense fallback={null}>
+      <SettingsClientInner {...props} />
+    </Suspense>
+  );
+}
+
+function SettingsClientInner({
   workspace,
   members,
   currentUserId,
@@ -88,6 +98,7 @@ export function SettingsClient({
   canManageVendors,
   integrations,
   quickbooksConfigured,
+  shopifyOAuthConfigured,
   googleFeedUrl,
   facebookFeedUrl,
 }: SettingsClientProps) {
@@ -98,6 +109,8 @@ export function SettingsClient({
   const [customDomain, setCustomDomain] = useState("");
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [exportNotifications, setExportNotifications] = useState(true);
+  const searchParams = useSearchParams();
+  const initialTab = searchParams.get("tab") ?? "team";
 
   return (
     <>
@@ -108,7 +121,7 @@ export function SettingsClient({
 
       <div className="flex-1 p-4 sm:p-6 lg:p-8 max-w-4xl">
         <FadeIn>
-          <Tabs defaultValue="team">
+          <Tabs defaultValue={initialTab}>
             <TabsList className="mb-6">
               <TabsTrigger value="team">Team</TabsTrigger>
               <TabsTrigger value="vendors">Vendors</TabsTrigger>
@@ -281,6 +294,7 @@ export function SettingsClient({
               <IntegrationsPanel
                 integrations={integrations}
                 quickbooksConfigured={quickbooksConfigured}
+                shopifyOAuthConfigured={shopifyOAuthConfigured}
                 googleFeedUrl={googleFeedUrl}
                 facebookFeedUrl={facebookFeedUrl}
               />

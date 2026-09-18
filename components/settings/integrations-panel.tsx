@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
-import { Copy, Check, Loader2 } from "lucide-react";
+import { Suspense, useState, useTransition } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Copy, Check, Loader2, ExternalLink } from "lucide-react";
 import { SiShopify, SiQuickbooks, SiGoogle, SiFacebook } from "react-icons/si";
 import { FaSlack } from "react-icons/fa6";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -53,6 +53,7 @@ function findIntegration(integrations: IntegrationSummary[], provider: Integrati
 interface IntegrationsPanelProps {
   integrations: IntegrationSummary[];
   quickbooksConfigured: boolean;
+  shopifyOAuthConfigured: boolean;
   googleFeedUrl: string;
   facebookFeedUrl: string;
 }
@@ -60,6 +61,7 @@ interface IntegrationsPanelProps {
 export function IntegrationsPanel({
   integrations,
   quickbooksConfigured,
+  shopifyOAuthConfigured,
   googleFeedUrl,
   facebookFeedUrl,
 }: IntegrationsPanelProps) {
@@ -69,7 +71,9 @@ export function IntegrationsPanel({
 
   return (
     <div className="space-y-6">
-      <ShopifyCard integration={shopify} />
+      <Suspense fallback={null}>
+        <ShopifyCard integration={shopify} oauthConfigured={shopifyOAuthConfigured} />
+      </Suspense>
       <SlackCard integration={slack} />
       <QuickBooksCard integration={quickbooks} configured={quickbooksConfigured} />
       <FeedCard googleFeedUrl={googleFeedUrl} facebookFeedUrl={facebookFeedUrl} />
@@ -77,14 +81,17 @@ export function IntegrationsPanel({
   );
 }
 
-function ShopifyCard({ integration }: { integration?: IntegrationSummary }) {
+function ShopifyCard({ integration, oauthConfigured }: { integration?: IntegrationSummary; oauthConfigured: boolean }) {
   const [shopDomain, setShopDomain] = useState("");
   const [accessToken, setAccessToken] = useState("");
   const [apiSecret, setApiSecret] = useState("");
+  const [showManualForm, setShowManualForm] = useState(!oauthConfigured);
   const [error, setError] = useState<string | undefined>();
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const connected = integration?.status === "connected";
+  const oauthFailed = searchParams.get("shopify") === "error";
 
   function handleConnect() {
     setError(undefined);
@@ -98,7 +105,7 @@ function ShopifyCard({ integration }: { integration?: IntegrationSummary }) {
         setError(result.error);
         return;
       }
-      posthog.capture("integration_connected", { provider: "shopify" });
+      posthog.capture("integration_connected", { provider: "shopify", method: "manual" });
       setShopDomain("");
       setAccessToken("");
       setApiSecret("");
@@ -115,13 +122,19 @@ function ShopifyCard({ integration }: { integration?: IntegrationSummary }) {
             Shopify
           </CardTitle>
           <CardDescription>
-            Two-way product and inventory sync with your own Shopify store — bring your own
-            custom app access token from Settings &gt; Apps &gt; Develop apps in your Shopify admin.
+            {oauthConfigured
+              ? "Two-way product and inventory sync with your own Shopify store."
+              : "Two-way product and inventory sync with your own Shopify store — bring your own custom app access token from Settings > Apps > Develop apps in your Shopify admin."}
           </CardDescription>
         </div>
         {statusBadge(integration?.status ?? "disconnected")}
       </CardHeader>
       <CardContent className="space-y-4">
+        {oauthFailed && !connected && (
+          <p className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-600">
+            Couldn&apos;t connect to Shopify. Please try again.
+          </p>
+        )}
         {connected ? (
           <>
             <p className="text-sm">
@@ -135,8 +148,48 @@ function ShopifyCard({ integration }: { integration?: IntegrationSummary }) {
               <Button type="submit" variant="outline" size="sm">Disconnect</Button>
             </form>
           </>
+        ) : oauthConfigured && !showManualForm ? (
+          <>
+            <div>
+              <Label htmlFor="oauthShopDomain">Shop domain</Label>
+              <Input
+                id="oauthShopDomain"
+                placeholder="my-store.myshopify.com"
+                value={shopDomain}
+                onChange={(e) => setShopDomain(e.target.value)}
+                className="mt-1.5"
+              />
+            </div>
+            <div className="flex flex-wrap items-center gap-3">
+              <Button asChild disabled={!shopDomain.trim()}>
+                <a
+                  href={shopDomain.trim() ? `/api/integrations/shopify/oauth/start?shop=${encodeURIComponent(shopDomain.trim())}` : undefined}
+                  className={!shopDomain.trim() ? "pointer-events-none opacity-50" : undefined}
+                >
+                  <ExternalLink className="h-4 w-4" />
+                  Connect with Shopify
+                </a>
+              </Button>
+              <button
+                type="button"
+                onClick={() => setShowManualForm(true)}
+                className="text-sm text-muted-foreground hover:text-foreground hover:underline"
+              >
+                Or connect with an access token instead
+              </button>
+            </div>
+          </>
         ) : (
           <>
+            {oauthConfigured && (
+              <button
+                type="button"
+                onClick={() => setShowManualForm(false)}
+                className="text-sm text-primary hover:underline"
+              >
+                ← Use Connect with Shopify instead
+              </button>
+            )}
             <div className="grid gap-3 sm:grid-cols-3">
               <div>
                 <Label htmlFor="shopDomain">Shop domain</Label>
