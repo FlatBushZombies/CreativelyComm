@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Image from "next/image";
 import { ArrowRight, File, Loader2, MoreVertical, Pencil } from "lucide-react";
 import {
   DropdownMenu,
@@ -11,12 +10,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import type { ProductFolder } from "@/lib/folder-utils";
 import { UNCATEGORIZED_KEY } from "@/lib/folder-utils";
-
-const STACK_OFFSETS = [
-  "left-1/2 top-3 h-16 w-14 -translate-x-[68%] -rotate-6",
-  "left-1/2 top-1 h-16 w-14 -translate-x-[32%] rotate-3",
-  "left-1/2 top-5 h-16 w-14 -translate-x-1/2 rotate-0",
-];
 
 interface FolderCardProps {
   folder: ProductFolder;
@@ -57,23 +50,12 @@ export function FolderCard({ folder, onOpen, onRename }: FolderCardProps) {
 
   return (
     <div className="flex h-full flex-col overflow-hidden rounded-2xl border border-border-strong card-shadow transition-shadow hover:card-shadow-lg">
-      {/* Gradient header with a peek of the folder's product photos */}
+      {/* Gradient header */}
       <div
         className="relative h-32 shrink-0 overflow-hidden"
         style={{ background: `linear-gradient(135deg, ${folder.gradient.from}, ${folder.gradient.to})` }}
       >
-        {folder.thumbnails.map((src, i) => (
-          <div
-            key={src + i}
-            className={`absolute overflow-hidden rounded-lg border-2 border-white/80 shadow-lg ${STACK_OFFSETS[i]}`}
-            style={{ zIndex: i }}
-          >
-            <Image src={src} alt="" fill className="object-cover" sizes="56px" />
-          </div>
-        ))}
-        {folder.thumbnails.length === 0 && (
-          <FolderIcon className="absolute inset-0 m-auto h-10 w-10 text-white/40" strokeWidth={1.5} />
-        )}
+        <FolderIcon className="absolute inset-0 m-auto h-10 w-10 text-white/40" strokeWidth={1.5} />
       </div>
 
       {/* Dark body */}
