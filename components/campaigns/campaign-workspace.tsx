@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { CampaignSettingsForm } from "@/components/campaigns/campaign-settings-form";
 import { CampaignPreview } from "@/components/campaigns/campaign-preview";
+import { NanoBananaStudio } from "@/components/campaigns/nano-banana-studio";
 import { generateProductCampaign, type CampaignSettings } from "@/lib/campaign-ai";
 import type { CampaignContent } from "@/lib/campaign-types";
 import {
@@ -30,8 +31,9 @@ function hasContent(content: CampaignContent): boolean {
 
 export function CampaignWorkspace({ campaign, product, brandName }: CampaignWorkspaceProps) {
   const router = useRouter();
-  const [tab, setTab] = useState<"settings" | "edit">(hasContent(campaign.content) ? "edit" : "settings");
+  const [tab, setTab] = useState<"settings" | "edit" | "visuals">(hasContent(campaign.content) ? "edit" : "settings");
   const [content, setContent] = useState<CampaignContent>(campaign.content);
+  const [campaignImage, setCampaignImage] = useState<string | null>(campaign.images[0] ?? null);
   const [settings, setSettings] = useState<CampaignSettings>({
     objective: campaign.objective,
     channel: campaign.channel,
@@ -90,11 +92,12 @@ export function CampaignWorkspace({ campaign, product, brandName }: CampaignWork
 
   return (
     <Tabs value={tab} onValueChange={(v) => setTab(v as typeof tab)} className="space-y-6">
-      <TabsList className="grid w-full grid-cols-2 sm:w-fit">
+      <TabsList className="grid w-full grid-cols-3 sm:w-fit">
         <TabsTrigger value="settings">Generate</TabsTrigger>
         <TabsTrigger value="edit" disabled={!hasContent(content)}>
           Edit &amp; preview
         </TabsTrigger>
+        <TabsTrigger value="visuals">Visuals</TabsTrigger>
       </TabsList>
 
       <TabsContent value="settings">
@@ -122,9 +125,18 @@ export function CampaignWorkspace({ campaign, product, brandName }: CampaignWork
           channel={settings.channel}
           content={content}
           onContentChange={setContent}
-          productImage={product.optimizedImages[0] ?? product.images[0]}
+          productImage={campaignImage ?? (product.optimizedImages[0] ?? product.images[0])}
           productName={product.name}
           brandName={brandName}
+        />
+      </TabsContent>
+
+      <TabsContent value="visuals">
+        <NanoBananaStudio
+          campaignId={campaign.id}
+          productImage={product.optimizedImages[0] ?? product.images[0]}
+          productName={product.name}
+          onSaved={setCampaignImage}
         />
       </TabsContent>
     </Tabs>

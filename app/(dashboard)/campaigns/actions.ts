@@ -6,6 +6,7 @@ import { getServerSession } from "@/lib/auth/session";
 import { getOrCreateDefaultWorkspace } from "@/lib/workspace";
 import { getProductById } from "@/lib/products";
 import { logActivity } from "@/lib/activity";
+import { uploadCampaignImage } from "@/lib/storage";
 import {
   createCampaign,
   getCampaignById,
@@ -15,6 +16,7 @@ import {
   updateCampaignStatus,
   duplicateCampaign,
   deleteCampaign,
+  addCampaignImage,
   type CampaignContent,
   type CampaignObjective,
   type CampaignChannel,
@@ -187,4 +189,38 @@ export async function deleteCampaignAction(formData: FormData) {
 
   await deleteCampaign(campaignId, workspace.id);
   revalidatePath("/campaigns");
+}
+
+export interface SaveCampaignImageState {
+  error?: string;
+  imageUrl?: string;
+}
+
+/**
+ * Persists a Nano Banana-generated/edited image (a base64 data URL from
+ * Puter's chat()) to Supabase Storage and attaches it to the campaign.
+ */
+export async function saveCampaignImageAction(campaignId: string, dataUrl: string): Promise<SaveCampaignImageState> {
+  const { workspace } = await requireSession();
+
+  const existing = await getCampaignById(campaignId, workspace.id);
+  if (!existing) {
+    return { error: "Campaign not found." };
+  }
+
+  const match = dataUrl.match(/^data:(image\/[a-z0-9.+-]+);base64,(.+)$/i);
+  if (!match) {
+    return { error: "That doesn't look like a valid generated image." };
+  }
+  const [, contentType, base64] = match;
+
+  try {
+    const buffer = Buffer.from(base64, "base64");
+    const imageUrl = await uploadCampaignImage(workspace.id, campaignId, buffer, contentType);
+    await addCampaignImage(campaignId, workspace.id, imageUrl);
+    revalidatePath(`/campaigns/${campaignId}`);
+    return { imageUrl };
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "Couldn't save this image." };
+  }
 }

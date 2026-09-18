@@ -18,6 +18,8 @@ export interface Campaign {
   status: CampaignStatus;
   content: CampaignContent;
   generatedContent: CampaignContent | null;
+  /** Nano Banana-generated/edited images the merchant has chosen to attach to this campaign, most recent first. */
+  images: string[];
   createdAt: string;
   updatedAt: string;
 }
@@ -36,6 +38,7 @@ interface CampaignRow {
   status: CampaignStatus;
   content: CampaignContent;
   generated_content: CampaignContent | null;
+  images: string[];
   created_at: string;
   updated_at: string;
 }
@@ -55,6 +58,7 @@ function mapRow(row: CampaignRow): Campaign {
     status: row.status,
     content: row.content ?? {},
     generatedContent: row.generated_content,
+    images: row.images ?? [],
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
@@ -264,6 +268,7 @@ export async function duplicateCampaign(id: string, workspaceId: string): Promis
       status: "draft",
       content: original.content,
       generated_content: original.generatedContent,
+      images: original.images,
     })
     .select()
     .single();
@@ -282,4 +287,27 @@ export async function deleteCampaign(id: string, workspaceId: string): Promise<v
   if (error) {
     throw new Error(`Failed to delete campaign: ${error.message}`);
   }
+}
+
+/** Prepends a newly saved Nano Banana image to the campaign's image list (most recent first). */
+export async function addCampaignImage(id: string, workspaceId: string, imageUrl: string): Promise<Campaign> {
+  const existing = await getCampaignById(id, workspaceId);
+  if (!existing) {
+    throw new Error("Campaign not found.");
+  }
+
+  const supabase = getSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("campaigns")
+    .update({ images: [imageUrl, ...existing.images], updated_at: new Date().toISOString() })
+    .eq("id", id)
+    .eq("workspace_id", workspaceId)
+    .select()
+    .single();
+
+  if (error || !data) {
+    throw new Error(`Failed to save campaign image: ${error?.message}`);
+  }
+
+  return mapRow(data as CampaignRow);
 }

@@ -74,6 +74,42 @@ export async function uploadOptimizedImage(
 }
 
 /**
+ * Uploads a Nano Banana-generated/edited campaign image (decoded from the
+ * base64 data URL Puter's chat() returns) under
+ * `workspaceId/campaigns/<campaignId>/`, same bucket/size constraints as
+ * the other upload helpers here.
+ */
+export async function uploadCampaignImage(
+  workspaceId: string,
+  campaignId: string,
+  buffer: Buffer,
+  contentType: string
+): Promise<string> {
+  const supabase = getSupabaseServerClient();
+
+  if (!ALLOWED_TYPES.has(contentType)) {
+    throw new Error(`Unsupported image type: ${contentType || "unknown"}`);
+  }
+  if (buffer.byteLength > MAX_FILE_BYTES) {
+    throw new Error("Generated image is larger than 8MB");
+  }
+
+  const extension = contentType.split("/")[1] || "png";
+  const path = `${workspaceId}/campaigns/${campaignId}/${crypto.randomUUID()}.${extension}`;
+
+  const { error } = await supabase.storage
+    .from(BUCKET)
+    .upload(path, buffer, { contentType, upsert: false });
+
+  if (error) {
+    throw new Error(`Failed to upload campaign image: ${error.message}`);
+  }
+
+  const { data } = supabase.storage.from(BUCKET).getPublicUrl(path);
+  return data.publicUrl;
+}
+
+/**
  * Uploads a generated content-pack asset (a client-composited crop/overlay
  * result) under `workspaceId/content-packs/<packId>/<assetId>.<ext>` --
  * same bucket/size/type constraints as the other upload helpers here.
