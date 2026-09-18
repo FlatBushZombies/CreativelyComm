@@ -217,7 +217,6 @@ export const pricingPlans = [
       "Social format fitting (Instagram, Pinterest, Facebook)",
       "Order automation across channels",
       "Built-in SEO tooling",
-      "Hardware workflows for power users (optional)",
     ],
     highlighted: true,
     cta: { label: "Start free", href: "/signup" },

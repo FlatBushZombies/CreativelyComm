@@ -2,8 +2,7 @@
  * Client-safe campaign types (no "server-only" import) -- split out from
  * lib/campaigns.ts so client components (lib/campaign-ai.ts, the wizard/
  * editor/preview components) can import them without pulling in the
- * server-only data-access module. Same fix as lib/hardware-catalog.ts
- * earlier this session.
+ * server-only data-access module.
  */
 export type CampaignObjective = "sales" | "launch" | "awareness" | "clearance" | "seasonal" | "retargeting";
 export type CampaignChannel = "instagram" | "facebook" | "tiktok" | "email" | "whatsapp" | "general";

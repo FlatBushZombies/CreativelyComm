@@ -101,7 +101,7 @@ export interface CreateOrderInput {
   paymentMethod?: PaymentMethod;
   note?: string;
   createdBy?: string;
-  /** 'pos' when created through the Quick Sale hardware flow. Defaults to 'manual' (the standard New Order flow). */
+  /** 'pos' for an in-person point-of-sale order. Defaults to 'manual' (the standard New Order flow). */
   source?: OrderSource;
 }
 

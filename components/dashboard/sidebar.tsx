@@ -13,7 +13,6 @@ import {
   ShieldCheck,
   Search,
   ShoppingCart,
-  Cpu,
   Megaphone,
   Radar,
   LogOut,
@@ -54,10 +53,7 @@ const navGroups = [
   },
   {
     label: "Sell",
-    items: [
-      { href: "/orders", label: "Orders", icon: ShoppingCart },
-      { href: "/hardware", label: "Hardware", icon: Cpu },
-    ],
+    items: [{ href: "/orders", label: "Orders", icon: ShoppingCart }],
   },
   {
     label: "Workspace",
