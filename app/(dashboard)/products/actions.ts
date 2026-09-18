@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { after } from "next/server";
 import { redirect } from "next/navigation";
 import { getServerSession } from "@/lib/auth/session";
 import { getOrCreateDefaultWorkspace } from "@/lib/workspace";
@@ -16,6 +17,7 @@ import { uploadProductImages } from "@/lib/storage";
 import { logActivity } from "@/lib/activity";
 import { parseProductsCsv } from "@/lib/import/parse";
 import { suggestCategoriesForUncategorized } from "@/lib/folder-utils";
+import { syncProductsToShopify } from "@/lib/integrations/shopify";
 
 export interface CreateProductState {
   error?: string;
@@ -113,7 +115,10 @@ export async function importProductsAction(
   }));
 
   try {
-    await createProducts(workspace.id, inputs);
+    const created = await createProducts(workspace.id, inputs);
+    // A CSV can be hundreds of rows and Shopify is rate-limited (~2 req/s), so
+    // push the new listings after the response instead of holding the import open.
+    after(() => syncProductsToShopify(workspace.id, created));
   } catch (err) {
     return { error: err instanceof Error ? err.message : "Failed to import products.", rowErrors };
   }

@@ -203,6 +203,16 @@ export function ProductDetailsClient({
                 <div className="flex flex-wrap items-center gap-2">
                   <Badge variant="success">{product.status}</Badge>
                   <Badge variant="muted">{product.sku}</Badge>
+                  {product.shopifySyncError ? (
+                    <Badge variant="destructive" title={product.shopifySyncError}>Shopify sync failed</Badge>
+                  ) : product.shopifyProductId ? (
+                    <Badge
+                      variant="secondary"
+                      title={product.shopifySyncedAt ? `Last synced ${new Date(product.shopifySyncedAt).toLocaleString()}` : undefined}
+                    >
+                      On Shopify
+                    </Badge>
+                  ) : null}
                   {vendors.length > 0 && (
                     <Select
                       value={vendorId || "none"}

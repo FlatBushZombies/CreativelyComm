@@ -27,6 +27,11 @@ export interface Product {
   metaTitle: string | null;
   metaDescription: string | null;
   slug: string | null;
+  /** Set once this product has been pushed to the connected Shopify store. */
+  shopifyProductId: string | null;
+  shopifySyncedAt: string | null;
+  /** Why the last Shopify push failed, or null when it's fine / never attempted. */
+  shopifySyncError: string | null;
 }
 
 interface ProductRow {
@@ -51,6 +56,9 @@ interface ProductRow {
   meta_title: string | null;
   meta_description: string | null;
   slug: string | null;
+  shopify_product_id?: string | null;
+  shopify_synced_at?: string | null;
+  shopify_sync_error?: string | null;
 }
 
 function mapRow(row: ProductRow): Product {
@@ -76,6 +84,9 @@ function mapRow(row: ProductRow): Product {
     metaTitle: row.meta_title,
     metaDescription: row.meta_description,
     slug: row.slug,
+    shopifyProductId: row.shopify_product_id ?? null,
+    shopifySyncedAt: row.shopify_synced_at ?? null,
+    shopifySyncError: row.shopify_sync_error ?? null,
   };
 }
 
@@ -183,6 +194,8 @@ export async function createProduct(
 
   const product = mapRow(data as ProductRow);
   await recordProductVersion(workspaceId, product, "Product created");
+  // First push to the connected store (a no-op when Shopify isn't connected).
+  await syncProductToShopify(workspaceId, product);
   return product;
 }
 
@@ -248,17 +261,11 @@ export async function updateProduct(
     input.description !== undefined ||
     input.price !== undefined ||
     input.category !== undefined ||
-    input.sku !== undefined;
+    input.sku !== undefined ||
+    input.tags !== undefined ||
+    input.status !== undefined;
   if (touchedSyncableField && input.source !== "shopify") {
-    await syncProductToShopify(workspaceId, {
-      id: product.id,
-      name: product.name,
-      description: product.description,
-      price: product.price,
-      sku: product.sku,
-      category: product.category,
-      imageUrl: product.optimizedImages[0] || product.images[0] || null,
-    });
+    await syncProductToShopify(workspaceId, product);
   }
 
   return product;
@@ -348,6 +355,8 @@ export async function addOptimizedImage(
 
   const product = mapRow(data as ProductRow);
   await recordProductVersion(workspaceId, product, "Background removed from an image");
+  // A new optimized photo changes the image set -- push the full set.
+  await syncProductToShopify(workspaceId, product, { includeImages: true });
   return product;
 }
 
@@ -455,19 +464,11 @@ export async function bulkUpdateProducts(
   // Bulk edits (including folder rename/auto-organize, which only touch
   // category) need the same outbound push as a single-product edit gets --
   // previously this path silently never synced to Shopify at all.
-  await Promise.all(
-    products.map((product) =>
-      syncProductToShopify(workspaceId, {
-        id: product.id,
-        name: product.name,
-        description: product.description,
-        price: product.price,
-        sku: product.sku,
-        category: product.category,
-        imageUrl: product.optimizedImages[0] || product.images[0] || null,
-      })
-    )
-  );
+  // Sequential, not Promise.all: Shopify's REST bucket refills ~2 req/s, so
+  // a big bulk edit fired in parallel would just get rate-limited.
+  for (const product of products) {
+    await syncProductToShopify(workspaceId, product);
+  }
 
   return products;
 }

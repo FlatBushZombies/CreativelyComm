@@ -2,7 +2,7 @@
 
 import { Suspense, useState, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Copy, Check, Loader2, ExternalLink } from "lucide-react";
+import { Copy, Check, Loader2, ExternalLink, RefreshCw } from "lucide-react";
 import { SiShopify, SiQuickbooks, SiGoogle, SiFacebook } from "react-icons/si";
 import { FaSlack } from "react-icons/fa6";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -11,12 +11,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import type { IntegrationSummary, IntegrationProvider } from "@/lib/integrations/store";
+import type { ShopifySyncSummary } from "@/lib/integrations/shopify";
 import {
   connectShopifyAction,
   connectSlackAction,
   testSlackNotificationAction,
   disconnectIntegrationAction,
   regenerateFeedTokenAction,
+  syncAllToShopifyAction,
 } from "@/app/(dashboard)/settings/actions";
 import posthog from "posthog-js";
 
@@ -54,6 +56,7 @@ interface IntegrationsPanelProps {
   integrations: IntegrationSummary[];
   quickbooksConfigured: boolean;
   shopifyOAuthConfigured: boolean;
+  shopifySync: ShopifySyncSummary | null;
   googleFeedUrl: string;
   facebookFeedUrl: string;
 }
@@ -62,6 +65,7 @@ export function IntegrationsPanel({
   integrations,
   quickbooksConfigured,
   shopifyOAuthConfigured,
+  shopifySync,
   googleFeedUrl,
   facebookFeedUrl,
 }: IntegrationsPanelProps) {
@@ -72,7 +76,7 @@ export function IntegrationsPanel({
   return (
     <div className="space-y-6">
       <Suspense fallback={null}>
-        <ShopifyCard integration={shopify} oauthConfigured={shopifyOAuthConfigured} />
+        <ShopifyCard integration={shopify} oauthConfigured={shopifyOAuthConfigured} sync={shopifySync} />
       </Suspense>
       <SlackCard integration={slack} />
       <QuickBooksCard integration={quickbooks} configured={quickbooksConfigured} />
@@ -81,17 +85,46 @@ export function IntegrationsPanel({
   );
 }
 
-function ShopifyCard({ integration, oauthConfigured }: { integration?: IntegrationSummary; oauthConfigured: boolean }) {
+function ShopifyCard({
+  integration,
+  oauthConfigured,
+  sync,
+}: {
+  integration?: IntegrationSummary;
+  oauthConfigured: boolean;
+  sync: ShopifySyncSummary | null;
+}) {
   const [shopDomain, setShopDomain] = useState("");
   const [accessToken, setAccessToken] = useState("");
   const [apiSecret, setApiSecret] = useState("");
   const [showManualForm, setShowManualForm] = useState(!oauthConfigured);
   const [error, setError] = useState<string | undefined>();
   const [isPending, startTransition] = useTransition();
+  const [isSyncing, startSyncTransition] = useTransition();
+  const [syncMessage, setSyncMessage] = useState<string | null>(null);
   const router = useRouter();
   const searchParams = useSearchParams();
   const connected = integration?.status === "connected";
   const oauthFailed = searchParams.get("shopify") === "error";
+  const oauthConnected = searchParams.get("shopify") === "connected";
+
+  function handleSyncAll() {
+    setSyncMessage(null);
+    startSyncTransition(async () => {
+      const result = await syncAllToShopifyAction();
+      if (result.error) {
+        setSyncMessage(result.error);
+        return;
+      }
+      posthog.capture("shopify_sync_all", { synced: result.synced ?? 0, failed: result.failed ?? 0 });
+      const failed = result.failed ?? 0;
+      const detail = failed && result.errors?.[0] ? ` ${result.errors[0]}` : "";
+      setSyncMessage(
+        `Synced ${result.synced ?? 0} product${result.synced === 1 ? "" : "s"}${failed ? `, ${failed} failed` : ""}.${detail}`
+      );
+      router.refresh();
+    });
+  }
 
   function handleConnect() {
     setError(undefined);
@@ -130,6 +163,11 @@ function ShopifyCard({ integration, oauthConfigured }: { integration?: Integrati
         {statusBadge(integration?.status ?? "disconnected")}
       </CardHeader>
       <CardContent className="space-y-4">
+        {oauthConnected && connected && (
+          <p className="rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-700">
+            Shopify connected. Use &quot;Sync all products now&quot; to push your existing catalog to the store.
+          </p>
+        )}
         {oauthFailed && !connected && (
           <p className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-600">
             Couldn&apos;t connect to Shopify. Please try again.
@@ -143,10 +181,29 @@ function ShopifyCard({ integration, oauthConfigured }: { integration?: Integrati
                 <span className="text-muted-foreground"> · last synced {new Date(integration.lastSyncedAt).toLocaleString()}</span>
               )}
             </p>
-            <form action={disconnectIntegrationAction}>
-              <input type="hidden" name="provider" value="shopify" />
-              <Button type="submit" variant="outline" size="sm">Disconnect</Button>
-            </form>
+            {sync && (
+              <div className="rounded-lg border border-border p-3 text-sm">
+                <p>
+                  <span className="font-medium">{sync.synced}</span> of {sync.total} product{sync.total === 1 ? "" : "s"} on Shopify
+                  {sync.failed > 0 && <span className="text-red-600"> · {sync.failed} failed</span>}
+                </p>
+                {sync.lastError && <p className="mt-1 text-xs text-red-600">{sync.lastError}</p>}
+                <p className="mt-1 text-xs text-muted-foreground">
+                  New products, edits, and new photos push automatically. New listings land as drafts on Shopify until you mark them Published here.
+                </p>
+              </div>
+            )}
+            {syncMessage && <p className="text-sm text-muted-foreground">{syncMessage}</p>}
+            <div className="flex flex-wrap items-center gap-2">
+              <Button size="sm" onClick={handleSyncAll} disabled={isSyncing}>
+                {isSyncing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />}
+                {isSyncing ? "Syncing…" : "Sync all products now"}
+              </Button>
+              <form action={disconnectIntegrationAction}>
+                <input type="hidden" name="provider" value="shopify" />
+                <Button type="submit" variant="outline" size="sm">Disconnect</Button>
+              </form>
+            </div>
           </>
         ) : oauthConfigured && !showManualForm ? (
           <>

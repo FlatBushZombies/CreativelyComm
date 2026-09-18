@@ -20,6 +20,7 @@ import type { Workspace } from "@/lib/workspace";
 import type { ApiKey } from "@/lib/api-keys";
 import type { Vendor } from "@/lib/vendors";
 import type { IntegrationSummary } from "@/lib/integrations/store";
+import type { ShopifySyncSummary } from "@/lib/integrations/shopify";
 import { ApiKeysPanel } from "@/components/settings/api-keys-panel";
 import { IntegrationsPanel } from "@/components/settings/integrations-panel";
 import {
@@ -76,6 +77,7 @@ interface SettingsClientProps {
   integrations: IntegrationSummary[];
   quickbooksConfigured: boolean;
   shopifyOAuthConfigured: boolean;
+  shopifySync: ShopifySyncSummary | null;
   googleFeedUrl: string;
   facebookFeedUrl: string;
 }
@@ -99,6 +101,7 @@ function SettingsClientInner({
   integrations,
   quickbooksConfigured,
   shopifyOAuthConfigured,
+  shopifySync,
   googleFeedUrl,
   facebookFeedUrl,
 }: SettingsClientProps) {
@@ -295,6 +298,7 @@ function SettingsClientInner({
                 integrations={integrations}
                 quickbooksConfigured={quickbooksConfigured}
                 shopifyOAuthConfigured={shopifyOAuthConfigured}
+                shopifySync={shopifySync}
                 googleFeedUrl={googleFeedUrl}
                 facebookFeedUrl={facebookFeedUrl}
               />

@@ -9,7 +9,8 @@ import { logActivity } from "@/lib/activity";
 import { createApiKey, revokeApiKey, type ApiKey } from "@/lib/api-keys";
 import { createVendor, archiveVendor, inviteVendorUser } from "@/lib/vendors";
 import { regenerateFeedToken } from "@/lib/workspace";
-import { connectShopify, disconnectShopify } from "@/lib/integrations/shopify";
+import { connectShopify, disconnectShopify, syncProductsToShopify } from "@/lib/integrations/shopify";
+import { getProducts } from "@/lib/products";
 import { connectSlack, disconnectSlack, notifySlack } from "@/lib/integrations/slack";
 import { disconnectIntegration, type IntegrationProvider } from "@/lib/integrations/store";
 
@@ -165,6 +166,33 @@ export async function connectShopifyAction(formData: FormData): Promise<ConnectI
 
   revalidatePath("/settings");
   return {};
+}
+
+export interface SyncAllShopifyState {
+  error?: string;
+  synced?: number;
+  failed?: number;
+  errors?: string[];
+}
+
+/** "Sync all products now" -- pushes the whole catalog (all photos, current stock) to the connected Shopify store. */
+export async function syncAllToShopifyAction(): Promise<SyncAllShopifyState> {
+  const workspace = await requireManagerRole();
+  const products = await getProducts(workspace.id);
+  if (products.length === 0) {
+    return { error: "There are no products to sync yet." };
+  }
+
+  const result = await syncProductsToShopify(workspace.id, products);
+  await logActivity(workspace.id, {
+    type: "integration",
+    title: "Shopify sync run",
+    description: `${result.synced} product${result.synced === 1 ? "" : "s"} synced${result.failed ? `, ${result.failed} failed` : ""}.`,
+  });
+
+  revalidatePath("/settings");
+  revalidatePath("/products");
+  return result;
 }
 
 export async function connectSlackAction(formData: FormData): Promise<ConnectIntegrationState> {
