@@ -2,6 +2,11 @@ import "server-only";
 import { betterAuth } from "better-auth";
 import { Pool } from "pg";
 
+/** True once real Google OAuth credentials exist -- checked here and by the login/signup pages before showing the button. */
+export function isGoogleAuthConfigured(): boolean {
+  return Boolean(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET);
+}
+
 export const auth = betterAuth({
   database: new Pool({ connectionString: process.env.DATABASE_URL }),
   emailAndPassword: {
@@ -9,6 +14,17 @@ export const auth = betterAuth({
   },
   secret: process.env.BETTER_AUTH_SECRET,
   baseURL: process.env.BETTER_AUTH_URL,
+  // Only registers the "google" provider when real credentials exist, so an
+  // unconfigured deploy can't produce a broken Google OAuth redirect --
+  // isGoogleAuthConfigured() is what actually hides the button.
+  socialProviders: isGoogleAuthConfigured()
+    ? {
+        google: {
+          clientId: process.env.GOOGLE_CLIENT_ID as string,
+          clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
+        },
+      }
+    : undefined,
   // scripts/sql/001_better_auth_core.sql uses snake_case columns (to match the
   // rest of this project's schema) instead of Better Auth's camelCase defaults.
   // These `fields` maps point Better Auth's internal camelCase model names at
