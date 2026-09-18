@@ -11,6 +11,7 @@ import { getOrCreateDefaultWorkspace } from "@/lib/workspace";
 import { getAllChannels, getCustomRulesByChannel, scoreVariant } from "@/lib/readiness";
 import { getIntelligenceOverview, buildBlockerFixHref, buildFolderFixHref } from "@/lib/intelligence";
 import { ManageRules } from "@/components/readiness/manage-rules";
+import { AutoFixAllButton } from "@/components/readiness/auto-fix-all-button";
 
 export default async function ReadinessOverviewPage() {
   const session = await getServerSession();
@@ -36,15 +37,18 @@ export default async function ReadinessOverviewPage() {
       <div className="flex-1 p-4 sm:p-6 lg:p-8">
         <FadeIn>
           <Card>
-            <CardHeader>
-              <CardTitle className="text-base flex items-center gap-2">
-                <ShieldCheck className="h-4 w-4 text-primary" />
-                Catalog readiness by channel
-              </CardTitle>
-              <p className="text-sm text-muted-foreground">
-                Average listing-quality score across your whole catalog — a starting point to
-                tune, not a guarantee of any marketplace&apos;s current policies.
-              </p>
+            <CardHeader className="flex flex-row items-start justify-between gap-3">
+              <div>
+                <CardTitle className="text-base flex items-center gap-2">
+                  <ShieldCheck className="h-4 w-4 text-primary" />
+                  Catalog readiness by channel
+                </CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  Average listing-quality score across your whole catalog — a starting point to
+                  tune, not a guarantee of any marketplace&apos;s current policies.
+                </p>
+              </div>
+              <AutoFixAllButton />
             </CardHeader>
             <CardContent className="space-y-4">
               {readiness.channelAverages.map(({ channel, averageScore }) => (

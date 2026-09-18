@@ -4,13 +4,15 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getServerSession } from "@/lib/auth/session";
 import { getOrCreateDefaultWorkspace } from "@/lib/workspace";
-import { addOptimizedImage, getProductById, updateProduct } from "@/lib/products";
+import { addOptimizedImage, getProductById, getProducts, updateProduct } from "@/lib/products";
 import { uploadOptimizedImage } from "@/lib/storage";
 import { removeBackground } from "@/lib/remove-bg";
 import { logActivity } from "@/lib/activity";
 import { translateProduct, deleteTranslation, type ProductTranslation } from "@/lib/translations";
 import { adjustStock, type StockAdjustmentReason } from "@/lib/inventory";
 import { fetchProductTrends, saveTrendSnapshot, type ProductTrendSnapshot } from "@/lib/trends";
+import { getChannelsWithReadiness, type RuleResult } from "@/lib/readiness";
+import { computeAutoFix } from "@/lib/readiness-autofix";
 
 export interface RemoveBackgroundResult {
   error?: string;
@@ -253,4 +255,60 @@ export async function updateSeoAction(formData: FormData): Promise<UpdateSeoStat
 
   revalidatePath(`/products/${productId}`);
   return {};
+}
+
+export interface AutoFixReadinessResult {
+  error?: string;
+  fixedCount?: number;
+  fixedLabels?: string[];
+  remaining?: { label: string; reason: string }[];
+}
+
+/**
+ * Fixes what the system can honestly derive from the product's own data
+ * (SKU, tags, category via tag-overlap, a factual generated description)
+ * and reports anything it can't (price, photos) as real remaining
+ * action items rather than silently skipping them.
+ */
+export async function autoFixProductReadinessAction(productId: string): Promise<AutoFixReadinessResult> {
+  const session = await getServerSession();
+  if (!session) {
+    redirect("/login");
+  }
+
+  const workspace = await getOrCreateDefaultWorkspace(session.user.id, session.user.name);
+  const product = await getProductById(productId, workspace.id);
+  if (!product) {
+    return { error: "Product not found." };
+  }
+
+  const [channelReadiness, catalogProducts] = await Promise.all([
+    getChannelsWithReadiness(product, workspace.id),
+    getProducts(workspace.id),
+  ]);
+
+  const failedRules: RuleResult[] = channelReadiness.flatMap((c) => c.failed);
+  const { patch, fixed, unresolvable } = computeAutoFix(product, failedRules, catalogProducts);
+
+  if (Object.keys(patch).length > 0) {
+    try {
+      await updateProduct(productId, workspace.id, patch);
+    } catch (err) {
+      return { error: err instanceof Error ? err.message : "Failed to apply fixes." };
+    }
+
+    await logActivity(workspace.id, {
+      type: "publish",
+      title: "Readiness issues auto-fixed",
+      description: `${fixed.length} issue${fixed.length === 1 ? "" : "s"} fixed for ${product.name}.`,
+      productName: product.name,
+    });
+  }
+
+  revalidatePath(`/products/${productId}`);
+  return {
+    fixedCount: fixed.length,
+    fixedLabels: fixed.map((f) => f.label),
+    remaining: unresolvable.map((u) => ({ label: u.label, reason: u.reason })),
+  };
 }

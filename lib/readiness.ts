@@ -183,6 +183,30 @@ export async function getChannelsWithReadiness(
   });
 }
 
+/**
+ * Failed rules across every channel, for every product, fetching
+ * channels+rules once (same N+1 avoidance as getReadinessOverview) --
+ * used by the catalog-wide auto-fix action, which needs the actual failed
+ * RuleResult objects per product, not just aggregate scores.
+ */
+export async function getFailedRulesByProduct(
+  products: Product[],
+  workspaceId: string
+): Promise<Map<string, RuleResult[]>> {
+  const channelsWithRules = await getChannelsWithRules(workspaceId);
+  const result = new Map<string, RuleResult[]>();
+
+  for (const product of products) {
+    const failed: RuleResult[] = [];
+    for (const { rules } of channelsWithRules) {
+      failed.push(...computeReadiness(product, rules).failed);
+    }
+    result.set(product.id, failed);
+  }
+
+  return result;
+}
+
 export interface ProductReadinessSummary {
   product: Product;
   averageScore: number;

@@ -16,6 +16,7 @@ import {
   TrendingUp,
   TrendingDown,
   Minus,
+  Wand2,
 } from "lucide-react";
 import posthog from "posthog-js";
 import { useState, useTransition } from "react";
@@ -46,7 +47,7 @@ import type { StockAdjustment, StockAdjustmentReason } from "@/lib/inventory";
 import type { SeoScore } from "@/lib/seo";
 import type { Vendor } from "@/lib/vendors";
 import { ChevronDown, History } from "lucide-react";
-import { adjustStockAction, updateSeoAction, assignVendorAction } from "./actions";
+import { adjustStockAction, updateSeoAction, assignVendorAction, autoFixProductReadinessAction } from "./actions";
 import { createCampaignAction } from "@/app/(dashboard)/campaigns/actions";
 
 const exportFormats = [
@@ -106,6 +107,8 @@ export function ProductDetailsClient({
   const [vendorId, setVendorId] = useState(product.vendorId ?? "");
   const [campaignError, setCampaignError] = useState<string | null>(null);
   const [isCreatingCampaign, startCampaignTransition] = useTransition();
+  const [autoFixMessage, setAutoFixMessage] = useState<string | null>(null);
+  const [isAutoFixing, startAutoFixTransition] = useTransition();
   const router = useRouter();
 
   const handleCopy = () => {
@@ -124,6 +127,27 @@ export function ProductDetailsClient({
       }
       posthog.capture("campaign_started_from_product", { product_id: product.id });
       router.push(`/campaigns/${result.campaignId}`);
+    });
+  }
+
+  function handleAutoFixReadiness() {
+    setAutoFixMessage(null);
+    startAutoFixTransition(async () => {
+      const result = await autoFixProductReadinessAction(product.id);
+      if (result.error) {
+        setAutoFixMessage(result.error);
+        return;
+      }
+      posthog.capture("readiness_auto_fixed", { product_id: product.id, fixed_count: result.fixedCount ?? 0 });
+      const fixedCount = result.fixedCount ?? 0;
+      const remaining = result.remaining ?? [];
+      const parts: string[] = [];
+      parts.push(fixedCount === 0 ? "Nothing to fix — no issues we can auto-fix." : `Fixed ${fixedCount} issue${fixedCount === 1 ? "" : "s"}.`);
+      if (remaining.length > 0) {
+        parts.push(`Still needs you: ${remaining.map((r) => r.reason).join(" ")}`);
+      }
+      setAutoFixMessage(parts.join(" "));
+      router.refresh();
     });
   }
 
@@ -245,14 +269,25 @@ export function ProductDetailsClient({
 
         <FadeIn delay={0.12} className="mt-8">
           <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Channel Readiness</CardTitle>
-              <p className="text-sm text-muted-foreground">
-                Listing-quality checks per channel — a starting point to tune, not a
-                guarantee of any marketplace&apos;s current policies.
-              </p>
+            <CardHeader className="flex flex-row items-start justify-between gap-3">
+              <div>
+                <CardTitle className="text-base">Channel Readiness</CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  Listing-quality checks per channel — a starting point to tune, not a
+                  guarantee of any marketplace&apos;s current policies.
+                </p>
+              </div>
+              {channelReadiness.some((c) => c.failed.length > 0) && (
+                <Button variant="outline" size="sm" className="shrink-0" onClick={handleAutoFixReadiness} disabled={isAutoFixing}>
+                  {isAutoFixing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Wand2 className="h-3.5 w-3.5" />}
+                  Auto-fix what I can
+                </Button>
+              )}
             </CardHeader>
             <CardContent className="space-y-4">
+              {autoFixMessage && (
+                <p className="rounded-lg border border-border bg-muted/40 p-3 text-sm text-muted-foreground">{autoFixMessage}</p>
+              )}
               {channelReadiness.map(({ channel, score, failed }) => {
                 const isExpanded = expandedChannel === channel.id;
                 return (

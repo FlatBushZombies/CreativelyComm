@@ -8,10 +8,12 @@ import {
   createCustomRule,
   deleteCustomRule,
   getReadinessOverview,
+  getFailedRulesByProduct,
   type RuleCheckType,
 } from "@/lib/readiness";
-import { getProducts } from "@/lib/products";
+import { getProducts, bulkUpdateProducts, type BulkProductUpdate } from "@/lib/products";
 import { logActivity } from "@/lib/activity";
+import { computeAutoFix } from "@/lib/readiness-autofix";
 
 export interface CreateCustomRuleState {
   error?: string;
@@ -94,4 +96,70 @@ export async function deleteCustomRuleAction(formData: FormData) {
   });
 
   revalidatePath("/readiness");
+}
+
+export interface BulkAutoFixState {
+  error?: string;
+  productsFixed?: number;
+  issuesFixed?: number;
+  productsStillNeedingWork?: number;
+}
+
+/**
+ * Catalog-wide version of autoFixProductReadinessAction (products/[id]/actions.ts):
+ * computes and applies an auto-fix patch for every product that has one,
+ * in a single bulkUpdateProducts call rather than one update per product.
+ */
+export async function bulkAutoFixReadinessAction(): Promise<BulkAutoFixState> {
+  const session = await getServerSession();
+  if (!session) {
+    redirect("/login");
+  }
+
+  const workspace = await getOrCreateDefaultWorkspace(session.user.id, session.user.name);
+  const products = await getProducts(workspace.id);
+  const failedRulesByProduct = await getFailedRulesByProduct(products, workspace.id);
+
+  const updates: BulkProductUpdate[] = [];
+  let issuesFixed = 0;
+  let productsStillNeedingWork = 0;
+
+  for (const product of products) {
+    const failedRules = failedRulesByProduct.get(product.id) ?? [];
+    if (failedRules.length === 0) continue;
+
+    const { patch, fixed, unresolvable } = computeAutoFix(product, failedRules, products);
+    if (Object.keys(patch).length > 0) {
+      updates.push({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        category: patch.category ?? product.category,
+        status: product.status,
+        sku: patch.sku ?? product.sku,
+        description: patch.description ?? product.description,
+        tags: patch.tags ?? product.tags,
+      });
+      issuesFixed += fixed.length;
+    }
+    if (unresolvable.length > 0) productsStillNeedingWork += 1;
+  }
+
+  if (updates.length > 0) {
+    try {
+      await bulkUpdateProducts(workspace.id, updates);
+    } catch (err) {
+      return { error: err instanceof Error ? err.message : "Failed to apply fixes." };
+    }
+
+    await logActivity(workspace.id, {
+      type: "publish",
+      title: "Readiness issues auto-fixed",
+      description: `${issuesFixed} issue${issuesFixed === 1 ? "" : "s"} fixed across ${updates.length} product${updates.length === 1 ? "" : "s"}.`,
+    });
+  }
+
+  revalidatePath("/readiness");
+  revalidatePath("/products");
+  return { productsFixed: updates.length, issuesFixed, productsStillNeedingWork };
 }
