@@ -8,6 +8,7 @@ import {
 } from "@/lib/integrations/shopify";
 
 const STATE_COOKIE = "shopify_oauth_state";
+const ALLOWED_NEXT = new Set(["/onboarding", "/dashboard"]);
 
 function errorRedirect(request: NextRequest) {
   const response = NextResponse.redirect(new URL("/settings?tab=integrations&shopify=error", request.url));
@@ -32,7 +33,7 @@ export async function GET(request: NextRequest) {
   }
 
   const stateCookie = request.cookies.get(STATE_COOKIE)?.value;
-  const [expectedState, workspaceId] = stateCookie?.split(":") ?? [];
+  const [expectedState, workspaceId, storedNext] = stateCookie?.split(":") ?? [];
   if (!expectedState || expectedState !== state || !workspaceId) {
     return errorRedirect(request);
   }
@@ -54,7 +55,11 @@ export async function GET(request: NextRequest) {
     description: `Connected to ${shop} via OAuth.`,
   });
 
-  const response = NextResponse.redirect(new URL("/settings?tab=integrations&shopify=connected", request.url));
+  // Chained from "Continue with Shopify": land where a fresh sign-in would (onboarding for new accounts).
+  const destination = ALLOWED_NEXT.has(storedNext ?? "")
+    ? `${storedNext}?shopify=connected`
+    : "/settings?tab=integrations&shopify=connected";
+  const response = NextResponse.redirect(new URL(destination, request.url));
   response.cookies.delete(STATE_COOKIE);
   return response;
 }

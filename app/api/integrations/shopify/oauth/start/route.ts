@@ -8,6 +8,10 @@ import { isShopifyOAuthConfigured, buildShopifyAuthorizeUrl } from "@/lib/integr
 
 const STATE_COOKIE = "shopify_oauth_state";
 
+// Only these in-app destinations are honored after connecting (used when this
+// flow is chained from "Continue with Shopify"); anything else falls back to Settings.
+const ALLOWED_NEXT = new Set(["/onboarding", "/dashboard"]);
+
 /**
  * Starts the real Shopify app-install OAuth handshake -- app/api/** isn't
  * touched by proxy.ts, so auth/role checks happen here manually, same
@@ -34,9 +38,18 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(new URL("/settings?tab=integrations&shopify=error", request.url));
   }
 
+  const requestedNext = request.nextUrl.searchParams.get("next") ?? "";
+  const next = ALLOWED_NEXT.has(requestedNext) ? requestedNext : "";
+
   const state = randomBytes(16).toString("hex");
-  const response = NextResponse.redirect(buildShopifyAuthorizeUrl(shop, state));
-  response.cookies.set(STATE_COOKIE, `${state}:${workspace.id}`, {
+  let authorizeUrl: string;
+  try {
+    authorizeUrl = buildShopifyAuthorizeUrl(shop, state);
+  } catch {
+    return NextResponse.redirect(new URL("/settings?tab=integrations&shopify=error", request.url));
+  }
+  const response = NextResponse.redirect(authorizeUrl);
+  response.cookies.set(STATE_COOKIE, `${state}:${workspace.id}:${next}`, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
