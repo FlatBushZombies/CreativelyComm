@@ -4,10 +4,11 @@ import { Mail } from "lucide-react";
 import { Logo } from "@/components/shared/logo";
 
 const productLinks = [
-  { label: "Features", href: "#features" },
-  { label: "How it works", href: "#how-it-works" },
-  { label: "Pricing", href: "#pricing" },
-  { label: "FAQ", href: "#faq" },
+  { label: "Features", href: "/#features" },
+  { label: "How it works", href: "/#how-it-works" },
+  { label: "Pricing", href: "/#pricing" },
+  { label: "FAQ", href: "/#faq" },
+  { label: "Free store audit", href: "/audit" },
 ];
 
 // Same source photo as the hero and mid-page CTA band, cropped for a wide,
