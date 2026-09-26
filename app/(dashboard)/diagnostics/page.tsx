@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { ArrowDownRight, ArrowUpRight, Minus, Radar } from "lucide-react";
+import { ArrowDownRight, ArrowUpRight, BarChart3, Minus, Radar } from "lucide-react";
 import { DashboardHeader } from "@/components/dashboard/sidebar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -8,6 +8,8 @@ import { FadeIn, StaggerContainer, StaggerItem } from "@/components/shared/fade-
 import { getServerSession } from "@/lib/auth/session";
 import { getOrCreateDefaultWorkspace } from "@/lib/workspace";
 import { ensureTodaySnapshot, getWeekOverWeekComparison, getProductMovers } from "@/lib/diagnostics";
+import { getListingAnalytics } from "@/lib/intelligence";
+import type { AttributeDimension } from "@/lib/listing-analytics";
 
 function DeltaStat({ label, value, format }: { label: string; value: number; format: (n: number) => string }) {
   const Icon = value > 0 ? ArrowUpRight : value < 0 ? ArrowDownRight : Minus;
@@ -24,6 +26,15 @@ function DeltaStat({ label, value, format }: { label: string; value: number; for
   );
 }
 
+/** One-line read of a dimension, only when the gap between best and worst group is big enough to mean something. */
+function takeaway(dimension: AttributeDimension): string | null {
+  const sorted = [...dimension.groups].sort((a, b) => b.sellThroughPct - a.sellThroughPct);
+  const best = sorted[0];
+  const worst = sorted[sorted.length - 1];
+  if (best.sellThroughPct - worst.sellThroughPct < 15) return null;
+  return `${best.label} sell through at ${best.sellThroughPct}% vs ${worst.sellThroughPct}% for ${worst.label.toLowerCase()}.`;
+}
+
 export default async function DiagnosticsPage() {
   const session = await getServerSession();
   if (!session) {
@@ -36,9 +47,10 @@ export default async function DiagnosticsPage() {
   // visit: idempotent via unique(workspace_id, snapshot_date) + upsert.
   await ensureTodaySnapshot(workspace.id);
 
-  const [comparison, movers] = await Promise.all([
+  const [comparison, movers, analytics] = await Promise.all([
     getWeekOverWeekComparison(workspace.id),
     getProductMovers(workspace.id),
+    getListingAnalytics(workspace.id),
   ]);
 
   return (
@@ -129,6 +141,59 @@ export default async function DiagnosticsPage() {
                     </StaggerItem>
                   ))}
                 </StaggerContainer>
+              )}
+            </CardContent>
+          </Card>
+        </FadeIn>
+
+        <FadeIn delay={0.2} className="mt-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base flex items-center gap-2">
+                <BarChart3 className="h-4 w-4 text-primary" />
+                What your best-selling listings have in common
+              </CardTitle>
+              <p className="text-sm text-muted-foreground">
+                Sell-through by listing attribute, measured only inside your own catalog. It shows what goes with selling, not
+                what causes it.
+              </p>
+            </CardHeader>
+            <CardContent>
+              {!analytics.enoughData ? (
+                <p className="py-6 text-center text-sm text-muted-foreground">{analytics.reason}</p>
+              ) : (
+                <div className="space-y-6">
+                  <p className="text-sm">
+                    Overall, <span className="font-medium">{analytics.overallSellThroughPct}%</span> of your {analytics.totalProducts} products
+                    have sold at least once.
+                  </p>
+                  <div className="grid gap-6 md:grid-cols-2">
+                    {analytics.dimensions.map((dimension) => {
+                      const note = takeaway(dimension);
+                      return (
+                        <div key={dimension.key}>
+                          <p className="text-sm font-medium">{dimension.title}</p>
+                          <div className="mt-2 space-y-2">
+                            {dimension.groups.map((group) => (
+                              <div key={group.label}>
+                                <div className="flex items-baseline justify-between gap-2 text-xs">
+                                  <span className="truncate">{group.label}</span>
+                                  <span className="shrink-0 text-muted-foreground">
+                                    {group.sellThroughPct}% · {group.sold}/{group.products} sold
+                                  </span>
+                                </div>
+                                <div className="mt-1 h-2 overflow-hidden rounded-full bg-muted">
+                                  <div className="h-full rounded-full bg-primary" style={{ width: `${group.sellThroughPct}%` }} />
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                          {note && <p className="mt-2 text-xs text-muted-foreground">{note}</p>}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
               )}
             </CardContent>
           </Card>

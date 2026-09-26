@@ -1,6 +1,7 @@
 import "server-only";
 import { getProducts, type Product } from "@/lib/products";
 import { getOrders, type OrderStatus } from "@/lib/orders";
+import { computeListingAnalytics, type ListingAnalytics } from "@/lib/listing-analytics";
 import {
   getReadinessOverview,
   rollupReadinessByFolder,
@@ -184,4 +185,15 @@ export function buildBlockerFixHref(productIds: string[]): string {
 /** Builds a /products link scoped to one folder (category) -- used by the readiness-by-folder rollup. */
 export function buildFolderFixHref(folderKey: string): string {
   return `/products?view=grid&folder=${encodeURIComponent(folderKey)}`;
+}
+
+/** "Which listing attributes go with selling" for the diagnostics page -- see lib/listing-analytics.ts for the honesty guards. */
+export async function getListingAnalytics(workspaceId: string): Promise<ListingAnalytics> {
+  const products = await getProducts(workspaceId);
+  const [readiness, orders] = await Promise.all([
+    getReadinessOverview(products, workspaceId),
+    getOrders(workspaceId),
+  ]);
+  const readinessByProductId = new Map(readiness.products.map((s) => [s.product.id, s.averageScore]));
+  return computeListingAnalytics(products, computeUnitsSoldByProduct(orders), readinessByProductId);
 }
