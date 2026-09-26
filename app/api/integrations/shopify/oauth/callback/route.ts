@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
 import type { NextRequest } from "next/server";
 import { logActivity } from "@/lib/activity";
 import {
@@ -6,6 +6,7 @@ import {
   exchangeShopifyOAuthCode,
   connectShopify,
 } from "@/lib/integrations/shopify";
+import { backfillShopifyOrders } from "@/lib/integrations/shopify-orders";
 
 const STATE_COOKIE = "shopify_oauth_state";
 const ALLOWED_NEXT = new Set(["/onboarding", "/dashboard"]);
@@ -48,6 +49,9 @@ export async function GET(request: NextRequest) {
   } catch {
     return errorRedirect(request);
   }
+
+  // Pull recent order history in the background so Product Intelligence has data right away.
+  after(() => backfillShopifyOrders(workspaceId));
 
   await logActivity(workspaceId, {
     type: "integration",

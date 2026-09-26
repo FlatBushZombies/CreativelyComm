@@ -181,6 +181,23 @@ function ShopifyCard({
                 <span className="text-muted-foreground"> · last synced {new Date(integration.lastSyncedAt).toLocaleString()}</span>
               )}
             </p>
+            {integration?.ordersSync !== true && (
+              <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
+                <p>
+                  Order sync isn&apos;t on yet, so Product Intelligence can&apos;t see your real Shopify sales. Reconnect to grant order access
+                  (read_orders).
+                </p>
+                {oauthConfigured && integration?.shopifyShopDomain && (
+                  <a
+                    href={`/api/integrations/shopify/oauth/start?shop=${encodeURIComponent(integration.shopifyShopDomain)}`}
+                    className="mt-1 inline-flex items-center gap-1 font-medium underline"
+                  >
+                    <ExternalLink className="h-3.5 w-3.5" />
+                    Reconnect with Shopify
+                  </a>
+                )}
+              </div>
+            )}
             {sync && (
               <div className="rounded-lg border border-border p-3 text-sm">
                 <p>

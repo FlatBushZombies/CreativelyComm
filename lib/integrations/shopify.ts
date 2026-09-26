@@ -9,7 +9,8 @@ const API_VERSION = "2026-07";
 // Scopes the app actually uses: shop.json/locations.json (read_locations),
 // products.json (read/write_products), inventory_levels (read/write_inventory) --
 // see connectShopify, syncProductToShopify, syncInventoryToShopify below.
-const OAUTH_SCOPES = "read_products,write_products,read_inventory,write_inventory,read_locations";
+// read_orders feeds real sales into Product Intelligence (lib/integrations/shopify-orders.ts).
+const OAUTH_SCOPES = "read_products,write_products,read_inventory,write_inventory,read_locations,read_orders";
 
 const SHOP_DOMAIN_PATTERN = /^[a-z0-9][a-z0-9-]*\.myshopify\.com$/;
 
@@ -175,7 +176,8 @@ export async function connectShopify(workspaceId: string, input: ConnectShopifyI
   const webhookAddress = `${origin}/api/webhooks/shopify`;
   const webhookIds: number[] = [];
 
-  for (const topic of ["products/update", "inventory_levels/update"]) {
+  let orderWebhooksRegistered = 0;
+  for (const topic of ["products/update", "inventory_levels/update", "orders/create", "orders/updated"]) {
     const res = await fetch(adminUrl(shopDomain, "webhooks.json"), {
       method: "POST",
       headers,
@@ -184,13 +186,16 @@ export async function connectShopify(workspaceId: string, input: ConnectShopifyI
     if (res.ok) {
       const { webhook } = (await res.json()) as { webhook: { id: number } };
       webhookIds.push(webhook.id);
+      if (topic.startsWith("orders/")) orderWebhooksRegistered += 1;
     }
   }
 
   await upsertIntegration(workspaceId, "shopify", {
     status: "connected",
     credentials: { accessToken: input.accessToken, apiSecret: input.apiSecret },
-    config: { locationId, webhookIds },
+    // ordersSync is false when the token lacks read_orders (order webhooks are
+    // refused) -- the settings card then tells the merchant to reconnect.
+    config: { locationId, webhookIds, ordersSync: orderWebhooksRegistered === 2 },
     shopifyShopDomain: shopDomain,
   });
 }

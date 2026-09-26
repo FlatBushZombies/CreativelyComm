@@ -4,6 +4,8 @@ import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { getIntegrationByShopDomain, markIntegrationSynced } from "@/lib/integrations/store";
 import { verifyShopifyWebhookHmac } from "@/lib/integrations/shopify";
 import { adjustStock } from "@/lib/inventory";
+import { upsertExternalOrder } from "@/lib/orders";
+import { mapShopifyOrder } from "@/lib/integrations/shopify-orders";
 
 /**
  * Inbound Shopify webhooks (products/update, inventory_levels/update). No
@@ -50,6 +52,16 @@ export async function POST(request: NextRequest) {
         updated_at: new Date().toISOString(),
       })
       .eq("shopify_product_id", shopifyProductId);
+  } else if (topic === "orders/create" || topic === "orders/updated") {
+    // Mirrors the sale for Product Intelligence only -- no stock change, no
+    // Slack/QuickBooks side-effects (see upsertExternalOrder).
+    try {
+      await upsertExternalOrder(integration.workspaceId, "shopify", mapShopifyOrder(payload));
+    } catch (err) {
+      console.error("Failed to mirror Shopify order:", err);
+      // 500 so Shopify retries the delivery instead of dropping the order.
+      return NextResponse.json({ error: "Failed to save order" }, { status: 500 });
+    }
   } else if (topic === "inventory_levels/update") {
     const inventoryItemId = String(payload.inventory_item_id);
     const { data: product } = await supabase

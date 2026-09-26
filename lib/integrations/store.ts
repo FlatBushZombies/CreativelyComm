@@ -11,6 +11,10 @@ export interface IntegrationSummary {
   shopifyShopDomain: string | null;
   lastSyncedAt: string | null;
   lastError: string | null;
+  /** Shopify: false when order webhooks weren't registered (token lacks read_orders), null when not applicable/unknown. */
+  ordersSync: boolean | null;
+  /** Shopify publish gate: hold Published products as drafts until they're listing-ready. */
+  publishGate: boolean;
 }
 
 export interface Integration extends IntegrationSummary {
@@ -33,22 +37,33 @@ interface IntegrationRow {
 }
 
 function mapRow(row: IntegrationRow): Integration {
+  const config = row.config ?? {};
   return {
     id: row.id,
     workspaceId: row.workspace_id,
     provider: row.provider,
     status: row.status,
     credentials: row.credentials ?? {},
-    config: row.config ?? {},
+    config,
     shopifyShopDomain: row.shopify_shop_domain,
     lastSyncedAt: row.last_synced_at,
     lastError: row.last_error,
+    ordersSync: typeof config.ordersSync === "boolean" ? config.ordersSync : null,
+    publishGate: config.publishGate === true,
   };
 }
 
 function toSummary(integration: Integration): IntegrationSummary {
-  const { provider, status, shopifyShopDomain, lastSyncedAt, lastError } = integration;
-  return { provider, status, shopifyShopDomain, lastSyncedAt, lastError };
+  const { provider, status, shopifyShopDomain, lastSyncedAt, lastError, config } = integration;
+  return {
+    provider,
+    status,
+    shopifyShopDomain,
+    lastSyncedAt,
+    lastError,
+    ordersSync: typeof config.ordersSync === "boolean" ? config.ordersSync : null,
+    publishGate: config.publishGate === true,
+  };
 }
 
 /** Full row including credentials -- server-side use only (making outbound calls). */
@@ -92,7 +107,7 @@ export async function listIntegrations(workspaceId: string): Promise<Integration
   const supabase = getSupabaseServerClient();
   const { data, error } = await supabase
     .from("integrations")
-    .select("provider, status, shopify_shop_domain, last_synced_at, last_error")
+    .select("provider, status, shopify_shop_domain, last_synced_at, last_error, config")
     .eq("workspace_id", workspaceId);
 
   if (error) {
@@ -133,6 +148,28 @@ export async function upsertIntegration(
 
   if (error) {
     throw new Error(`Failed to save ${provider} integration: ${error.message}`);
+  }
+}
+
+/** Merges keys into an integration's config (upsertIntegration replaces config wholesale, so it can't be used for partial updates). */
+export async function updateIntegrationConfig(
+  workspaceId: string,
+  provider: IntegrationProvider,
+  patch: Record<string, unknown>
+): Promise<void> {
+  const integration = await getIntegration(workspaceId, provider);
+  if (!integration) {
+    throw new Error(`${provider} isn't connected.`);
+  }
+  const supabase = getSupabaseServerClient();
+  const { error } = await supabase
+    .from("integrations")
+    .update({ config: { ...integration.config, ...patch }, updated_at: new Date().toISOString() })
+    .eq("workspace_id", workspaceId)
+    .eq("provider", provider);
+
+  if (error) {
+    throw new Error(`Failed to update ${provider} settings: ${error.message}`);
   }
 }
 

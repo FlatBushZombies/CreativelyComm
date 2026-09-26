@@ -122,6 +122,11 @@ export function OrdersListClient({ orders, isVendorScoped }: OrdersListClientPro
                         Quick Sale
                       </Badge>
                     )}
+                    {order.source === "shopify" && (
+                      <Badge variant="outline" className="text-xs">
+                        Shopify
+                      </Badge>
+                    )}
                     <Badge variant={statusVariant[order.status]} className="capitalize">
                       {order.status}
                     </Badge>

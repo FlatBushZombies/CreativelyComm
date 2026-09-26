@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { after } from "next/server";
 import { redirect } from "next/navigation";
 import { getServerSession } from "@/lib/auth/session";
 import { getOrCreateDefaultWorkspace, updateWorkspaceBranding } from "@/lib/workspace";
@@ -11,6 +12,7 @@ import { createVendor, archiveVendor, inviteVendorUser } from "@/lib/vendors";
 import { regenerateFeedToken } from "@/lib/workspace";
 import { connectShopify, disconnectShopify, syncProductsToShopify } from "@/lib/integrations/shopify";
 import { getProducts } from "@/lib/products";
+import { backfillShopifyOrders } from "@/lib/integrations/shopify-orders";
 import { connectSlack, disconnectSlack, notifySlack } from "@/lib/integrations/slack";
 import { disconnectIntegration, type IntegrationProvider } from "@/lib/integrations/store";
 
@@ -157,6 +159,7 @@ export async function connectShopifyAction(formData: FormData): Promise<ConnectI
   } catch (err) {
     return { error: err instanceof Error ? err.message : "Failed to connect Shopify." };
   }
+  after(() => backfillShopifyOrders(workspace.id));
 
   await logActivity(workspace.id, {
     type: "integration",

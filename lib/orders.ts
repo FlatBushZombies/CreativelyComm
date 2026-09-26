@@ -7,7 +7,7 @@ import { createInvoiceForOrder } from "@/lib/integrations/quickbooks";
 
 export type OrderStatus = "open" | "paid" | "fulfilled" | "cancelled" | "refunded";
 export type PaymentMethod = "cash" | "card" | "other";
-export type OrderSource = "manual" | "pos";
+export type OrderSource = "manual" | "pos" | "shopify";
 
 export interface OrderItem {
   id: string;
@@ -352,4 +352,116 @@ export async function updateOrderStatus(
 
   const updated = await getOrderById(id, workspaceId);
   return updated!;
+}
+
+/** An order that happened on another platform (currently Shopify) and is being mirrored in for Product Intelligence. */
+export interface ExternalOrderInput {
+  externalId: string;
+  status: OrderStatus;
+  customerName: string | null;
+  customerEmail: string | null;
+  subtotal: number;
+  total: number;
+  note: string | null;
+  createdAt: string;
+  items: {
+    /** The platform's product id -- matched to our products.shopify_product_id. Null/unmatched lines are kept by snapshot only. */
+    externalProductId: string | null;
+    productName: string;
+    sku: string | null;
+    unitPrice: number;
+    quantity: number;
+  }[];
+}
+
+/**
+ * Inserts or updates a mirrored external order (webhook retries and
+ * "orders/updated" hit the same row via the unique (workspace, source,
+ * external_id) index) and replaces its line items.
+ *
+ * Deliberately does NOT call adjustStock, notifySlack, or QuickBooks: the
+ * sale already happened on the other platform, which changed its own
+ * inventory (our inventory_levels/update webhook syncs that), and posting an
+ * invoice/alert for a historical or mirrored order would double-count.
+ */
+export async function upsertExternalOrder(
+  workspaceId: string,
+  source: Exclude<OrderSource, "manual" | "pos">,
+  input: ExternalOrderInput
+): Promise<string> {
+  const supabase = getSupabaseServerClient();
+
+  const externalProductIds = Array.from(
+    new Set(input.items.map((i) => i.externalProductId).filter((id): id is string => Boolean(id)))
+  );
+  const productByExternalId = new Map<string, { id: string; vendorId: string | null }>();
+  if (externalProductIds.length > 0) {
+    const { data: products, error: productsError } = await supabase
+      .from("products")
+      .select("id, vendor_id, shopify_product_id")
+      .eq("workspace_id", workspaceId)
+      .in("shopify_product_id", externalProductIds);
+    if (productsError) {
+      throw new Error(`Failed to match order items to products: ${productsError.message}`);
+    }
+    for (const row of products ?? []) {
+      productByExternalId.set(row.shopify_product_id as string, {
+        id: row.id as string,
+        vendorId: (row.vendor_id as string | null) ?? null,
+      });
+    }
+  }
+
+  const { data: order, error: orderError } = await supabase
+    .from("orders")
+    .upsert(
+      {
+        workspace_id: workspaceId,
+        source,
+        external_id: input.externalId,
+        status: input.status,
+        customer_name: input.customerName,
+        customer_email: input.customerEmail,
+        subtotal: input.subtotal,
+        total: input.total,
+        note: input.note,
+        created_at: input.createdAt,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: "workspace_id,source,external_id" }
+    )
+    .select("id")
+    .single();
+
+  if (orderError || !order) {
+    throw new Error(`Failed to save ${source} order: ${orderError?.message}`);
+  }
+
+  const { error: clearError } = await supabase.from("order_items").delete().eq("order_id", order.id);
+  if (clearError) {
+    throw new Error(`Failed to refresh order items: ${clearError.message}`);
+  }
+
+  if (input.items.length > 0) {
+    const { error: itemsError } = await supabase.from("order_items").insert(
+      input.items.map((item) => {
+        const matched = item.externalProductId ? productByExternalId.get(item.externalProductId) : undefined;
+        return {
+          order_id: order.id,
+          product_id: matched?.id ?? null,
+          vendor_id: matched?.vendorId ?? null,
+          product_name: item.productName,
+          sku: item.sku,
+          unit_price: item.unitPrice,
+          quantity: item.quantity,
+          line_total: Math.round(item.unitPrice * item.quantity * 100) / 100,
+        };
+      })
+    );
+    if (itemsError) {
+      throw new Error(`Failed to save order items: ${itemsError.message}`);
+    }
+  }
+
+  return order.id as string;
 }
