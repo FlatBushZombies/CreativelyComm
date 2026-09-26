@@ -14,7 +14,8 @@ import { connectShopify, disconnectShopify, syncProductsToShopify } from "@/lib/
 import { getProducts } from "@/lib/products";
 import { backfillShopifyOrders } from "@/lib/integrations/shopify-orders";
 import { connectSlack, disconnectSlack, notifySlack } from "@/lib/integrations/slack";
-import { disconnectIntegration, type IntegrationProvider } from "@/lib/integrations/store";
+import { disconnectIntegration, updateIntegrationConfig, type IntegrationProvider } from "@/lib/integrations/store";
+import { getSupabaseServerClient } from "@/lib/supabase/server";
 
 async function requireManagerRole() {
   const session = await getServerSession();
@@ -196,6 +197,42 @@ export async function syncAllToShopifyAction(): Promise<SyncAllShopifyState> {
   revalidatePath("/settings");
   revalidatePath("/products");
   return result;
+}
+
+export interface PublishGateState {
+  error?: string;
+}
+
+/**
+ * Publish gate: while on, Published products stay drafts on Shopify until they're
+ * listing-ready. Turning it off clears the held markers; held products go live on
+ * their next sync ("Sync all products now").
+ */
+export async function setPublishGateAction(enabled: boolean): Promise<PublishGateState> {
+  const workspace = await requireManagerRole();
+
+  try {
+    await updateIntegrationConfig(workspace.id, "shopify", { publishGate: enabled });
+    if (!enabled) {
+      await getSupabaseServerClient()
+        .from("products")
+        .update({ shopify_held_reason: null })
+        .eq("workspace_id", workspace.id);
+    }
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "Failed to update the publish gate." };
+  }
+
+  await logActivity(workspace.id, {
+    type: "integration",
+    title: enabled ? "Shopify publish gate on" : "Shopify publish gate off",
+    description: enabled
+      ? "Published products stay drafts on Shopify until they are listing-ready."
+      : "Published products now go live on Shopify as soon as they sync.",
+  });
+
+  revalidatePath("/settings");
+  return {};
 }
 
 export async function connectSlackAction(formData: FormData): Promise<ConnectIntegrationState> {

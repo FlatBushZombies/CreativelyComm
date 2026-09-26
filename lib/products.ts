@@ -32,6 +32,8 @@ export interface Product {
   shopifySyncedAt: string | null;
   /** Why the last Shopify push failed, or null when it's fine / never attempted. */
   shopifySyncError: string | null;
+  /** Why a Published product was kept as a draft on Shopify by the publish gate, or null. */
+  shopifyHeldReason: string | null;
 }
 
 interface ProductRow {
@@ -59,6 +61,7 @@ interface ProductRow {
   shopify_product_id?: string | null;
   shopify_synced_at?: string | null;
   shopify_sync_error?: string | null;
+  shopify_held_reason?: string | null;
 }
 
 function mapRow(row: ProductRow): Product {
@@ -87,6 +90,7 @@ function mapRow(row: ProductRow): Product {
     shopifyProductId: row.shopify_product_id ?? null,
     shopifySyncedAt: row.shopify_synced_at ?? null,
     shopifySyncError: row.shopify_sync_error ?? null,
+    shopifyHeldReason: row.shopify_held_reason ?? null,
   };
 }
 

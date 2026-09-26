@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
 import type { IntegrationSummary, IntegrationProvider } from "@/lib/integrations/store";
 import type { ShopifySyncSummary } from "@/lib/integrations/shopify";
 import {
@@ -19,6 +20,7 @@ import {
   disconnectIntegrationAction,
   regenerateFeedTokenAction,
   syncAllToShopifyAction,
+  setPublishGateAction,
 } from "@/app/(dashboard)/settings/actions";
 import posthog from "posthog-js";
 
@@ -102,6 +104,8 @@ function ShopifyCard({
   const [isPending, startTransition] = useTransition();
   const [isSyncing, startSyncTransition] = useTransition();
   const [syncMessage, setSyncMessage] = useState<string | null>(null);
+  const [isGatePending, startGateTransition] = useTransition();
+  const [gateError, setGateError] = useState<string | null>(null);
   const router = useRouter();
   const searchParams = useSearchParams();
   const connected = integration?.status === "connected";
@@ -122,6 +126,19 @@ function ShopifyCard({
       setSyncMessage(
         `Synced ${result.synced ?? 0} product${result.synced === 1 ? "" : "s"}${failed ? `, ${failed} failed` : ""}.${detail}`
       );
+      router.refresh();
+    });
+  }
+
+  function handleGateToggle(enabled: boolean) {
+    setGateError(null);
+    startGateTransition(async () => {
+      const result = await setPublishGateAction(enabled);
+      if (result.error) {
+        setGateError(result.error);
+        return;
+      }
+      posthog.capture("shopify_publish_gate_toggled", { enabled });
       router.refresh();
     });
   }
@@ -205,11 +222,33 @@ function ShopifyCard({
                   {sync.failed > 0 && <span className="text-red-600"> · {sync.failed} failed</span>}
                 </p>
                 {sync.lastError && <p className="mt-1 text-xs text-red-600">{sync.lastError}</p>}
+                {sync.held > 0 && (
+                  <p className="mt-1 text-xs text-amber-700">
+                    {sync.held} Published product{sync.held === 1 ? " is" : "s are"} held as draft{sync.held === 1 ? "" : "s"} until listing-ready.
+                  </p>
+                )}
                 <p className="mt-1 text-xs text-muted-foreground">
                   New products, edits, and new photos push automatically. New listings land as drafts on Shopify until you mark them Published here.
                 </p>
               </div>
             )}
+            <div className="flex items-start justify-between gap-4 rounded-lg border border-border p-3">
+              <div className="text-sm">
+                <Label htmlFor="publishGate" className="font-medium">Hold unfinished listings as drafts</Label>
+                <p className="mt-0.5 text-xs text-muted-foreground">
+                  Published products only go live on Shopify once their Shopify readiness reaches 80%. Fixing the listing here publishes it
+                  automatically. Listings already live are never taken down.
+                </p>
+                {gateError && <p className="mt-1 text-xs text-red-600">{gateError}</p>}
+              </div>
+              <Switch
+                id="publishGate"
+                checked={integration?.publishGate === true}
+                onCheckedChange={handleGateToggle}
+                disabled={isGatePending}
+                aria-label="Hold unfinished listings as drafts"
+              />
+            </div>
             {syncMessage && <p className="text-sm text-muted-foreground">{syncMessage}</p>}
             <div className="flex flex-wrap items-center gap-2">
               <Button size="sm" onClick={handleSyncAll} disabled={isSyncing}>

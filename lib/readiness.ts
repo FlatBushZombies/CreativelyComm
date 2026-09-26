@@ -64,7 +64,7 @@ interface WorkspaceChannelRuleRow extends ChannelRuleRow {
 }
 
 async function getChannelsWithRules(
-  workspaceId: string
+  workspaceId: string | null
 ): Promise<{ channel: Channel; rules: ChannelRule[] }[]> {
   const supabase = getSupabaseServerClient();
 
@@ -72,10 +72,13 @@ async function getChannelsWithRules(
     supabase
       .from("channels")
       .select("id, slug, name, channel_rules(id, key, label, check_type, config, weight)"),
-    supabase
-      .from("workspace_channel_rules")
-      .select("id, channel_id, key, label, check_type, config, weight")
-      .eq("workspace_id", workspaceId),
+    // null = defaults only (the anonymous public audit has no workspace custom rules).
+    workspaceId
+      ? supabase
+          .from("workspace_channel_rules")
+          .select("id, channel_id, key, label, check_type, config, weight")
+          .eq("workspace_id", workspaceId)
+      : Promise.resolve({ data: [], error: null }),
   ]);
 
   if (channelsRes.error) {
@@ -119,6 +122,11 @@ async function getChannelsWithRules(
   });
 }
 
+/** Channels with only the shared default rules -- no workspace custom rules (used by the anonymous public audit). */
+export async function getDefaultChannelsWithRules(): Promise<{ channel: Channel; rules: ChannelRule[] }[]> {
+  return getChannelsWithRules(null);
+}
+
 function evaluateRule(product: Product, rule: ChannelRule): boolean {
   const field = rule.config.field as keyof Product | undefined;
   const value = field ? product[field] : undefined;
@@ -147,6 +155,9 @@ function evaluateRule(product: Product, rule: ChannelRule): boolean {
  * classification) so the "ready" / "needs work" / "at risk" thresholds
  * stay in exactly one place.
  */
+/** Score at/above which a product counts as listing-ready (dashboards, conversion gaps, the Shopify publish gate). */
+export const READY_SCORE_THRESHOLD = 80;
+
 export function scoreVariant(score: number): "success" | "warning" | "destructive" {
   if (score >= 80) return "success";
   if (score >= 50) return "warning";

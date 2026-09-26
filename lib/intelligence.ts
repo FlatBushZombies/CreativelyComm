@@ -3,6 +3,7 @@ import { getProducts, type Product } from "@/lib/products";
 import { getOrders, type OrderStatus } from "@/lib/orders";
 import { computeListingAnalytics, type ListingAnalytics } from "@/lib/listing-analytics";
 import {
+  READY_SCORE_THRESHOLD,
   getReadinessOverview,
   rollupReadinessByFolder,
   type ReadinessOverview,
@@ -30,7 +31,6 @@ const HIGH_TRAFFIC_VIEWS_FLOOR = 10;
 // Reuses the existing scoreVariant thresholds from the readiness page
 // ("success" >= 80, "destructive" < 50) so this signal doesn't invent a
 // second scale for the same underlying score.
-const READY_SCORE_THRESHOLD = 80;
 const LOW_READINESS_SCORE_THRESHOLD = 50;
 
 export interface ConversionGapSignal {

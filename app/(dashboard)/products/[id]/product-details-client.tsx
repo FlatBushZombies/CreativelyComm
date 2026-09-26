@@ -205,6 +205,8 @@ export function ProductDetailsClient({
                   <Badge variant="muted">{product.sku}</Badge>
                   {product.shopifySyncError ? (
                     <Badge variant="destructive" title={product.shopifySyncError}>Shopify sync failed</Badge>
+                  ) : product.shopifyHeldReason ? (
+                    <Badge variant="warning" title={product.shopifyHeldReason}>Held as draft on Shopify</Badge>
                   ) : product.shopifyProductId ? (
                     <Badge
                       variant="secondary"

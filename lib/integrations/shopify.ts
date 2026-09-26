@@ -3,6 +3,7 @@ import { createHmac, timingSafeEqual } from "crypto";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { getIntegration, upsertIntegration, disconnectIntegration, markIntegrationError } from "@/lib/integrations/store";
 import type { Product } from "@/lib/products";
+import { getChannelsWithReadiness, READY_SCORE_THRESHOLD, type ChannelReadiness } from "@/lib/readiness";
 
 const API_VERSION = "2026-07";
 
@@ -190,12 +191,19 @@ export async function connectShopify(workspaceId: string, input: ConnectShopifyI
     }
   }
 
+  const existing = await getIntegration(workspaceId, "shopify");
   await upsertIntegration(workspaceId, "shopify", {
     status: "connected",
     credentials: { accessToken: input.accessToken, apiSecret: input.apiSecret },
     // ordersSync is false when the token lacks read_orders (order webhooks are
     // refused) -- the settings card then tells the merchant to reconnect.
-    config: { locationId, webhookIds, ordersSync: orderWebhooksRegistered === 2 },
+    config: {
+      locationId,
+      webhookIds,
+      ordersSync: orderWebhooksRegistered === 2,
+      // Reconnecting (e.g. to grant read_orders) must not silently turn the merchant's publish gate off.
+      publishGate: existing?.config.publishGate === true,
+    },
     shopifyShopDomain: shopDomain,
   });
 }
@@ -224,6 +232,8 @@ export interface SyncOptions {
   includeImages?: boolean;
   /** Also push the current stock level. Always on for a first push; on for "Sync all". */
   includeInventory?: boolean;
+  /** Publish gate: this Published product isn't listing-ready, so create it as a draft (and don't flip an existing draft live). */
+  holdUnready?: boolean;
 }
 
 export interface SyncResult {
@@ -237,9 +247,10 @@ export interface SyncResult {
  * Pure: builds the Shopify product body for a create (no linkage) or update.
  * - Images: optimized first, then originals, deduped -- the whole set, not
  *   just the first photo.
- * - Status: only `published` products go `active`. A new product otherwise
- *   lands as a Shopify `draft`, so an unfinished listing never goes live on
- *   the storefront by accident. Updates never demote an already-live listing.
+ * - Status: only `published` products go `active` -- unless the publish gate
+ *   is holding an unready one (`holdUnready`). A new product otherwise lands
+ *   as a Shopify `draft`, so an unfinished listing never goes live on the
+ *   storefront by accident. Updates never demote an already-live listing.
  * - Variant: keeps the existing variant id on update (without it Shopify
  *   treats the variant as new).
  */
@@ -267,13 +278,45 @@ export function buildShopifyProductPayload(
     body.images = sources.map((src) => ({ src }));
   }
 
-  if (product.status === "published") {
+  if (product.status === "published" && !options.holdUnready) {
     body.status = "active";
   } else if (!isUpdate) {
     body.status = "draft";
   }
 
   return { product: body };
+}
+
+export interface PublishGateAssessment {
+  ready: boolean;
+  score: number;
+  /** Labels of the failing Shopify checks, for the "Held: ..." explanation. */
+  missing: string[];
+  /** Human-readable reason recorded on the product when it's held. */
+  reason: string;
+}
+
+/**
+ * Pure: is this product ready to go live on Shopify? Uses the Shopify channel's
+ * own score (what a Shopify listing actually needs) rather than the catalog-wide
+ * average, so a store that doesn't sell on Amazon isn't held for Amazon's rules.
+ * Falls back to the average across channels if there's no Shopify channel.
+ */
+export function assessPublishGate(channels: ChannelReadiness[]): PublishGateAssessment {
+  const shopify = channels.find((c) => c.channel.slug === "shopify");
+  const score = shopify
+    ? shopify.score
+    : channels.length
+      ? Math.round(channels.reduce((sum, c) => sum + c.score, 0) / channels.length)
+      : 0;
+  const missing = shopify ? shopify.failed.map((r) => r.label) : [];
+  const ready = score >= READY_SCORE_THRESHOLD;
+  return {
+    ready,
+    score,
+    missing,
+    reason: `Held as a draft: ${score}% ready, needs ${READY_SCORE_THRESHOLD}%.${missing.length ? ` Fix: ${missing.join("; ")}.` : ""}`,
+  };
 }
 
 /** One bounded retry on Shopify's REST rate limit (HTTP 429), honoring Retry-After. */
@@ -349,10 +392,19 @@ export async function syncProductToShopify(
       .maybeSingle();
 
     const existingId = (linkage?.shopify_product_id as string | null | undefined) ?? null;
+
+    // Publish gate: a Published product only goes live once it is listing-ready.
+    const gateOn = integration.config.publishGate === true;
+    const gate =
+      gateOn && product.status === "published"
+        ? assessPublishGate(await getChannelsWithReadiness(product, workspaceId))
+        : null;
+    const hold = gate !== null && !gate.ready;
+
     const payload = buildShopifyProductPayload(
       product,
       { shopifyProductId: existingId, shopifyVariantId: (linkage?.shopify_variant_id as string | null | undefined) ?? null },
-      options
+      { ...options, holdUnready: hold }
     );
 
     const res = existingId
@@ -373,7 +425,7 @@ export async function syncProductToShopify(
     }
 
     const { product: shopifyProduct } = (await res.json()) as {
-      product: { id: number; variants: { id: number; inventory_item_id: number }[] };
+      product: { id: number; status?: string; variants: { id: number; inventory_item_id: number }[] };
     };
     const variant = shopifyProduct.variants[0];
 
@@ -385,6 +437,12 @@ export async function syncProductToShopify(
         shopify_inventory_item_id: variant ? String(variant.inventory_item_id) : null,
       })
       .eq("id", product.id);
+
+    if (gateOn) {
+      // Held only if it really is a draft on Shopify now -- an update never demotes a listing that is already live.
+      const heldReason = hold && shopifyProduct.status !== "active" ? gate!.reason : null;
+      await supabase.from("products").update({ shopify_held_reason: heldReason }).eq("id", product.id);
+    }
 
     if ((options.includeInventory || !existingId) && product.trackInventory && variant) {
       await pushInventoryLevel(integration.credentials.accessToken as string, shopDomain, integration.config.locationId, variant.inventory_item_id, product.stockQuantity);
@@ -434,6 +492,8 @@ export interface ShopifySyncSummary {
   synced: number;
   failed: number;
   lastError: string | null;
+  /** Published products the publish gate is keeping as drafts on Shopify. */
+  held: number;
 }
 
 /** Catalog-wide sync counts for the integration card. */
@@ -441,16 +501,21 @@ export async function getShopifySyncSummary(workspaceId: string): Promise<Shopif
   const supabase = getSupabaseServerClient();
   const { data } = await supabase
     .from("products")
-    .select("shopify_product_id, shopify_sync_error")
+    .select("shopify_product_id, shopify_sync_error, shopify_held_reason")
     .eq("workspace_id", workspaceId);
 
-  const rows = (data ?? []) as { shopify_product_id: string | null; shopify_sync_error: string | null }[];
+  const rows = (data ?? []) as {
+    shopify_product_id: string | null;
+    shopify_sync_error: string | null;
+    shopify_held_reason: string | null;
+  }[];
   const failed = rows.filter((r) => r.shopify_sync_error);
   return {
     total: rows.length,
     synced: rows.filter((r) => r.shopify_product_id && !r.shopify_sync_error).length,
     failed: failed.length,
     lastError: failed[0]?.shopify_sync_error ?? null,
+    held: rows.filter((r) => r.shopify_held_reason).length,
   };
 }
 
