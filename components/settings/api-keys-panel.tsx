@@ -1,14 +1,16 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useSyncExternalStore, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Key, Plus, Trash2, Copy, Check, Loader2, AlertTriangle } from "lucide-react";
+import { Key, Plus, Trash2, Copy, Check, Loader2, AlertTriangle, Bot } from "lucide-react";
 import posthog from "posthog-js";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { ApiKey } from "@/lib/api-keys";
 import { createApiKeyAction, revokeApiKeyAction } from "@/app/(dashboard)/settings/actions";
+
+const noopSubscribe = () => () => {};
 
 export function ApiKeysPanel({ apiKeys }: { apiKeys: ApiKey[] }) {
   const [name, setName] = useState("");
@@ -17,6 +19,14 @@ export function ApiKeysPanel({ apiKeys }: { apiKeys: ApiKey[] }) {
   const [error, setError] = useState<string | undefined>();
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
+  // window.location.origin on the client, a placeholder during SSR (no hydration mismatch).
+  const origin = useSyncExternalStore(noopSubscribe, () => window.location.origin, () => "https://your-app.example.com");
+  const mcpUrl = `${origin}/api/mcp`;
+  const mcpConfig = JSON.stringify(
+    { mcpServers: { creativelycomm: { url: mcpUrl, headers: { Authorization: "Bearer sk_live_..." } } } },
+    null,
+    2
+  );
 
   function handleCreate() {
     setError(undefined);
@@ -120,6 +130,49 @@ export function ApiKeysPanel({ apiKeys }: { apiKeys: ApiKey[] }) {
               ))}
             </div>
           )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base flex items-center gap-2">
+            <Bot className="h-4 w-4 text-primary" />
+            Use with AI agents
+          </CardTitle>
+          <CardDescription>
+            Connect Claude, Cursor, Meta Muse or any MCP-capable agent to your catalog. It can read your readiness scores,
+            conversion gaps and weekly changes, and run fixes — changes always show a preview first and only apply when the
+            agent confirms.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4 text-sm">
+          <div>
+            <p className="font-medium">MCP server URL</p>
+            <pre className="mt-1.5 overflow-x-auto rounded-lg bg-muted p-3 text-xs">{mcpUrl}</pre>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Authenticate with one of the API keys above as a Bearer token. Keys aren&apos;t scoped yet, so treat an agent&apos;s
+              key like an admin key and revoke it when you&apos;re done.
+            </p>
+          </div>
+          <div>
+            <p className="font-medium">Claude Desktop, Cursor and other JSON-configured clients</p>
+            <pre className="mt-1.5 overflow-x-auto rounded-lg bg-muted p-3 text-xs">{mcpConfig}</pre>
+          </div>
+          <div>
+            <p className="font-medium">Claude, ChatGPT and Meta Muse (custom connector)</p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Add a custom connector, paste the URL above, and supply your API key as a bearer token or API key. Muse&apos;s
+              connector settings are still rolling out and we haven&apos;t been able to test against it, so if a step differs in
+              your app, the URL and Bearer key are all it needs.
+            </p>
+          </div>
+          <div>
+            <p className="font-medium">Tools available</p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              get_catalog_health, list_conversion_gaps, get_what_changed, get_product_readiness, get_listing_analytics,
+              auto_fix_readiness (preview, then confirm), sync_to_shopify (preview, then confirm).
+            </p>
+          </div>
         </CardContent>
       </Card>
 
