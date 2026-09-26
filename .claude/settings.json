@@ -23,7 +23,8 @@
       "Bash(taskkill //PID 16300 //F)",
       "Bash(taskkill //PID 4412 //F)",
       "Bash(curl -s -o /dev/null -w \"HTTP_STATUS:%{http_code}\\\\n\" http://localhost:3000/)",
-      "Bash(curl -s -w \"\\\\nHTTP_STATUS:%{http_code}\\\\n\" http://localhost:3000/ -o \"C:\\\\Users\\\\GAMERR~1\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Users-gamerrdotcom-Desktop-creatly-ecommerce\\\\b3976859-50cb-47d0-8d57-c4c1769c6f67\\\\scratchpad\\\\home2.html\")"
+      "Bash(curl -s -w \"\\\\nHTTP_STATUS:%{http_code}\\\\n\" http://localhost:3000/ -o \"C:\\\\Users\\\\GAMERR~1\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Users-gamerrdotcom-Desktop-creatly-ecommerce\\\\b3976859-50cb-47d0-8d57-c4c1769c6f67\\\\scratchpad\\\\home2.html\")",
+      "Bash(git rm *)"
     ],
     "additionalDirectories": [
       "c:\\Users\\gamerrdotcom\\Desktop\\creatly-ecommerce\\app\\api\\feed\\[workspaceId]\\[token]"
