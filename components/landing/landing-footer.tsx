@@ -26,8 +26,8 @@ export function LandingFooter() {
           <div className="lg:col-span-2">
             <Logo light />
             <p className="mt-4 max-w-sm text-sm leading-relaxed text-white/70">
-              The workspace where products are created, refined, and prepared
-              before they reach customers — not another ecommerce platform.
+              The beginner guide for ecommerce product funnels — check channel readiness,
+              understand each SKU, and launch with confidence.
             </p>
             <a
               href="mailto:support@creativelycomm.com"
@@ -59,7 +59,7 @@ export function LandingFooter() {
 
         <div className="mt-8 flex flex-col items-center justify-between gap-6 border-t border-white/15 pt-6 sm:flex-row">
           <p className="text-sm text-white/60">
-            &copy; 2026 CreativelyComm. All rights reserved.
+            &copy; 2026 CreatlyComm. All rights reserved.
           </p>
         </div>
       </div>

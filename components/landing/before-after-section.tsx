@@ -46,9 +46,9 @@ export function BeforeAfterSection() {
     <section className="py-14 sm:py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <SectionHeading
-          eyebrow="See it work"
-          title="Clean product photos without a photo editor."
-          description="Select an image and drag to compare — one-click background removal, powered by Remove.bg. Then drop the product onto a clean white background or a real AI lifestyle scene. No round-trip to Photoshop, no waiting on a designer."
+          eyebrow="Try the Thyme Leaf demo"
+          title="One score. Every blocker explained."
+          description="Drag through a sample supplement listing to see how CreatlyComm turns a 72/100 readiness score into clear fixes — from a missing TikTok Shop health claim disclosure to a GTIN or image requirement."
         />
 
         <FadeIn delay={0.15} className="mx-auto mt-8 max-w-2xl">

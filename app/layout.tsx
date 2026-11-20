@@ -34,11 +34,11 @@ const neueMontreal = localFont({
 
 export const metadata: Metadata = {
   title: {
-    default: "CreativelyComm",
-    template: "%s | CreativelyComm",
+    default: "CreatlyComm",
+    template: "%s | CreatlyComm",
   },
   description:
-    "The workspace where products are created, refined, and made ready for every channel — not another ecommerce platform.",
+    "The beginner guide for ecommerce product funnels — check channel readiness, understand every SKU, and launch with confidence.",
 };
 
 export default function RootLayout({

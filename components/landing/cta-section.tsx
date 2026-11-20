@@ -26,13 +26,12 @@ export function FinalCtaSection() {
       <div className="relative mx-auto max-w-2xl px-4 text-center sm:px-6 lg:px-8">
         <FadeIn>
           <h2 className="font-display text-2xl font-medium leading-tight tracking-tight text-white sm:text-4xl">
-            Your listings deserve better than a guess.
+            Your first product does not have to launch blind.
           </h2>
         </FadeIn>
         <FadeIn delay={0.1}>
           <p className="mx-auto mt-3 max-w-md text-base text-white/80">
-            Start free, connect your first channel, and see your readiness
-            score before you publish.
+            Check the next Shopify product, see what is blocking it, and know exactly what to fix before you publish.
           </p>
         </FadeIn>
         <FadeIn delay={0.2}>
@@ -44,7 +43,7 @@ export function FinalCtaSection() {
           >
             <Button size="lg" className="rounded-full bg-white px-7 text-foreground hover:bg-white/90" asChild>
               <Link href="/signup">
-                Start creating
+                Start free
                 <ArrowRight className="h-4 w-4" />
               </Link>
             </Button>

@@ -14,9 +14,9 @@ import { FAQSection } from "@/components/landing/faq-section";
 import { FinalCtaSection } from "@/components/landing/cta-section";
 
 export const metadata: Metadata = {
-  title: "CreativelyComm — Product Intelligence for Small Sellers",
+  title: "CreatlyComm — The Beginner Guide to Ecommerce Product Funnels",
   description:
-    "Know exactly why a listing isn't ready — the Channel Readiness Engine scores every product against real marketplace rules, so you catch what's missing before it costs a sale. Start free — no credit card required.",
+    "Check every product for marketplace blockers, follow SKU-level shopper behavior, and launch across Shopify and other sales channels. Start free — no credit card required.",
 };
 
 export default function HomePage() {

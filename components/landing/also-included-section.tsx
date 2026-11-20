@@ -9,30 +9,30 @@ import { SectionHeading } from "@/components/landing/section-heading";
 const included = [
   {
     icon: Sparkles,
-    title: "AI campaign generator",
+    title: "AI funnel campaigns",
     description:
-      "Turn a product into a ready-to-post campaign — headline, captions, hashtags, and an email or WhatsApp message, fully editable before it goes live.",
+      "Turn one product into a launch funnel — headline, ad copy, captions, email, and WhatsApp message — with clear next steps for your first campaign.",
     gradient: { from: "#386641", to: "#5b8a66" }, // forest green
   },
   {
     icon: Wand2,
-    title: "AI lifestyle photos",
+    title: "Product-ready visuals",
     description:
-      "Generate a lifestyle scene behind a product photo, or drop it onto a clean white background instead — no design software needed.",
+      "Create clean background and lifestyle versions that fit the requirements of the channels you are preparing to sell on.",
     gradient: { from: "#2f6b66", to: "#4f9c92" }, // deep teal
   },
   {
     icon: Crop,
-    title: "Social format fitting",
+    title: "SKU-level funnel signals",
     description:
-      "Auto-fit a photo to Instagram's square, Pinterest's vertical pin, or a Facebook carousel, right from the product page.",
+      "See where shoppers stop inside a specific product — variant clicks, ingredient tabs, bundle choices, and checkout drop-offs.",
     gradient: { from: "#a85a34", to: "#d68a56" }, // clay / terracotta
   },
   {
     icon: FileOutput,
-    title: "Export-ready files",
+    title: "End-to-end channel exports",
     description:
-      "Generate Shopify CSVs, Amazon flat files, Etsy listings, and Google or Meta feeds — all from one product library.",
+      "Move from Shopify setup to marketplace-ready feeds for Amazon, Etsy, TikTok Shop, Google, Meta, and more.",
     gradient: { from: "#6b4a63", to: "#9a6f8f" }, // plum
   },
 ];
@@ -42,9 +42,9 @@ export function AlsoIncludedSection() {
     <section id="how-it-works" className="py-14 sm:py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <SectionHeading
-          eyebrow="Also included"
-          title="Once a listing is ready, here's what else the workspace does."
-          description="The readiness score is the starting point — these are the tools that get a product from 'ready' to 'live' without leaving the workspace."
+          eyebrow="One guided workflow"
+          title="Create, check, improve, and launch every product."
+          description="Start with a Shopify store, then use one workspace to build a marketplace-ready product funnel without juggling disconnected tools."
         />
 
         <StaggerContainer className="mt-10 grid gap-4 sm:grid-cols-2">

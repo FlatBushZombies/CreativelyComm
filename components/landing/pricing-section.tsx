@@ -13,8 +13,8 @@ export function PricingSection() {
     <section id="pricing" className="py-14 sm:py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <SectionHeading
-          title="Simple pricing that scales with you."
-          description="Start free, upgrade when you're ready, go custom when you outgrow the plan."
+          title="Start free. Expand when the store is ready."
+          description="Use CreatlyComm for your first product today, then add more SKUs and channel connectors as your funnel grows."
         />
 
         <StaggerContainer className="mx-auto mt-10 grid max-w-5xl gap-6 md:grid-cols-3 md:items-start">

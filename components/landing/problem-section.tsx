@@ -7,9 +7,9 @@ export function ProblemSection() {
     <section className="py-14 sm:py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <SectionHeading
-          eyebrow="The problem"
-          title="Small sellers waste time battling inconsistent product photos."
-          description="Messy raw photos, mismatched crops, cluttered backgrounds — these are the #1 reasons listings get flagged by marketplaces or ignored by buyers. And every marketplace checks for something different. The real bottleneck isn't editing; it's capturing clean photos at the source."
+          eyebrow="The beginner gap"
+          title="Starting an ecommerce store should not feel like guesswork."
+          description="You may see traffic, carts, or lost revenue — but not why. CreatlyComm checks whether a missing disclosure, GTIN, image format, or restricted claim is blocking the product, then shows what to fix next."
         />
 
         <FadeIn delay={0.1} className="mx-auto mt-12 max-w-4xl">
