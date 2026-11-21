@@ -9,30 +9,30 @@ import { SectionHeading } from "@/components/landing/section-heading";
 const included = [
   {
     icon: Sparkles,
-    title: "AI funnel campaigns",
+    title: "Campaigns that create momentum",
     description:
-      "Turn one product into a launch funnel — headline, ad copy, captions, email, and WhatsApp message — with clear next steps for your first campaign.",
+      "Turn one product into a launch plan — headline, ad copy, captions, email, and a follow-up message — with a clear next step for every channel.",
     gradient: { from: "#386641", to: "#5b8a66" }, // forest green
   },
   {
     icon: Wand2,
-    title: "Product-ready visuals",
+    title: "Visuals made for where they sell",
     description:
-      "Create clean background and lifestyle versions that fit the requirements of the channels you are preparing to sell on.",
+      "Create clean, consistent product photography designed for the storefront and marketplace audiences you are preparing to reach.",
     gradient: { from: "#2f6b66", to: "#4f9c92" }, // deep teal
   },
   {
     icon: Crop,
-    title: "SKU-level funnel signals",
+    title: "Know the moment shoppers leave",
     description:
-      "See where shoppers stop inside a specific product — variant clicks, ingredient tabs, bundle choices, and checkout drop-offs.",
+      "See which variants, details, bundles, or checkout steps hold attention — and which ones quietly stop a sale.",
     gradient: { from: "#a85a34", to: "#d68a56" }, // clay / terracotta
   },
   {
     icon: FileOutput,
-    title: "End-to-end channel exports",
+    title: "Carry the launch across channels",
     description:
-      "Move from Shopify setup to marketplace-ready feeds for Amazon, Etsy, TikTok Shop, Google, Meta, and more.",
+      "Move from one Shopify product to marketplace-ready listings for Amazon, Etsy, TikTok Shop, Google, Meta, and beyond.",
     gradient: { from: "#6b4a63", to: "#9a6f8f" }, // plum
   },
 ];
@@ -43,8 +43,8 @@ export function AlsoIncludedSection() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <SectionHeading
           eyebrow="One guided workflow"
-          title="Create, check, improve, and launch every product."
-          description="Start with a Shopify store, then use one workspace to build a marketplace-ready product funnel without juggling disconnected tools."
+          title="From first product to sale-ready launch."
+          description="Bring your Shopify catalog into one workspace, find what needs attention, improve the funnel, and prepare every product for its next sales channel."
         />
 
         <StaggerContainer className="mt-10 grid gap-4 sm:grid-cols-2">

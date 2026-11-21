@@ -8,21 +8,21 @@ import { Card, CardContent } from "@/components/ui/card";
 const supportingFeatures = [
 	{
 		icon: Bell,
-		title: "Know when action is needed",
+		title: "Know where attention is needed",
 		description:
-			"See readiness changes, low inventory, and listing alerts without searching through separate dashboards.",
+			"Spot readiness changes, low inventory, and listing risks without switching through disconnected dashboards.",
 	},
 	{
 		icon: Zap,
-		title: "Keep the next step simple",
+		title: "Turn every check into action",
 		description:
-			"Turn checked products into campaigns, listings, exports, and follow-up tasks from one starter workspace.",
+			"Move from a finding to a campaign, corrected listing, export, or follow-up task inside one launch workspace.",
 	},
 	{
 		icon: SiShopify,
-		title: "Start with your Shopify store",
+		title: "Begin with the store you have",
 		description:
-			"Connect a Shopify store, import its products, and build one end-to-end funnel from product to channel.",
+			"Connect Shopify, bring in your products, and give every listing one clear route from catalog to sales channel.",
 	},
 ];
 
@@ -32,8 +32,8 @@ export function OperationsSection() {
 			<div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 				<SectionHeading
 					eyebrow="From store setup to channel launch"
-					title="One clear workflow for every product."
-					description="Onboard from Shopify, check what is missing, improve the funnel, and export validated product data across your channels."
+					title="One clear launch plan for every product."
+					description="Bring a Shopify product into the workspace, see what is missing, improve the funnel, and prepare it for the channels that fit your brand."
 				/>
 
 				<div className="mt-10 grid gap-6 lg:grid-cols-[1.1fr_1fr]">
@@ -45,17 +45,16 @@ export function OperationsSection() {
 										<ScanLine className="h-5 w-5 text-primary" />
 									</div>
 									<h3 className="font-display mt-4 text-xl font-medium tracking-tight">
-										SKU-ready product record
+										One complete product record
 									</h3>
 									<p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-										Keep each variant, barcode, inventory value, readiness score, and channel
-										requirement tied to the product from import through export.
+										Keep variants, barcodes, inventory, readiness checks, and channel requirements together from import through export.
 									</p>
 								</div>
 								<div className="rounded-lg border border-border bg-background p-3">
 									<div className="flex items-center gap-2 rounded-md border border-primary/30 bg-primary/5 px-3 py-2 text-xs text-muted-foreground">
 										<ScanLine className="h-3.5 w-3.5 text-primary" />
-										Magnesium Glycinate · SKU MG-500 · 72% ready
+										Magnesium Glycinate · MG-500 · 72% sale-ready
 									</div>
 								</div>
 							</CardContent>

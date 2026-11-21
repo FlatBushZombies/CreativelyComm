@@ -9,32 +9,32 @@ const faqs = [
 	{
 		question: "Is CreatlyComm another ecommerce platform?",
 		answer:
-			"No. It works with the Shopify store you already have and turns one product into a checked, measurable funnel. It helps you catch channel requirements, understand product-level behavior, and prepare listings for other channels.",
+			"No. It works alongside your Shopify store, turning each product into a checked, measurable sales funnel. CreatlyComm helps you find listing blockers, understand shopper behavior, and prepare for additional channels.",
 	},
 	{
 		question: "What does the starter check include?",
 		answer:
-			"It checks a product across key readiness areas such as required fields, GTINs or barcodes, images, descriptions, disclosures, and category rules. You get plain-language blockers and the next action for each one.",
+			"The check covers the details that can stop a listing: required fields, barcodes, images, descriptions, disclosures, and category rules. You receive plain-language findings and the exact next action for each one.",
 	},
 	{
-		question: "Which platforms can I prepare for?",
+		question: "Which sales channels can I prepare for?",
 		answer:
-			"Shopify, Amazon, Etsy, TikTok Shop, Google Merchant, Meta Shops, and WooCommerce are part of the channel workflow. Availability and connector depth vary by plan.",
+			"The workflow supports Shopify, Amazon, Etsy, TikTok Shop, Google, Meta Shops, and WooCommerce. Channel options and connection depth vary by plan.",
 	},
 	{
-		question: "Is it designed for beginners?",
+		question: "Is CreatlyComm easy to get started with?",
 		answer:
-			"Yes. CreatlyComm is positioned as a starter and check guide: it explains what is missing, why it matters, and what to fix before you spend money or publish a listing.",
+			"Yes. It is designed to turn a complex launch process into a short sequence of checks and fixes, with clear priorities and practical guidance instead of a wall of analytics.",
 	},
 	{
 		question: "Do I need a credit card to start?",
 		answer:
-			"No. You can begin with the free Shopify readiness check and explore the Thyme Leaf demo without adding a credit card.",
+			"No. Try the free Shopify check and explore the Thyme Leaf product demo without adding a credit card.",
 	},
 	{
 		question: "Does it track every product?",
 		answer:
-			"The product-funnel view is built around SKU-level events such as variant interest, ingredient or detail-tab views, bundle choices, checkout exits, and repeat purchases. These signals help you improve one product instead of reading only generic store totals.",
+			"Yes. The product-funnel view follows the moments that matter for each listing — variant interest, detail views, bundle choices, checkout exits, and repeat purchases — so you can improve specific products instead of guessing from store totals.",
 	},
 ];
 

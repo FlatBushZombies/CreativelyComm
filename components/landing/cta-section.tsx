@@ -1,54 +1,53 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { FadeIn } from "@/components/shared/fade-in";
 
-// Same source photo as the hero (components/landing/hero-section.tsx),
-// cropped to a different focal point for variety across the two bands.
-const CTA_IMAGE = "https://images.pexels.com/photos/7289725/pexels-photo-7289725.jpeg?auto=compress&cs=tinysrgb&w=1800";
-
 export function FinalCtaSection() {
   return (
-    <section className="relative overflow-hidden py-20 sm:py-28">
-      <Image
-        src={CTA_IMAGE}
-        alt=""
-        fill
-        className="object-cover object-[20%_60%]"
-        sizes="100vw"
-      />
-      <div className="absolute inset-0 bg-gradient-to-t from-primary/90 via-foreground/70 to-foreground/60" />
+    <section className="py-14 sm:py-20">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="relative overflow-hidden rounded-[2rem] bg-foreground px-6 py-16 text-center sm:px-12 sm:py-20">
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0"
+            style={{
+              background:
+                "radial-gradient(ellipse 70% 60% at 50% 0%, rgba(56,102,65,0.35), transparent), radial-gradient(ellipse 50% 45% at 90% 100%, rgba(56,102,65,0.25), transparent)",
+            }}
+          />
 
-      <div className="relative mx-auto max-w-2xl px-4 text-center sm:px-6 lg:px-8">
-        <FadeIn>
-          <h2 className="font-display text-2xl font-medium leading-tight tracking-tight text-white sm:text-4xl">
-            Your first product does not have to launch blind.
-          </h2>
-        </FadeIn>
-        <FadeIn delay={0.1}>
-          <p className="mx-auto mt-3 max-w-md text-base text-white/80">
-            Check the next Shopify product, see what is blocking it, and know exactly what to fix before you publish.
-          </p>
-        </FadeIn>
-        <FadeIn delay={0.2}>
-          <motion.div
-            whileHover={{ y: -2 }}
-            whileTap={{ scale: 0.97 }}
-            transition={{ type: "spring", stiffness: 400, damping: 17 }}
-            className="mt-7 inline-block"
-          >
-            <Button size="lg" className="rounded-full bg-white px-7 text-foreground hover:bg-white/90" asChild>
-              <Link href="/signup">
-                Start free
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-            </Button>
-          </motion.div>
-        </FadeIn>
+          <div className="relative mx-auto max-w-2xl">
+            <FadeIn>
+              <h2 className="font-display text-2xl font-medium leading-tight tracking-tight text-white sm:text-4xl">
+                Your next product launch can begin with a plan.
+              </h2>
+            </FadeIn>
+            <FadeIn delay={0.1}>
+              <p className="mx-auto mt-3 max-w-md text-base text-white/70">
+                Check a Shopify product, find what is holding it back, and know exactly what to improve before it reaches customers.
+              </p>
+            </FadeIn>
+            <FadeIn delay={0.2}>
+              <motion.div
+                whileHover={{ y: -2 }}
+                whileTap={{ scale: 0.97 }}
+                transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                className="mt-7 inline-block"
+              >
+                <Button size="lg" className="rounded-full bg-white px-7 text-foreground hover:bg-white/90" asChild>
+                  <Link href="/signup">
+                    Start free
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </Button>
+              </motion.div>
+            </FadeIn>
+          </div>
+        </div>
       </div>
     </section>
   );

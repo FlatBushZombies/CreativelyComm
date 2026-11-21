@@ -47,8 +47,8 @@ export function BeforeAfterSection() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <SectionHeading
           eyebrow="Try the Thyme Leaf demo"
-          title="One score. Every blocker explained."
-          description="Drag through a sample supplement listing to see how CreatlyComm turns a 72/100 readiness score into clear fixes — from a missing TikTok Shop health claim disclosure to a GTIN or image requirement."
+          title="One score. A clear path forward."
+          description="Explore a real sample supplement listing and watch a 72/100 readiness score become specific fixes — from TikTok Shop claim requirements to missing barcodes and channel-ready images."
         />
 
         <FadeIn delay={0.15} className="mx-auto mt-8 max-w-2xl">

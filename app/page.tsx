@@ -14,9 +14,9 @@ import { FAQSection } from "@/components/landing/faq-section";
 import { FinalCtaSection } from "@/components/landing/cta-section";
 
 export const metadata: Metadata = {
-  title: "CreatlyComm — The Beginner Guide to Ecommerce Product Funnels",
+  title: "CreatlyComm — Sale-ready ecommerce product funnels",
   description:
-    "Check every product for marketplace blockers, follow SKU-level shopper behavior, and launch across Shopify and other sales channels. Start free — no credit card required.",
+    "Check every product for marketplace blockers, understand SKU-level shopper behavior, and launch across Shopify and additional sales channels.",
 };
 
 export default function HomePage() {

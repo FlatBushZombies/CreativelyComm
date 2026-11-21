@@ -11,18 +11,18 @@ const ruleChecks = [
 const bullets = [
 	{
 		icon: Gauge,
-		title: "A readiness score for every SKU",
-		description: "See the exact blockers behind a listing, ranked by impact, with plain-language steps to fix them.",
+		title: "A clear readiness score for every product",
+		description: "See the biggest blockers first, ranked by impact, with plain-language steps that make the next fix obvious.",
 	},
 	{
 		icon: Globe2,
-		title: "Rules that match the channel",
-		description: "Check Shopify, Amazon, TikTok Shop, Google, and more against channel-specific requirements — not one generic checklist.",
+		title: "Requirements built for each channel",
+		description: "Prepare for Shopify, Amazon, TikTok Shop, Google, and more using the rules each channel actually expects — not a one-size-fits-all checklist.",
 	},
 	{
 		icon: Layers,
-		title: "Fix one product or an entire catalog",
-		description: "Move from the first supplement listing to a repeatable launch process across every product you sell.",
+		title: "One process from first launch to full catalog",
+		description: "Start with a single supplement listing, then turn what you learn into a repeatable way to launch every product.",
 	},
 ];
 
@@ -62,13 +62,12 @@ export function FeatureStorySection() {
 					</FadeIn>
 
 					<FadeIn direction="left" delay={0.1}>
-						<p className="text-sm font-semibold uppercase tracking-wide text-primary">Pre-flight protection</p>
+						<p className="text-sm font-semibold uppercase tracking-wide text-primary">Before you publish</p>
 						<h2 className="font-display mt-3 text-2xl font-medium tracking-tight sm:text-4xl">
-							Stop listing blockers before they stop sales.
+							Catch listing blockers before they cost the sale.
 						</h2>
 						<p className="mt-4 text-base leading-relaxed text-muted-foreground">
-							The Channel Readiness Engine explains exactly what is missing and what to fix, before rejection or
-							suppression costs you momentum.
+							CreatlyComm reveals what is missing and explains how to fix it, so rejection or suppression never has to be your first lesson.
 						</p>
 
 						<StaggerContainer className="mt-8 space-y-5">
